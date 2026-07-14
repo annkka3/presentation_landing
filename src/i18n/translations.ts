@@ -2,7 +2,7 @@ import type { Locale } from '../types'
 
 export const copy = {
   ru: {
-    skip: 'Перейти к содержанию', contact: 'Контакты', resume: 'Резюме', themeDark: 'Включить тёмную тему', themeLight: 'Включить светлую тему', language: 'Выбор языка',
+    skip: 'Перейти к содержанию', contact: 'Контакты', resume: 'Резюме', resumeDownload: 'Скачать резюме', resumeUnavailable: 'Резюме будет добавлено перед публикацией', themeDark: 'Включить тёмную тему', themeLight: 'Включить светлую тему', language: 'Выбор языка',
     heroTitle: 'Проектирую и запускаю цифровые продукты на стыке бизнес-логики, UX, AI и данных.', heroSubtitle: 'Выберите профессиональный фокус', viewCases: 'Смотреть кейсы →',
     featured: 'Избранные кейсы', more: 'Ещё проекты', expertise: 'Компетенции', process: 'Процесс работы', experience: 'Опыт', education: 'Образование',
     openCase: 'Открыть кейс →', openProject: 'Смотреть проект →', back: '← Вернуться на главную', next: 'Следующий проект',
@@ -14,7 +14,7 @@ export const copy = {
     footer: '© 2026 Anna Gromyko · AI Product Builder', top: 'Наверх ↑', notFound: 'Страница не найдена', home: 'На главную', current: 'СЕЙЧАС', nav: 'Основная навигация', heroGroup: 'Профессиональные направления', facts: 'Ключевые факты',
   },
   en: {
-    skip: 'Skip to content', contact: 'Contact', resume: 'Resume', themeDark: 'Switch to dark theme', themeLight: 'Switch to light theme', language: 'Language selection',
+    skip: 'Skip to content', contact: 'Contact', resume: 'Resume', resumeDownload: 'Download resume', resumeUnavailable: 'The resume will be added before launch', themeDark: 'Switch to dark theme', themeLight: 'Switch to light theme', language: 'Language selection',
     heroTitle: 'I design and ship digital products at the intersection of business logic, UX, AI and data.', heroSubtitle: 'Choose a professional focus', viewCases: 'View cases →',
     featured: 'Featured case studies', more: 'More projects', expertise: 'Expertise', process: 'Process', experience: 'Experience', education: 'Education',
     openCase: 'View case study →', openProject: 'View project →', back: '← Back to home', next: 'Next project',

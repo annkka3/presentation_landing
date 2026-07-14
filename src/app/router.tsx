@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { SiteLayout } from '../components/layout/SiteLayout'
 
 const HomePage = lazy(() => import('../pages/HomePage'))
@@ -13,6 +13,7 @@ export const router = createBrowserRouter([{
   children: [
     { path: '/', element: <Suspense fallback={fallback}><HomePage /></Suspense> },
     { path: '/cases/:slug', element: <Suspense fallback={fallback}><CaseStudyPage /></Suspense> },
+    { path: '/projects/cvetimir', element: <Navigate to="/projects/tsvetimir" replace /> },
     { path: '/projects/:slug', element: <Suspense fallback={fallback}><CaseStudyPage /></Suspense> },
     { path: '*', element: <Suspense fallback={fallback}><NotFoundPage /></Suspense> },
   ],

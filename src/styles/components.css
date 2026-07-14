@@ -5,14 +5,19 @@
 .brand span { font-size: 16px; font-weight: 500; letter-spacing: .22em; }
 .brand small { color: var(--text-muted); font: 400 9px/1 var(--font-mono); letter-spacing: .15em; }
 .main-nav { display: flex; align-items: center; gap: clamp(14px, 1.7vw, 28px); font-size: 12px; color: var(--text-soft); }
-.main-nav a, .resume-button { transition: color var(--duration-fast); }
+.main-nav a, .resume-button { transition: color var(--duration-fast), border-color var(--duration-fast); }
 .main-nav a:hover, .main-nav a:focus-visible { color: var(--text); }
 .header-actions { justify-self: end; display: flex; align-items: center; gap: 8px; }
 .language-toggle { display: flex; overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--radius-control); }
 .language-toggle button { height: 34px; padding: 0 11px; border: 0; color: var(--text); background: transparent; font: 500 10px var(--font-mono); }
 .language-toggle button[aria-pressed='true'] { background: var(--surface-hover); text-decoration: underline; text-underline-offset: 4px; }
 .theme-toggle { width: 40px; height: 40px; border: 1px solid var(--border); border-radius: var(--radius-control); color: var(--text); background: transparent; font-size: 18px; }
-.resume-button { height: 36px; display: inline-flex; align-items: center; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-control); font-size: 11px; }
+.resume-button { height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-control); background: transparent; color: var(--text); font-size: 11px; white-space: nowrap; }
+.resume-button[aria-disabled='true'] { cursor: help; }
+.resume-button:hover, .resume-button:focus-visible { border-color: var(--teal); }
+.resume-label-compact { display: none; }
+.resume-status { position: absolute; top: calc(100% + 8px); right: var(--page-gutter); max-width: min(360px, calc(100vw - 2 * var(--page-gutter))); padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface); color: var(--text-soft); box-shadow: var(--card-shadow); font-size: 11px; line-height: 1.4; opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity var(--duration-fast), transform var(--duration-fast); }
+.resume-status.is-visible { opacity: 1; transform: none; }
 
 .hero-section { padding: clamp(58px, 7vw, 104px) 0 44px; }
 .hero-section h1 { max-width: 1000px; margin: 0; font-size: clamp(40px, 4.5vw, 68px); font-weight: 300; line-height: 1.08; letter-spacing: -.045em; text-wrap: balance; }

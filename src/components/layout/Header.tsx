@@ -6,6 +6,7 @@ import { Container } from './Container'
 export function Header() {
   const { locale, setLocale, theme, toggleTheme, t } = useApp()
   const [scrolled, setScrolled] = useState(false)
+  const [resumeMessageVisible, setResumeMessageVisible] = useState(false)
   const location = useLocation()
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 8)
@@ -31,7 +32,20 @@ export function Header() {
           <button className="theme-toggle" onClick={toggleTheme} aria-label={theme === 'light' ? t.themeDark : t.themeLight}>
             <span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>
           </button>
-          <a className="resume-button" href="#contact">{t.resume}</a>
+          <button
+            className="resume-button"
+            type="button"
+            aria-label={t.resumeDownload}
+            aria-describedby="resume-status"
+            aria-disabled="true"
+            onClick={() => setResumeMessageVisible(true)}
+          >
+            <span className="resume-label-full" aria-hidden="true">{t.resume}</span>
+            <span className="resume-label-compact" aria-hidden="true">CV ↓</span>
+          </button>
+          <span id="resume-status" className={`resume-status ${resumeMessageVisible ? 'is-visible' : ''}`} role="status" aria-live="polite">
+            {resumeMessageVisible ? t.resumeUnavailable : ''}
+          </span>
         </div>
       </Container>
     </header>
