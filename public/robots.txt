@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anna-gromyko-portfolio.vercel.app/sitemap.xml
