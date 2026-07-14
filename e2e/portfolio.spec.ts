@@ -148,6 +148,5 @@ test('Hero keyboard state reaches its final width with reduced motion', async ({
   await page.goto('/')
   await page.locator('#automation').focus()
   await expect(page.locator('#automation')).toHaveAttribute('data-state', 'active')
-  const ratio = await page.locator('#automation').evaluate((panel) => panel.getBoundingClientRect().width / (panel.parentElement?.getBoundingClientRect().width || 1))
-  expect(ratio).toBeGreaterThanOrEqual(.45)
+  await expect.poll(() => page.locator('#automation').evaluate((panel) => panel.getBoundingClientRect().width / (panel.parentElement?.getBoundingClientRect().width || 1))).toBeGreaterThanOrEqual(.45)
 })
