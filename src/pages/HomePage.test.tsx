@@ -18,19 +18,19 @@ describe('homepage editorial chapters', () => {
     expect(document.documentElement).not.toHaveAttribute('data-page')
   })
 
-  it('renders six stable chapters with Contact and Footer together', () => {
+  it('renders seven stable scenes with Contact and Footer together', () => {
     render(<MemoryRouter><AppProvider><HomePage /></AppProvider></MemoryRouter>)
     const chapters = [...document.querySelectorAll<HTMLElement>('.home-chapter')]
-    expect(chapters.map((chapter) => chapter.id)).toEqual(['chapter-hero', 'featured', 'more-projects', 'expertise-process', 'experience-education', 'contact'])
+    expect(chapters.map((chapter) => chapter.id)).toEqual(['chapter-hero', 'featured', 'more-projects', 'process', 'skills', 'experience-education', 'contact'])
     expect(document.querySelector('#contact .contact-form')).toBeInTheDocument()
     expect(document.querySelector('#contact .site-footer')).toBeInTheDocument()
   })
 
-  it('does not introduce a nested scrolling container', () => {
+  it('provides the cinematic scroll container, scene navigation and footer label', () => {
     render(<MemoryRouter><AppProvider><HomePage /></AppProvider></MemoryRouter>)
-    document.querySelectorAll<HTMLElement>('.home-chapter').forEach((chapter) => {
-      expect(chapter.style.overflowY).toBe('')
-      expect(chapter.style.height).toBe('')
-    })
+    expect(document.querySelector('#main')).toHaveClass('scroll-container')
+    expect(document.querySelectorAll('.scene-navigation a')).toHaveLength(7)
+    expect(document.querySelector('.scene-footer')).toHaveTextContent('01 / 07')
+    expect(document.querySelector('.scene-footer')).toHaveTextContent('Scroll to explore')
   })
 })

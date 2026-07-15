@@ -14,7 +14,7 @@ interface NavigatorWithConnection extends Navigator {
 
 function heroVideoIsAllowed() {
   const connection = (navigator as NavigatorWithConnection).connection
-  return !matchMedia('(max-width: 768px)').matches
+  return !matchMedia('(max-width: 767px)').matches
     && !matchMedia('(pointer: coarse)').matches
     && !matchMedia('(prefers-reduced-motion: reduce)').matches
     && connection?.saveData !== true
@@ -54,7 +54,7 @@ export function Hero() {
 
   useEffect(() => {
     const mediaQueries = [
-      matchMedia('(max-width: 768px)'),
+      matchMedia('(max-width: 767px)'),
       matchMedia('(pointer: coarse)'),
       matchMedia('(prefers-reduced-motion: reduce)'),
     ]
@@ -119,12 +119,13 @@ export function Hero() {
     setMobileExpanded(index)
   }
   return <section className="hero-section" id="top" ref={heroRef}>
-    <Container>
-      <h1>{t.heroTitle}</h1>
-      <p className="hero-subtitle">{t.heroSubtitle}</p>
-    </Container>
-    <Container>
-      <div className={`hero-panels ${activePanel !== null ? 'has-active' : ''}`} role="group" aria-label={t.heroGroup} onMouseLeave={clearHover} onBlur={leaveHeroFocus}>
+    <Container className="hero-layout">
+      <div className="hero-copy">
+        <p className="hero-subtitle">{t.heroSubtitle}</p>
+        <h1>{t.heroTitle}</h1>
+      </div>
+      <div className="hero-visual">
+        <div className={`hero-panels ${activePanel !== null ? 'has-active' : ''}`} role="group" aria-label={t.heroGroup} onMouseLeave={clearHover} onBlur={leaveHeroFocus}>
         {heroModes.map((mode, index) => {
           const isActive = activePanel === index || mobileExpanded === index
           const videoIsPlaying = playingPanel === index && isActive
@@ -154,6 +155,7 @@ export function Hero() {
             <span className="hero-panel-copy"><span className="hero-number">{mode.num}</span><strong>{mode.title}</strong><span>{mode.tag[locale]}</span><span className="hero-cta">{t.viewCases}</span></span>
           </a>
         })}
+        </div>
       </div>
     </Container>
   </section>

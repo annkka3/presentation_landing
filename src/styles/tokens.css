@@ -3,7 +3,7 @@
   --font-mono: 'IBM Plex Mono', monospace;
   --container-max: 1440px;
   --page-gutter: clamp(20px, 4vw, 64px);
-  --header-height: 80px;
+  --header-height: 72px;
   --radius-card: 12px;
   --radius-control: 4px;
   --ease-premium: cubic-bezier(.22,1,.36,1);

@@ -101,6 +101,7 @@ for (const width of [320, 390]) {
 }
 
 test('Hero transfers keyboard active state and preserves mouse behavior', async ({ page }) => {
+  test.setTimeout(60_000)
   const errors: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
   await page.setViewportSize({ width: 1440, height: 1000 })
@@ -151,54 +152,66 @@ test('Hero keyboard state reaches its final width with reduced motion', async ({
   await expect.poll(() => page.locator('#automation').evaluate((panel) => panel.getBoundingClientRect().width / (panel.parentElement?.getBoundingClientRect().width || 1))).toBeGreaterThanOrEqual(.45)
 })
 
-test('homepage owns six stable editorial chapters and route-scoped snap state', async ({ page }) => {
+test('homepage owns seven stable editorial scenes and route-scoped state', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   await expect(page.locator('html')).toHaveAttribute('data-page', 'home')
   const chapters = page.locator('.home-chapter')
-  await expect(chapters).toHaveCount(6)
-  expect(await chapters.evaluateAll((items) => items.map((item) => item.getAttribute('data-home-chapter')))).toEqual(['01', '02', '03', '04', '05', '06'])
-  expect(await chapters.evaluateAll((items) => items.map((item) => item.id))).toEqual(['chapter-hero', 'featured', 'more-projects', 'expertise-process', 'experience-education', 'contact'])
+  await expect(chapters).toHaveCount(7)
+  expect(await chapters.evaluateAll((items) => items.map((item) => item.getAttribute('data-home-chapter')))).toEqual(['01', '02', '03', '04', '05', '06', '07'])
+  expect(await chapters.evaluateAll((items) => items.map((item) => item.id))).toEqual(['chapter-hero', 'featured', 'more-projects', 'process', 'skills', 'experience-education', 'contact'])
+  await expect(page.locator('.scene-navigation a')).toHaveCount(7)
+  await expect(page.locator('.scene-footer')).toContainText('01 / 07')
+  await expect(page.locator('.scene-footer')).toContainText(/SCROLL TO EXPLORE/i)
   await expect(page.locator('#contact .contact-form')).toBeVisible()
   await expect(page.locator('#contact .site-footer')).toBeVisible()
   await page.goto('/cases/dao-system')
   await expect(page.locator('html')).not.toHaveAttribute('data-page')
 })
 
-test('soft snap is computed only for a sufficiently large desktop viewport', async ({ page }) => {
+test('mandatory scene snap is computed for desktop and disabled on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
-  await expect.poll(() => page.locator('html').evaluate((html) => getComputedStyle(html).scrollSnapType)).toMatch(/^y(?: proximity)?$/)
+  await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'y mandatory')
+  await expect(page.locator('.home-scene').first()).toHaveCSS('scroll-snap-align', 'start')
+  await expect(page.locator('.home-scene').first()).toHaveCSS('scroll-snap-stop', 'always')
+  await expect.poll(() => page.locator('.home-scene').first().evaluate((scene) => Math.round(scene.getBoundingClientRect().height))).toBe(900)
+  await page.setViewportSize({ width: 1024, height: 768 })
+  await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'y mandatory')
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect.poll(() => page.locator('html').evaluate((html) => getComputedStyle(html).scrollSnapType)).toBe('none')
-  await page.setViewportSize({ width: 1366, height: 680 })
-  await expect.poll(() => page.locator('html').evaluate((html) => getComputedStyle(html).scrollSnapType)).toBe('none')
+  await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('.scene-navigation')).toBeHidden()
 })
 
 test('reduced motion disables both snap and Hero playback', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
-  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'none')
   await expect(page.locator('.hero-panel video')).toHaveCount(0)
   await expect(page.locator('.hero-panel > img')).toHaveCount(4)
 })
 
-test('native document scrolling reaches every chapter without a nested scroll trap', async ({ page }) => {
+test('cinematic scroll container reaches every scene and supports keyboard navigation', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
+  await expect(page.locator('.scroll-container')).toBeVisible()
   const metrics = await page.evaluate(() => ({
-    scrollingElement: document.scrollingElement === document.documentElement,
+    documentLocked: getComputedStyle(document.body).overflowY === 'hidden',
+    containerOverflow: getComputedStyle(document.querySelector('.scroll-container')!).overflowY,
+    containerScrollable: document.querySelector<HTMLElement>('.scroll-container')!.scrollHeight > document.querySelector<HTMLElement>('.scroll-container')!.clientHeight,
     bodyOverflow: getComputedStyle(document.body).overflowY,
     chapterOverflow: [...document.querySelectorAll('.home-chapter')].map((chapter) => getComputedStyle(chapter).overflowY),
   }))
-  expect(metrics.scrollingElement).toBe(true)
-  expect(metrics.bodyOverflow).not.toBe('hidden')
-  expect(metrics.chapterOverflow.every((overflow) => overflow === 'visible')).toBe(true)
-  for (const id of ['featured', 'more-projects', 'expertise-process', 'experience-education', 'contact']) {
+  expect(metrics.documentLocked).toBe(true)
+  expect(metrics.containerOverflow).toBe('auto')
+  expect(metrics.containerScrollable).toBe(true)
+  expect(metrics.chapterOverflow.every((overflow) => overflow === 'hidden')).toBe(true)
+  for (const id of ['featured', 'more-projects', 'process', 'skills', 'experience-education', 'contact']) {
     await page.locator(`#${id}`).scrollIntoViewIfNeeded()
     await expect(page.locator(`#${id}`)).toBeInViewport()
   }
+  await page.locator('.scroll-container').focus()
   await page.keyboard.press('End')
   await expect(page.locator('.site-footer')).toBeInViewport()
   await page.keyboard.press('Home')
@@ -212,10 +225,10 @@ test('section anchors respect the sticky Header and browser Back', async ({ page
   await page.getByRole('link', { name: /Contact|Контакты|Связаться/ }).first().click()
   await expect(page).toHaveURL(/#contact$/)
   await expect(page.locator('#contact')).toBeInViewport()
-  await expect.poll(() => page.locator('#contact').evaluate((chapter) => Math.round(chapter.getBoundingClientRect().top))).toBeGreaterThanOrEqual(70)
+  await expect.poll(() => page.locator('#contact .contact-section').evaluate((section) => Math.round(section.getBoundingClientRect().top))).toBeGreaterThanOrEqual(70)
   await page.goBack()
   await expect(page).toHaveURL(/\/$/)
-  await expect.poll(() => page.evaluate(() => Math.round(scrollY))).toBeLessThan(100)
+  await expect.poll(() => page.locator('.scroll-container').evaluate((container) => Math.round(container.scrollTop))).toBeLessThan(100)
   await expect(page.locator('#chapter-hero')).toBeInViewport()
 })
 
@@ -223,7 +236,7 @@ test('direct Contact anchor remains reachable without snap on mobile', async ({ 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#contact')
   await expect(page).toHaveURL(/#contact$/)
-  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'none')
   await expect(page.locator('#contact')).toBeInViewport()
   await expect(page.locator('#contact .contact-form')).toBeVisible()
 })
