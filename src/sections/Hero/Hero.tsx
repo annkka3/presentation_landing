@@ -121,8 +121,8 @@ export function Hero() {
   return <section className="hero-section" id="top" ref={heroRef}>
     <Container className="hero-layout">
       <div className="hero-copy">
-        <p className="hero-subtitle">{t.heroSubtitle}</p>
         <h1>{t.heroTitle}</h1>
+        <p className="hero-subtitle">{t.heroSubtitle}</p>
       </div>
       <div className="hero-visual">
         <div className={`hero-panels ${activePanel !== null ? 'has-active' : ''}`} role="group" aria-label={t.heroGroup} onMouseLeave={clearHover} onBlur={leaveHeroFocus}>

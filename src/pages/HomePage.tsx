@@ -82,9 +82,9 @@ export default function HomePage() {
       <div className={`home-chapter home-scene experience-scene ${activeScene === 5 ? 'is-scene-active' : ''}`} id="experience-education" data-home-chapter="06"><Experience /></div>
       <div className={`home-chapter home-scene contact-scene ${activeScene === 6 ? 'is-scene-active' : ''}`} id="contact" data-home-chapter="07"><Contact /><Footer /></div>
     </main>
-    <nav className="scene-navigation" aria-label="Portfolio scenes">
+    <nav className={`scene-navigation ${activeScene === 0 ? 'is-hidden' : ''}`} aria-label="Portfolio scenes">
       {scenes.map((scene, index) => <a key={scene.id} href={`#${scene.id}`} aria-label={`${String(index + 1).padStart(2, '0')} — ${scene.label}`} aria-current={activeScene === index ? 'step' : undefined}><span>{String(index + 1).padStart(2, '0')}</span><i aria-hidden="true" /></a>)}
     </nav>
-    <div className="scene-footer" aria-hidden="true"><span>{String(activeScene + 1).padStart(2, '0')} / 07</span><span>Scroll to explore ↓</span></div>
+    <div className={`scene-footer ${activeScene === 0 ? 'is-hidden' : ''}`} aria-hidden="true"><span>{String(activeScene + 1).padStart(2, '0')} / 07</span><span>Scroll to explore ↓</span></div>
   </>
 }
