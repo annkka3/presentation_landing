@@ -150,3 +150,124 @@ test('Hero keyboard state reaches its final width with reduced motion', async ({
   await expect(page.locator('#automation')).toHaveAttribute('data-state', 'active')
   await expect.poll(() => page.locator('#automation').evaluate((panel) => panel.getBoundingClientRect().width / (panel.parentElement?.getBoundingClientRect().width || 1))).toBeGreaterThanOrEqual(.45)
 })
+
+test('homepage owns six stable editorial chapters and route-scoped snap state', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await expect(page.locator('html')).toHaveAttribute('data-page', 'home')
+  const chapters = page.locator('.home-chapter')
+  await expect(chapters).toHaveCount(6)
+  expect(await chapters.evaluateAll((items) => items.map((item) => item.getAttribute('data-home-chapter')))).toEqual(['01', '02', '03', '04', '05', '06'])
+  expect(await chapters.evaluateAll((items) => items.map((item) => item.id))).toEqual(['chapter-hero', 'featured', 'more-projects', 'expertise-process', 'experience-education', 'contact'])
+  await expect(page.locator('#contact .contact-form')).toBeVisible()
+  await expect(page.locator('#contact .site-footer')).toBeVisible()
+  await page.goto('/cases/dao-system')
+  await expect(page.locator('html')).not.toHaveAttribute('data-page')
+})
+
+test('soft snap is computed only for a sufficiently large desktop viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await expect.poll(() => page.locator('html').evaluate((html) => getComputedStyle(html).scrollSnapType)).toMatch(/^y(?: proximity)?$/)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect.poll(() => page.locator('html').evaluate((html) => getComputedStyle(html).scrollSnapType)).toBe('none')
+  await page.setViewportSize({ width: 1366, height: 680 })
+  await expect.poll(() => page.locator('html').evaluate((html) => getComputedStyle(html).scrollSnapType)).toBe('none')
+})
+
+test('reduced motion disables both snap and Hero playback', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('.hero-panel video')).toHaveCount(0)
+  await expect(page.locator('.hero-panel > img')).toHaveCount(4)
+})
+
+test('native document scrolling reaches every chapter without a nested scroll trap', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const metrics = await page.evaluate(() => ({
+    scrollingElement: document.scrollingElement === document.documentElement,
+    bodyOverflow: getComputedStyle(document.body).overflowY,
+    chapterOverflow: [...document.querySelectorAll('.home-chapter')].map((chapter) => getComputedStyle(chapter).overflowY),
+  }))
+  expect(metrics.scrollingElement).toBe(true)
+  expect(metrics.bodyOverflow).not.toBe('hidden')
+  expect(metrics.chapterOverflow.every((overflow) => overflow === 'visible')).toBe(true)
+  for (const id of ['featured', 'more-projects', 'expertise-process', 'experience-education', 'contact']) {
+    await page.locator(`#${id}`).scrollIntoViewIfNeeded()
+    await expect(page.locator(`#${id}`)).toBeInViewport()
+  }
+  await page.keyboard.press('End')
+  await expect(page.locator('.site-footer')).toBeInViewport()
+  await page.keyboard.press('Home')
+  await expect(page.locator('#chapter-hero')).toBeInViewport()
+})
+
+test('section anchors respect the sticky Header and browser Back', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await page.getByRole('link', { name: /Contact|Контакты|Связаться/ }).first().click()
+  await expect(page).toHaveURL(/#contact$/)
+  await expect.poll(() => page.locator('#contact').evaluate((chapter) => Math.round(chapter.getBoundingClientRect().top))).toBeGreaterThanOrEqual(70)
+  await page.goBack()
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.locator('#chapter-hero')).toBeInViewport()
+})
+
+test('desktop Hero plays only the active approved video and pauses offscreen', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'Desktop playback requires a fine pointer')
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const product = page.locator('#product video')
+  const design = page.locator('#design video')
+  await expect(product).toHaveAttribute('poster', '/assets/product.png')
+  await page.locator('#product').hover({ position: { x: 80, y: 120 } })
+  await expect.poll(() => product.evaluate((video: HTMLVideoElement) => ({ paused: video.paused, time: video.currentTime }))).toMatchObject({ paused: false })
+  await page.locator('#design').focus()
+  await expect.poll(() => design.evaluate((video: HTMLVideoElement) => video.paused)).toBe(false)
+  await expect.poll(() => product.evaluate((video: HTMLVideoElement) => ({ paused: video.paused, time: video.currentTime }))).toEqual({ paused: true, time: 0 })
+  await page.locator('#featured').scrollIntoViewIfNeeded()
+  await expect.poll(() => page.locator('.hero-panel video').evaluateAll((videos: HTMLVideoElement[]) => videos.every((video) => video.paused && video.currentTime === 0))).toBe(true)
+})
+
+test('mobile keeps static Hero posters and never requests video files', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const videoRequests: string[] = []
+  page.on('request', (request) => { if (/\.mp4(?:\?|$)/.test(request.url())) videoRequests.push(request.url()) })
+  await page.goto('/')
+  await page.locator('#analytics').scrollIntoViewIfNeeded()
+  await expect(page.locator('.hero-panel video')).toHaveCount(0)
+  await expect(page.locator('.hero-panel > img')).toHaveCount(4)
+  expect(videoRequests).toEqual([])
+})
+
+test('approved MP4 assets return video MIME and support byte ranges', async ({ request }) => {
+  for (const path of ['/assets/product_v1.mp4', '/assets/design_v3.mp4', '/assets/automation.mp4', '/assets/analytics.mp4']) {
+    const response = await request.get(path, { headers: { Range: 'bytes=0-1023' } })
+    expect([200, 206]).toContain(response.status())
+    expect(response.headers()['content-type']).toContain('video/mp4')
+    if (response.status() === 206) expect(response.headers()['content-range']).toMatch(/^bytes 0-1023\//)
+  }
+})
+
+test('homepage has no console errors, failed application requests or overflow', async ({ page }) => {
+  const consoleErrors: string[] = []
+  const failedRequests: string[] = []
+  const failedResponses: string[] = []
+  page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
+  page.on('requestfailed', (request) => {
+    const intentionalMediaAbort = /\.mp4(?:\?|$)/.test(request.url()) && request.failure()?.errorText === 'net::ERR_ABORTED'
+    if (!intentionalMediaAbort) failedRequests.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? ''}`)
+  })
+  page.on('response', (response) => { if (response.status() >= 400) failedResponses.push(`${response.status()} ${response.url()}`) })
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await page.locator('#contact').scrollIntoViewIfNeeded()
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  expect(overflow).toBeLessThanOrEqual(0)
+  expect(consoleErrors).toEqual([])
+  expect(failedRequests).toEqual([])
+  expect(failedResponses).toEqual([])
+})

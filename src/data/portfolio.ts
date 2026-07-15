@@ -3,10 +3,10 @@ import type { LocalizedItem, LocalizedText, Project } from '../types'
 const l = (ru: string, en: string): LocalizedText => ({ ru, en })
 
 export const heroModes = [
-  { key: 'product', num: '01', title: 'PRODUCT', tag: l('Архитектура · UX', 'Architecture · UX'), image: '/assets/product.png', position: '48% 50%', accent: '#31b9cd' },
-  { key: 'design', num: '02', title: 'DESIGN', tag: l('Визуальные системы', 'Visual systems'), image: '/assets/design.png', position: '55% 42%', accent: '#c6a467' },
-  { key: 'automation', num: '03', title: 'AUTOMATION', tag: l('Процессы · AI', 'Processes · AI'), image: '/assets/automation.png', position: '50% 48%', accent: '#2fd9c9' },
-  { key: 'analytics', num: '04', title: 'ANALYTICS', tag: l('SQL · Python', 'SQL · Python'), image: '/assets/analytics.png', position: '51% 50%', accent: '#2ea2ff' },
+  { key: 'product', num: '01', title: 'PRODUCT', tag: l('Архитектура · UX', 'Architecture · UX'), image: '/assets/product.png', video: '/assets/product_v1.mp4', videoWidth: 688, videoHeight: 432, position: '48% 50%', accent: '#31b9cd' },
+  { key: 'design', num: '02', title: 'DESIGN', tag: l('Визуальные системы', 'Visual systems'), image: '/assets/design.png', video: '/assets/design_v3.mp4', videoWidth: 1200, videoHeight: 752, position: '55% 42%', accent: '#c6a467' },
+  { key: 'automation', num: '03', title: 'AUTOMATION', tag: l('Процессы · AI', 'Processes · AI'), image: '/assets/automation.png', video: '/assets/automation.mp4', videoWidth: 688, videoHeight: 432, position: '52% 50%', accent: '#2fd9c9' },
+  { key: 'analytics', num: '04', title: 'ANALYTICS', tag: l('SQL · Python', 'SQL · Python'), image: '/assets/analytics.png', video: '/assets/analytics.mp4', videoWidth: 688, videoHeight: 432, position: '58% 48%', accent: '#2ea2ff' },
 ] as const
 
 export const proofItems = [

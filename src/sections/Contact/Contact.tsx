@@ -28,7 +28,7 @@ export function Contact() {
       setStatus(error instanceof Error && error.message === 'CONTACT_ENDPOINT_MISSING' ? 'config' : 'error')
     }
   }
-  return <section className="section contact-section" id="contact"><Container className="contact-grid">
+  return <section className="section contact-section"><Container className="contact-grid">
     <div className="contact-copy"><h2>{t.contactHeading}</h2><p>{t.contactIntro}</p><div className="contact-links">
       <a href="mailto:annagromyko88@gmail.com"><span>EMAIL</span>annagromyko88@gmail.com <i aria-hidden="true">↗</i></a>
       <a href="https://t.me/AnnaGromyko" target="_blank" rel="noopener noreferrer"><span>TELEGRAM</span>@AnnaGromyko <i aria-hidden="true">↗</i></a>

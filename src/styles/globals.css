@@ -18,3 +18,8 @@ img { display: block; max-width: 100%; }
 .section.is-visible h2, .section.is-visible .featured-grid, .section.is-visible .secondary-grid, .section.is-visible .skills-grid, .section.is-visible .process-grid, .section.is-visible .experience-grid { opacity: 1; transform: none; }
 .eyebrow { display: block; font: 500 11px/1.4 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--teal); }
 .route-loading { min-height: 60vh; display: grid; place-items: center; color: var(--text-muted); }
+.home-chapter { scroll-margin-top: var(--header-height); }
+@media (min-width: 1200px) and (min-height: 720px) and (prefers-reduced-motion: no-preference) {
+  html[data-page='home'] { scroll-snap-type: y proximity; scroll-padding-top: var(--header-height); }
+  html[data-page='home'] .home-chapter { min-height: calc(100svh - var(--header-height)); scroll-snap-align: start; scroll-snap-stop: normal; }
+}

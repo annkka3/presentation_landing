@@ -8,7 +8,7 @@
   .hero-panel,.hero-panels.has-active .hero-panel,.hero-panels.has-active .hero-panel.is-active{height:300px}.header-inner{gap:4px}.header-actions{gap:3px}.brand span{font-size:10px;letter-spacing:.08em}.brand small{font-size:6px}.project-copy{padding:20px}.contact-form{padding:22px}.site-footer .container{align-items:flex-start;justify-content:center;flex-direction:column}
 }
 @media (hover: none) {
-  .project-card:hover,.skill-card:hover{transform:none}.hero-panel>img{transform:none!important}
+  .project-card:hover,.skill-card:hover{transform:none}.hero-panel>img,.hero-panel>video{transform:none!important}
 }
 @media (prefers-reduced-motion: reduce) {
   html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.marquee-track{width:auto;animation:none;transform:none;flex-wrap:wrap}.proof-group{width:100%;display:grid;grid-template-columns:repeat(2,1fr)}.proof-group[aria-hidden='true']{display:none}.proof-item{width:auto}.hero-overlay *{opacity:1!important;transform:none!important;stroke-dashoffset:0!important}.section:not(.contact-section) h2,.section:not(.contact-section) .featured-grid,.section:not(.contact-section) .secondary-grid,.section:not(.contact-section) .skills-grid,.section:not(.contact-section) .process-grid,.section:not(.contact-section) .experience-grid,.process-step{opacity:1;transform:none}

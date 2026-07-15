@@ -26,3 +26,22 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: () => true,
   }),
 })
+
+class ImmediateIntersectionObserver implements IntersectionObserver {
+  readonly root = null
+  readonly rootMargin = '0px'
+  readonly scrollMargin = '0px'
+  readonly thresholds = [0]
+  constructor(private readonly callback: IntersectionObserverCallback) {}
+  disconnect() {}
+  observe(target: Element) {
+    this.callback([{ boundingClientRect: target.getBoundingClientRect(), intersectionRatio: 1, intersectionRect: target.getBoundingClientRect(), isIntersecting: true, rootBounds: null, target, time: performance.now() }], this)
+  }
+  takeRecords() { return [] }
+  unobserve() {}
+}
+
+Object.defineProperty(window, 'IntersectionObserver', { configurable: true, writable: true, value: ImmediateIntersectionObserver })
+Object.defineProperty(globalThis, 'IntersectionObserver', { configurable: true, writable: true, value: ImmediateIntersectionObserver })
+Object.defineProperty(HTMLMediaElement.prototype, 'play', { configurable: true, writable: true, value: () => Promise.resolve() })
+Object.defineProperty(HTMLMediaElement.prototype, 'pause', { configurable: true, writable: true, value: () => undefined })
