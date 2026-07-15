@@ -1,5 +1,5 @@
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; font-synthesis: none; -webkit-font-smoothing: antialiased; }
+html { scroll-behavior: auto; font-synthesis: none; -webkit-font-smoothing: antialiased; }
 body { margin: 0; min-width: 320px; background: var(--bg); color: var(--text); font-family: var(--font-display); }
 body, button, input, textarea { font-family: var(--font-display); }
 button, input, textarea { font: inherit; }

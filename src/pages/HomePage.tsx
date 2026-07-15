@@ -12,7 +12,19 @@ import { Contact } from '../sections/Contact/Contact'
 export default function HomePage() {
   useEffect(() => {
     document.documentElement.dataset.page = 'home'
+    let frame = 0
+    const scrollToCurrentAnchor = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        const id = decodeURIComponent(window.location.hash.slice(1))
+        if (id) document.getElementById(id)?.scrollIntoView({ block: 'start' })
+      })
+    }
+    scrollToCurrentAnchor()
+    addEventListener('hashchange', scrollToCurrentAnchor)
     return () => {
+      cancelAnimationFrame(frame)
+      removeEventListener('hashchange', scrollToCurrentAnchor)
       if (document.documentElement.dataset.page === 'home') delete document.documentElement.dataset.page
     }
   }, [])

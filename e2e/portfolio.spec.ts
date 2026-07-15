@@ -205,15 +205,27 @@ test('native document scrolling reaches every chapter without a nested scroll tr
   await expect(page.locator('#chapter-hero')).toBeInViewport()
 })
 
-test('section anchors respect the sticky Header and browser Back', async ({ page }) => {
+test('section anchors respect the sticky Header and browser Back', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'Desktop Header navigation is hidden at the mobile breakpoint')
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   await page.getByRole('link', { name: /Contact|Контакты|Связаться/ }).first().click()
   await expect(page).toHaveURL(/#contact$/)
+  await expect(page.locator('#contact')).toBeInViewport()
   await expect.poll(() => page.locator('#contact').evaluate((chapter) => Math.round(chapter.getBoundingClientRect().top))).toBeGreaterThanOrEqual(70)
   await page.goBack()
   await expect(page).toHaveURL(/\/$/)
+  await expect.poll(() => page.evaluate(() => Math.round(scrollY))).toBeLessThan(100)
   await expect(page.locator('#chapter-hero')).toBeInViewport()
+})
+
+test('direct Contact anchor remains reachable without snap on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#contact')
+  await expect(page).toHaveURL(/#contact$/)
+  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('#contact')).toBeInViewport()
+  await expect(page.locator('#contact .contact-form')).toBeVisible()
 })
 
 test('desktop Hero plays only the active approved video and pauses offscreen', async ({ page }, testInfo) => {
@@ -259,7 +271,8 @@ test('homepage has no console errors, failed application requests or overflow', 
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
   page.on('requestfailed', (request) => {
     const intentionalMediaAbort = /\.mp4(?:\?|$)/.test(request.url()) && request.failure()?.errorText === 'net::ERR_ABORTED'
-    if (!intentionalMediaAbort) failedRequests.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? ''}`)
+    const vercelPreviewAbort = request.url().endsWith('/.well-known/vercel/jwe') && request.failure()?.errorText === 'net::ERR_ABORTED'
+    if (!intentionalMediaAbort && !vercelPreviewAbort) failedRequests.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? ''}`)
   })
   page.on('response', (response) => { if (response.status() >= 400) failedResponses.push(`${response.status()} ${response.url()}`) })
   await page.setViewportSize({ width: 1440, height: 900 })
