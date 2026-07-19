@@ -4,6 +4,10 @@
   --container-max: 1440px;
   --page-gutter: clamp(20px, 4vw, 64px);
   --header-height: 72px;
+  --header-control-height: 42px;
+  --header-control-radius: 4px;
+  --header-control-border: 1px;
+  --header-control-gap: 10px;
   --radius-card: 12px;
   --radius-control: 4px;
   --ease-premium: cubic-bezier(.22,1,.36,1);
@@ -25,6 +29,8 @@
   --input-border: rgba(255,255,255,.18);
   --placeholder: rgba(245,245,242,.46);
   --grid-line: rgba(255,255,255,.045);
+  --scrollbar-thumb: rgba(255,255,255,.2);
+  --scrollbar-thumb-hover: rgba(255,255,255,.32);
   --card-shadow: none;
   --teal: #5be0cf;
   --blue: #2ea2ff;
@@ -48,6 +54,8 @@
   --input-border: #c9c0b0;
   --placeholder: rgba(23,23,23,.48);
   --grid-line: rgba(23,23,23,.09);
+  --scrollbar-thumb: rgba(20,20,20,.2);
+  --scrollbar-thumb-hover: rgba(20,20,20,.32);
   --card-shadow: 0 1px 2px rgba(23,23,23,.04), 0 8px 24px rgba(23,23,23,.05);
   color-scheme: light;
 }

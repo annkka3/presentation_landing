@@ -22,14 +22,14 @@ export function Header() {
           <span>ANNA GROMYKO</span><small>AI PRODUCT BUILDER</small>
         </Link>
         <nav className="main-nav" aria-label={t.nav}>
-          <a href={`${prefix}#product`}>Product</a><a href={`${prefix}#design`}>Design</a><a href={`${prefix}#automation`}>Automation</a><a href={`${prefix}#analytics`}>Analytics</a><a href={`${prefix}#contact`}>{t.contact}</a>
+          <a href={`${prefix}#product`}>{t.navProduct}</a><a href={`${prefix}#design`}>{t.navDesign}</a><a href={`${prefix}#automation`}>{t.navAutomation}</a><a href={`${prefix}#analytics`}>{t.navAnalytics}</a><a href={`${prefix}#contact`}>{t.contact}</a>
         </nav>
         <div className="header-actions">
           <div className="language-toggle" role="group" aria-label={t.language}>
             <button aria-pressed={locale === 'ru'} onClick={() => setLocale('ru')}>RU</button>
             <button aria-pressed={locale === 'en'} onClick={() => setLocale('en')}>EN</button>
           </div>
-          <button className="theme-toggle" onClick={toggleTheme} aria-label={theme === 'light' ? t.themeDark : t.themeLight}>
+          <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={t.themeToggle}>
             <span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>
           </button>
           <button

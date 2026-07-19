@@ -152,7 +152,7 @@ export function Hero() {
             </video>}
             <span className="hero-scrim" aria-hidden="true" />
             {isActive && <HeroOverlay key={`${mode.key}-${activePanel}`} mode={mode.key} />}
-            <span className="hero-panel-copy"><span className="hero-number">{mode.num}</span><strong>{mode.title}</strong><span>{mode.tag[locale]}</span><span className="hero-cta">{t.viewCases}</span></span>
+            <span className="hero-panel-copy"><span className="hero-number">{mode.num}</span><strong>{mode.title[locale]}</strong><span>{mode.tag[locale]}</span><span className="hero-cta">{t.viewCases}</span></span>
           </a>
         })}
         </div>

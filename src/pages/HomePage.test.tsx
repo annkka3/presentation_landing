@@ -31,6 +31,6 @@ describe('homepage editorial chapters', () => {
     expect(document.querySelector('#main')).toHaveClass('scroll-container')
     expect(document.querySelectorAll('.scene-navigation a')).toHaveLength(7)
     expect(document.querySelector('.scene-footer')).toHaveTextContent('01 / 07')
-    expect(document.querySelector('.scene-footer')).toHaveTextContent('Scroll to explore')
+    expect(document.querySelector('.scene-footer')).toHaveTextContent('ПРОКРУТИТЕ ДАЛЬШЕ')
   })
 })

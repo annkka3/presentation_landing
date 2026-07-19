@@ -14,8 +14,8 @@ export function ProjectCard({ project, featured }: { project: Project; featured:
         <span className="eyebrow">{project.category[locale]}</span>
         <h3>{project.title[locale]}</h3>
         <p className="project-role">{project.role[locale]}</p>
-        <p className="project-description">{project.description[locale]}</p>
-        <div className="tags" aria-label="Tags">{project.tags.map((tag, index) => <span key={index}>{tag[locale]}</span>)}</div>
+        <p className="project-description" title={project.description[locale]}>{project.description[locale]}</p>
+        <div className="tags" aria-label={locale === 'ru' ? 'Теги' : 'Tags'}>{project.tags.map((tag, index) => <span key={index}>{tag[locale]}</span>)}</div>
         <span className="card-cta">{featured ? t.openCase : t.openProject}</span>
       </div>
     </Link>

@@ -209,8 +209,8 @@ describe('Hero video playback', () => {
 
   it('preserves one centralized keyboard active state', () => {
     renderHero()
-    const product = screen.getByRole('link', { name: /PRODUCT/ })
-    const design = screen.getByRole('link', { name: /DESIGN/ })
+    const product = screen.getByRole('link', { name: /ПРОДУКТ/ })
+    const design = screen.getByRole('link', { name: /ДИЗАЙН/ })
     fireEvent.focus(product)
     expect(product).toHaveAttribute('data-state', 'active')
     fireEvent.focus(design)

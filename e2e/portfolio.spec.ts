@@ -7,7 +7,7 @@ test('language, theme, routes, form validation and accessibility basics', async 
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await page.getByRole('button', { name: 'EN' }).click()
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  const themeButton = page.getByRole('button', { name: /Switch to light theme|Switch to dark theme/ })
+  const themeButton = page.getByRole('button', { name: 'Switch theme' })
   await themeButton.click()
   const theme = await page.locator('html').getAttribute('data-theme')
   await page.reload()
@@ -60,7 +60,7 @@ for (const width of [320, 390]) {
   test(`mobile Resume is visible, localized and 44px at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })
     await page.goto('/')
-    const resume = page.getByRole('button', { name: 'Скачать резюме' })
+    const resume = page.getByRole('button', { name: 'Резюме' })
     await expect(resume).toBeVisible()
     await expect(resume).toContainText('CV ↓')
     const size = await resume.boundingBox()
@@ -71,7 +71,7 @@ for (const width of [320, 390]) {
     await resume.press('Enter')
     await expect(page.getByRole('status')).toHaveText('Резюме будет добавлено перед публикацией')
     await page.getByRole('button', { name: 'EN' }).click()
-    await expect(page.getByRole('button', { name: 'Download resume' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Resume' })).toBeVisible()
     const metrics = await page.evaluate(() => {
       const box = (selector: string) => document.querySelector<HTMLElement>(selector)?.getBoundingClientRect()
       const brand = box('.brand')
@@ -99,6 +99,75 @@ for (const width of [320, 390]) {
     })
   })
 }
+
+test('Header utility controls share one geometry and preserve locale', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const heights = await page.locator('.language-toggle, .theme-toggle, .resume-button').evaluateAll((controls) => controls.map((control) => control.getBoundingClientRect().height))
+  expect(heights).toEqual([42, 42, 42])
+  await page.getByRole('button', { name: 'EN' }).click()
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page.getByRole('button', { name: 'Resume' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Switch theme' })).toBeVisible()
+})
+
+test('RU and EN homepage UI remain fully localized', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Основная навигация' })).toContainText('Продукт')
+  const ruText = await page.locator('body').innerText()
+  for (const prohibited of ['VIEW CASE STUDY', 'VIEW PROJECT', 'SCROLL TO EXPLORE', 'CURRENT', 'Featured case studies', 'More projects', 'Expertise', 'Process', 'Experience', 'Education']) {
+    expect(ruText).not.toContain(prohibited)
+  }
+  for (const preserved of ['DAO SYSTEM', 'Crypto Reality', 'The DAO Way', 'Risk Journal Analytics', 'Anna Gromyko Portfolio', 'SQL', 'Python']) {
+    expect(ruText).toContain(preserved)
+  }
+  await page.getByRole('button', { name: 'EN' }).click()
+  const enText = await page.locator('body').innerText()
+  for (const accidental of ['Избранные кейсы', 'Ещё проекты', 'Процесс работы', 'Компетенции', 'Образование', 'Связаться', 'ПРОКРУТИТЕ ДАЛЬШЕ']) {
+    expect(enText).not.toContain(accidental)
+  }
+})
+
+test('chapter rail navigates, hides responsively and final counter returns to top', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const rail = page.getByRole('navigation', { name: 'Навигация по разделам' })
+  await expect(rail).toBeVisible()
+  await expect(rail.locator('.scene-navigation-current')).toHaveText('01')
+  await page.getByRole('link', { name: 'Перейти к разделу 7 из 7' }).click()
+  await expect(page).toHaveURL(/#contact$/)
+  await expect(rail.locator('.scene-navigation-current')).toHaveText('07')
+  const footerCue = page.locator('.scene-footer')
+  await expect(footerCue).toContainText('07 / 07')
+  await expect(footerCue).toContainText('НАВЕРХ')
+  await footerCue.click()
+  await expect(page).toHaveURL(/#chapter-hero$/)
+  await expect(rail.locator('.scene-navigation-current')).toHaveText('01')
+  await page.setViewportSize({ width: 900, height: 900 })
+  await expect(rail).toBeHidden()
+  await expect(footerCue).toBeVisible()
+})
+
+test('Contact links, localization and missing endpoint behavior stay honest', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#contact')
+  await expect(page.getByRole('link', { name: /annagromyko88@gmail.com/ })).toHaveAttribute('href', 'mailto:annagromyko88@gmail.com')
+  await expect(page.getByRole('link', { name: /@AnnaGromyko/ })).toHaveAttribute('href', 'https://t.me/AnnaGromyko')
+  await expect(page.getByRole('link', { name: /github.com\/annkka3/ })).toHaveAttribute('href', 'https://github.com/annkka3')
+  await expect(page.getByPlaceholder('Как к вам обращаться?')).toBeVisible()
+  await page.getByLabel('Имя').fill('Анна')
+  await page.getByLabel('Email или Telegram').fill('@anna')
+  await page.getByRole('textbox', { name: 'Сообщение', exact: true }).fill('Описание проекта и задачи для совместной работы.')
+  await page.getByRole('button', { name: 'Отправить сообщение →' }).click()
+  await expect(page.getByText('Отправка с сайта пока не настроена. Напишите мне по email или в Telegram.')).toBeVisible()
+  await expect(page.getByText('Сообщение отправлено. Спасибо!')).toHaveCount(0)
+  await page.getByRole('button', { name: 'EN' }).click()
+  await expect(page.getByPlaceholder('How should I address you?')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Send message →' })).toBeVisible()
+})
 
 test('Hero transfers keyboard active state and preserves mouse behavior', async ({ page }) => {
   test.setTimeout(60_000)
@@ -162,7 +231,7 @@ test('homepage owns seven stable editorial scenes and route-scoped state', async
   expect(await chapters.evaluateAll((items) => items.map((item) => item.id))).toEqual(['chapter-hero', 'featured', 'more-projects', 'process', 'skills', 'experience-education', 'contact'])
   await expect(page.locator('.scene-navigation a')).toHaveCount(7)
   await expect(page.locator('.scene-footer')).toContainText('01 / 07')
-  await expect(page.locator('.scene-footer')).toContainText(/SCROLL TO EXPLORE/i)
+  await expect(page.locator('.scene-footer')).toContainText('ПРОКРУТИТЕ ДАЛЬШЕ')
   await expect(page.locator('#contact .contact-form')).toBeVisible()
   await expect(page.locator('#contact .site-footer')).toBeVisible()
   await page.goto('/cases/dao-system')

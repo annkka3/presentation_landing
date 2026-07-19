@@ -1,7 +1,7 @@
 * { box-sizing: border-box; }
 html, body, #root { scroll-behavior: smooth; }
-html { font-synthesis: none; -webkit-font-smoothing: antialiased; }
-body { margin: 0; min-width: 320px; background: var(--bg); color: var(--text); font-family: var(--font-display); }
+html { font-synthesis: none; -webkit-font-smoothing: antialiased; scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
+body { margin: 0; min-width: 0; background: var(--bg); color: var(--text); font-family: var(--font-display); }
 body, button, input, textarea { font-family: var(--font-display); }
 button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -21,8 +21,12 @@ img { display: block; max-width: 100%; }
 .route-loading { min-height: 60vh; display: grid; place-items: center; color: var(--text-muted); }
 .scroll-container { width: 100%; }
 .home-chapter { position: relative; scroll-margin-top: var(--header-height); }
+*::-webkit-scrollbar { width: 7px; height: 7px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
   html[data-page='home'], html[data-page='home'] body, html[data-page='home'] #root { height: 100%; overflow: hidden; }
   html[data-page='home'] .site-header { position: fixed; inset: 0 0 auto; width: 100%; }
   html[data-page='home'] .scroll-container { height: 100svh; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; scroll-snap-type: y mandatory; scroll-padding-top: 0; scrollbar-width: thin; }

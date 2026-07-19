@@ -8,20 +8,23 @@ import { Skills } from '../sections/Skills/Skills'
 import { Process } from '../sections/Process/Process'
 import { Experience } from '../sections/Experience/Experience'
 import { Contact } from '../sections/Contact/Contact'
+import { useApp } from '../app/AppContext'
 
 const scenes = [
-  { id: 'chapter-hero', label: 'Hero' },
-  { id: 'featured', label: 'Featured' },
-  { id: 'more-projects', label: 'Cases' },
-  { id: 'process', label: 'Process' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'experience-education', label: 'Experience' },
-  { id: 'contact', label: 'Contact' },
+  { id: 'chapter-hero' },
+  { id: 'featured' },
+  { id: 'more-projects' },
+  { id: 'process' },
+  { id: 'skills' },
+  { id: 'experience-education' },
+  { id: 'contact' },
 ] as const
 
 export default function HomePage() {
+  const { t } = useApp()
   const containerRef = useRef<HTMLElement>(null)
   const [activeScene, setActiveScene] = useState(0)
+  const chapterLabels = [t.chapterHero, t.chapterFeatured, t.chapterProjects, t.chapterProcess, t.chapterExpertise, t.chapterExperience, t.chapterContact]
 
   useEffect(() => {
     document.documentElement.dataset.page = 'home'
@@ -32,13 +35,16 @@ export default function HomePage() {
     const updateScene = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
-        const containerTop = container.getBoundingClientRect().top
+        const containerStyle = getComputedStyle(container)
+        const usesContainerScroll = containerStyle.overflowY === 'auto' || containerStyle.overflowY === 'scroll'
+        const containerTop = usesContainerScroll ? container.getBoundingClientRect().top : 0
+        const viewportHeight = usesContainerScroll ? container.clientHeight : window.innerHeight
         const nodes = scenes.map(({ id }) => document.getElementById(id)).filter((node): node is HTMLElement => Boolean(node))
         let closestIndex = 0
         let closestDistance = Number.POSITIVE_INFINITY
 
         nodes.forEach((node, index) => {
-          const distance = (node.getBoundingClientRect().top - containerTop) / Math.max(container.clientHeight, 1)
+          const distance = (node.getBoundingClientRect().top - containerTop) / Math.max(viewportHeight, 1)
           const absoluteDistance = Math.abs(distance)
           if (absoluteDistance < closestDistance) {
             closestDistance = absoluteDistance
@@ -62,11 +68,15 @@ export default function HomePage() {
     }
 
     container.addEventListener('scroll', updateScene, { passive: true })
+    addEventListener('scroll', updateScene, { passive: true })
+    addEventListener('resize', updateScene)
     scrollToCurrentAnchor()
     addEventListener('hashchange', scrollToCurrentAnchor)
     return () => {
       cancelAnimationFrame(frame)
       container.removeEventListener('scroll', updateScene)
+      removeEventListener('scroll', updateScene)
+      removeEventListener('resize', updateScene)
       removeEventListener('hashchange', scrollToCurrentAnchor)
       if (document.documentElement.dataset.page === 'home') delete document.documentElement.dataset.page
     }
@@ -82,9 +92,24 @@ export default function HomePage() {
       <div className={`home-chapter home-scene experience-scene ${activeScene === 5 ? 'is-scene-active' : ''}`} id="experience-education" data-home-chapter="06"><Experience /></div>
       <div className={`home-chapter home-scene contact-scene ${activeScene === 6 ? 'is-scene-active' : ''}`} id="contact" data-home-chapter="07"><Contact /><Footer /></div>
     </main>
-    <nav className={`scene-navigation ${activeScene === 0 ? 'is-hidden' : ''}`} aria-label="Portfolio scenes">
-      {scenes.map((scene, index) => <a key={scene.id} href={`#${scene.id}`} aria-label={`${String(index + 1).padStart(2, '0')} — ${scene.label}`} aria-current={activeScene === index ? 'step' : undefined}><span>{String(index + 1).padStart(2, '0')}</span><i aria-hidden="true" /></a>)}
+    <nav className="scene-navigation" aria-label={t.chapterNavigation}>
+      <span className="scene-navigation-current" aria-hidden="true">{String(activeScene + 1).padStart(2, '0')}</span>
+      <div className="scene-navigation-track">
+        <span className="scene-navigation-line" aria-hidden="true" />
+        <span className="scene-navigation-dot" aria-hidden="true" style={{ '--chapter-progress': activeScene / (scenes.length - 1) } as React.CSSProperties} />
+        <div className="scene-navigation-targets">
+          {scenes.map((scene, index) => <a key={scene.id} href={`#${scene.id}`} aria-label={`${t.goToChapter} ${index + 1} ${t.chapterOf} ${scenes.length}`} aria-current={activeScene === index ? 'step' : undefined}><span>{chapterLabels[index]}</span></a>)}
+        </div>
+      </div>
+      <span className="scene-navigation-total" aria-hidden="true">07</span>
     </nav>
-    <div className={`scene-footer ${activeScene === 0 ? 'is-hidden' : ''}`} aria-hidden="true"><span>{String(activeScene + 1).padStart(2, '0')} / 07</span><span>Scroll to explore ↓</span></div>
+    <button
+      className={`scene-footer ${activeScene === scenes.length - 1 ? 'is-final' : ''}`}
+      type="button"
+      aria-label={activeScene === scenes.length - 1 ? t.top : `${t.goToChapter} ${activeScene + 2} ${t.chapterOf} ${scenes.length}`}
+      onClick={() => { window.location.hash = scenes[activeScene === scenes.length - 1 ? 0 : activeScene + 1].id }}
+    >
+      <span>{String(activeScene + 1).padStart(2, '0')} / 07</span><span>{activeScene === scenes.length - 1 ? `${t.backToTop} ↑` : `${t.scrollExplore} ↓`}</span>
+    </button>
   </>
 }
