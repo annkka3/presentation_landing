@@ -9,6 +9,8 @@ import { Process } from '../sections/Process/Process'
 import { Experience } from '../sections/Experience/Experience'
 import { Contact } from '../sections/Contact/Contact'
 import { useApp } from '../app/AppContext'
+import { useMediaQuery } from '../hooks/useMediaQuery'
+import { MobileHomePage } from './MobileHomePage'
 
 const scenes = [
   { id: 'chapter-hero' },
@@ -20,7 +22,7 @@ const scenes = [
   { id: 'contact' },
 ] as const
 
-export default function HomePage() {
+function DesktopHomePage() {
   const { t } = useApp()
   const containerRef = useRef<HTMLElement>(null)
   const [activeScene, setActiveScene] = useState(0)
@@ -112,4 +114,9 @@ export default function HomePage() {
       <span>{String(activeScene + 1).padStart(2, '0')} / 07</span><span>{activeScene === scenes.length - 1 ? `${t.backToTop} ↑` : `${t.scrollExplore} ↓`}</span>
     </button>
   </>
+}
+
+export default function HomePage() {
+  const isMobile = useMediaQuery('(max-width: 767px)')
+  return isMobile ? <MobileHomePage /> : <DesktopHomePage />
 }

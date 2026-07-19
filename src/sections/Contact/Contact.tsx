@@ -6,7 +6,7 @@ import { validateContact, type ContactErrors } from '../../services/validation'
 
 const initialValues: ContactPayload = { name: '', contact: '', message: '', website: '' }
 
-export function Contact() {
+export function Contact({ mobile = false }: { mobile?: boolean }) {
   const { t } = useApp()
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState<ContactErrors>({})
@@ -28,9 +28,10 @@ export function Contact() {
       setStatus(error instanceof Error && error.message === 'CONTACT_ENDPOINT_MISSING' ? 'config' : 'error')
     }
   }
-  return <section className="section contact-section"><div className="contact-content"><Container className="contact-grid">
-    <div className="contact-copy"><span className="contact-eyebrow">{t.contactEyebrow}</span><h2>{t.contactHeading}</h2><p>{t.contactIntro}</p><p className="contact-availability">{t.availability}</p><div className="contact-links">
-      <a href="mailto:annagromyko88@gmail.com"><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">↗</i></a>
+  const copyEmail = () => navigator.clipboard?.writeText('annagromyko88@gmail.com')
+  return <section className={`section contact-section ${mobile ? 'is-mobile-contact' : ''}`}><div className="contact-content"><Container className="contact-grid">
+    <div className="contact-copy"><span className="contact-eyebrow">{t.contactEyebrow}</span><h2>{t.contactHeading}</h2><p>{mobile ? t.mobileContactIntro : t.contactIntro}</p><p className="contact-availability">{t.availability}</p><div className="contact-links">
+      {mobile ? <button type="button" onClick={copyEmail} aria-label={t.copyEmail}><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">⧉</i></button> : <a href="mailto:annagromyko88@gmail.com"><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">↗</i></a>}
       <a href="https://t.me/AnnaGromyko" target="_blank" rel="noopener noreferrer"><span className="contact-link-copy"><span>TELEGRAM</span><strong>@AnnaGromyko</strong></span><i aria-hidden="true">↗</i></a>
       <a href="https://github.com/annkka3" target="_blank" rel="noopener noreferrer"><span className="contact-link-copy"><span>GITHUB</span><strong>github.com/annkka3</strong></span><i aria-hidden="true">↗</i></a>
     </div></div>

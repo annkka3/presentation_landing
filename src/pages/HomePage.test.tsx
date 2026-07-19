@@ -33,4 +33,30 @@ describe('homepage editorial chapters', () => {
     expect(document.querySelector('.scene-footer')).toHaveTextContent('01 / 07')
     expect(document.querySelector('.scene-footer')).toHaveTextContent('ПРОКРУТИТЕ ДАЛЬШЕ')
   })
+
+  it('renders the purpose-built mobile chapter track and compact controls', () => {
+    const originalMatchMedia = window.matchMedia
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: (query: string) => ({
+        matches: query.includes('max-width: 767px'),
+        media: query,
+        onchange: null,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        dispatchEvent: () => true,
+      }),
+    })
+    const view = render(<MemoryRouter><AppProvider><HomePage /></AppProvider></MemoryRouter>)
+    expect(document.querySelector('.mobile-chapter-track')).toBeInTheDocument()
+    expect(document.querySelectorAll('.mobile-chapter-track > .mobile-chapter')).toHaveLength(7)
+    expect(document.querySelectorAll('.mobile-direction-card')).toHaveLength(4)
+    expect(document.querySelectorAll('.mobile-skills-accordion article.is-open')).toHaveLength(1)
+    expect(document.querySelector('.mobile-chapter-navigation')).toHaveTextContent('01 / 07')
+    expect(document.querySelector('.scroll-container')).not.toBeInTheDocument()
+    view.unmount()
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia })
+  })
 })

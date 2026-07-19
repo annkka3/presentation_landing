@@ -61,7 +61,7 @@ export const skills: LocalizedItem[] = [
   { title: l('UX/UI и дизайн-системы', 'UX/UI & Design Systems'), description: l('Мобильный UX · компоненты · состояния · Figma · AI-арт-дирекшн', 'Mobile UX · components · states · Figma · AI art direction') },
   { title: l('Автоматизация и процессы', 'Automation & Operations'), description: l('Моделирование процессов · спецификации · документация · процессы API/CRM', 'Process mapping · specifications · documentation · API/CRM workflows') },
   { title: l('Данные и аналитика', 'Data & Analytics'), description: l('SQL · pandas · A/B-тестирование · продуктовые воронки · качество данных', 'SQL · pandas · A/B testing · product funnels · data quality') },
-  { title: l('QA и выпуск', 'QA & Delivery'), description: l('Функциональный QA · проверка адаптивности · критерии выпуска · аудит · передача результата', 'Functional QA · responsive QA · release gates · audit · handoff') },
+  { title: l('QA и передача', 'QA & Delivery'), description: l('Функциональный QA · проверка адаптивности · критерии выпуска · аудит · передача результата', 'Functional QA · responsive QA · release gates · audit · handoff') },
 ]
 
 export const processSteps = [
@@ -75,7 +75,7 @@ export const processSteps = [
 
 export const experience = [
   { dates: l('2024—н.в.', '2024–present'), role: l('Независимый AI Product Builder', 'Independent AI Product Builder'), description: l('Собственные и клиентские цифровые продукты: архитектура продукта, UX/UI, разработка с поддержкой AI, QA и документация.', 'Independent and client digital products covering product architecture, UX/UI, AI-assisted development, QA, and documentation.'), current: true },
-  { dates: l('2019–2022', '2019–2022'), role: l('Партнёр Farfetch Marketplace / операции электронной коммерции', 'Farfetch Marketplace Partner / E-commerce Operations'), description: l('Каталог, товарные фиды, ассортимент, ценообразование, промо и аналитика.', 'Catalog operations, product feeds, assortment, pricing, promotions, and analytics.'), current: false },
+  { dates: l('2019–2022', '2019–2022'), role: l('Партнёр Farfetch Marketplace / электронная коммерция', 'Farfetch Marketplace Partner / E-commerce Operations'), description: l('Каталог, товарные фиды, ассортимент, ценообразование, промо и аналитика.', 'Catalog operations, product feeds, assortment, pricing, promotions, and analytics.'), current: false },
   { dates: l('2005–2019', '2005–2019'), role: l('Люксовый ритейл / закупки / коммерческое управление', 'Luxury Retail / Buying / Commercial Management'), description: l('Закупки, ассортимент, продажи, онлайн-витрина и управление коммерческими процессами.', 'Buying, assortment planning, sales, online storefront operations, and commercial process management.'), current: false },
 ]
 

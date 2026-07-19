@@ -30,7 +30,7 @@ export function Header() {
             <button aria-pressed={locale === 'en'} onClick={() => setLocale('en')}>EN</button>
           </div>
           <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={t.themeToggle}>
-            <span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>
+            <span aria-hidden="true">{theme === 'light' ? <svg viewBox="0 0 24 24"><path d="M19 15.2A7.8 7.8 0 0 1 8.8 5 7.8 7.8 0 1 0 19 15.2Z" /></svg> : <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6m11 11 1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6m11-11 1.6-1.6"/></svg>}</span>
           </button>
           <button
             className="resume-button"

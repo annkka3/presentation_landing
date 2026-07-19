@@ -7,7 +7,7 @@ export function ProjectCard({ project, featured }: { project: Project; featured:
   return (
     <Link className={`project-card ${featured ? 'featured-card' : 'secondary-card'} accent-${project.accent}`} to={project.route} style={featured ? { '--span': project.span } as React.CSSProperties : undefined}>
       <div className="project-cover">
-        <img src={project.coverSrc} alt={project.coverAlt[locale]} width="1670" height="982" loading="lazy" style={{ objectPosition: project.coverPosition }} />
+        <img src={project.coverSrc} alt={project.coverAlt[locale]} width="1670" height="982" loading="lazy" decoding="async" style={{ objectPosition: project.coverPosition }} />
         <span className="status-badge">{project.statusLabel[locale]}</span>
       </div>
       <div className="project-copy">

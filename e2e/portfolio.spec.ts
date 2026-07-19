@@ -21,7 +21,7 @@ test('language, theme, routes, form validation and accessibility basics', async 
   expect(errors).toEqual([])
 })
 
-for (const width of [320, 390, 768, 1024, 1440, 1920]) {
+for (const width of [320, 375, 390, 430, 767, 768, 1024, 1440, 1920]) {
   test(`has no horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
@@ -30,10 +30,15 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
   })
 }
 
-test('reduced motion stops marquee animation', async ({ page }) => {
+test('reduced motion stops decorative motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await expect(page.locator('.marquee-track')).toHaveCSS('animation-name', 'none')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  if (await page.locator('.mobile-chapter-track').count()) {
+    await expect(page.locator('.mobile-chapter-track')).toHaveCSS('scroll-behavior', 'auto')
+  } else {
+    await expect(page.locator('.marquee-track')).toHaveCSS('animation-name', 'none')
+  }
 })
 
 test('canonical ЦветиМир route, legacy alias and internal link stay canonical', async ({ page }) => {
@@ -42,7 +47,7 @@ test('canonical ЦветиМир route, legacy alias and internal link stay cano
   await expect(canonicalLink).toHaveCount(1)
   await expect(page.locator('a[href="/projects/cvetimir"]')).toHaveCount(0)
   await canonicalLink.click()
-  await expect(page).toHaveURL(/\/projects\/tsvetimir$/)
+  await expect(page).toHaveURL(/\/projects\/tsvetimir(?:#.*)?$/)
   await expect(page.getByRole('heading', { level: 1, name: 'ЦветиМир' })).toBeVisible()
   await page.reload()
   await expect(page.getByRole('heading', { level: 1, name: 'ЦветиМир' })).toBeVisible()
@@ -57,15 +62,16 @@ test('canonical ЦветиМир route, legacy alias and internal link stay cano
 })
 
 for (const width of [320, 390]) {
-  test(`mobile Resume is visible, localized and 44px at ${width}px`, async ({ page }) => {
+  test(`mobile Header geometry is exact and localized at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })
     await page.goto('/')
+    await expect(page.locator('html')).toHaveAttribute('data-page', 'home')
     const resume = page.getByRole('button', { name: 'Резюме' })
     await expect(resume).toBeVisible()
     await expect(resume).toContainText('CV ↓')
     const size = await resume.boundingBox()
-    expect(size?.width).toBeGreaterThanOrEqual(44)
-    expect(size?.height).toBeGreaterThanOrEqual(44)
+    expect(size?.width).toBe(width <= 374 ? 52 : 58)
+    expect(size?.height).toBe(width <= 374 ? 38 : 40)
     await resume.focus()
     await expect(resume).toBeFocused()
     await resume.press('Enter')
@@ -93,10 +99,8 @@ for (const width of [320, 390]) {
     expect(metrics.brandVisible).toBe(true)
     expect(metrics.actionsVisible).toBe(true)
     expect(metrics.noCollision).toBe(true)
-    metrics.controls.forEach((control) => {
-      expect(control.width).toBeGreaterThanOrEqual(44)
-      expect(control.height).toBeGreaterThanOrEqual(44)
-    })
+    expect(new Set(metrics.controls.map((control) => control.height)).size).toBe(1)
+    expect(metrics.controls.every((control) => control.height === (width <= 374 ? 38 : 40))).toBe(true)
   })
 }
 
@@ -238,7 +242,7 @@ test('homepage owns seven stable editorial scenes and route-scoped state', async
   await expect(page.locator('html')).not.toHaveAttribute('data-page')
 })
 
-test('mandatory scene snap is computed for desktop and disabled on mobile', async ({ page }) => {
+test('mandatory scene snap is vertical on desktop and horizontal on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'y mandatory')
@@ -248,7 +252,10 @@ test('mandatory scene snap is computed for desktop and disabled on mobile', asyn
   await page.setViewportSize({ width: 1024, height: 768 })
   await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'y mandatory')
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('.scroll-container')).toHaveCount(0)
+  await expect(page.locator('.mobile-chapter-track')).toHaveCSS('scroll-snap-type', 'x mandatory')
+  await expect(page.locator('.mobile-chapter')).toHaveCount(7)
+  await expect(page.locator('.mobile-chapter').first()).toHaveCSS('scroll-snap-align', 'start')
   await expect(page.locator('.scene-navigation')).toBeHidden()
 })
 
@@ -301,13 +308,14 @@ test('section anchors respect the sticky Header and browser Back', async ({ page
   await expect(page.locator('#chapter-hero')).toBeInViewport()
 })
 
-test('direct Contact anchor remains reachable without snap on mobile', async ({ page }) => {
+test('direct Contact anchor restores the mobile chapter', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#contact')
   await expect(page).toHaveURL(/#contact$/)
-  await expect(page.locator('.scroll-container')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('.mobile-chapter-track')).toHaveCSS('scroll-snap-type', 'x mandatory')
   await expect(page.locator('#contact')).toBeInViewport()
   await expect(page.locator('#contact .contact-form')).toBeVisible()
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('07 / 07')
 })
 
 test('desktop Hero plays only the active approved video and pauses offscreen', async ({ page }, testInfo) => {
@@ -331,10 +339,71 @@ test('mobile keeps static Hero posters and never requests video files', async ({
   const videoRequests: string[] = []
   page.on('request', (request) => { if (/\.mp4(?:\?|$)/.test(request.url())) videoRequests.push(request.url()) })
   await page.goto('/')
-  await page.locator('#analytics').scrollIntoViewIfNeeded()
-  await expect(page.locator('.hero-panel video')).toHaveCount(0)
-  await expect(page.locator('.hero-panel > img')).toHaveCount(4)
+  await expect(page.locator('.mobile-direction-card')).toHaveCount(4)
+  await page.locator('.mobile-direction-selector button').last().click()
+  await expect(page.locator('.mobile-direction-card video')).toHaveCount(0)
+  await expect(page.locator('.mobile-direction-card > img')).toHaveCount(4)
   expect(videoRequests).toEqual([])
+})
+
+test('mobile chapters, nested carousel and UI state stay independent', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const track = page.locator('.mobile-chapter-track')
+  await expect(track.locator(':scope > .mobile-chapter')).toHaveCount(7)
+  await expect(page.locator('.mobile-direction-card')).toHaveCount(4)
+  await expect(page.locator('.mobile-skills-accordion article.is-open')).toHaveCount(1)
+  await expect(page.locator('.mobile-experience-tabs [aria-selected="true"]')).toHaveText('Опыт')
+
+  await page.locator('.mobile-chapter-dots button').nth(1).click()
+  await expect(page).toHaveURL(/#featured$/)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 07')
+  await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(390)
+  const chapterBefore = await track.evaluate((node) => node.scrollLeft)
+  await page.locator('#featured .mobile-carousel-navigation > button').last().click()
+  await expect(page.locator('#featured .mobile-carousel-count')).toHaveText('02 / 04')
+  expect(await track.evaluate((node) => node.scrollLeft)).toBe(chapterBefore)
+
+  await page.getByRole('button', { name: 'EN' }).click()
+  await page.getByRole('button', { name: 'Switch theme' }).click()
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 07')
+  await expect(page).toHaveURL(/#featured$/)
+  await page.goBack()
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('01 / 07')
+})
+
+test('mobile Contact focus clears the safe bottom navigation', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#contact')
+  const navigation = page.locator('.mobile-chapter-navigation')
+  await expect(navigation).not.toHaveClass(/is-hidden/)
+  await page.getByLabel('Имя').focus()
+  await expect(navigation).toHaveClass(/is-hidden/)
+  await page.getByLabel('Имя').blur()
+  await expect(navigation).not.toHaveClass(/is-hidden/)
+})
+
+test('responsive QA screenshots and critical geometry', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'One screenshot set is sufficient')
+  for (const width of [320, 375, 390, 430, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: width < 768 ? 844 : 900 })
+    await page.goto('/')
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    if (width < 768) {
+      await expect(page.locator('.site-header')).toHaveCSS('height', '72px')
+      await expect(page.locator('.main-nav')).toBeHidden()
+      await expect(page.locator('.scene-navigation')).toBeHidden()
+      const geometry = await page.evaluate(() => ({
+        scroll: document.documentElement.scrollWidth,
+        client: document.documentElement.clientWidth,
+        controls: [...document.querySelectorAll<HTMLElement>('.language-toggle, .theme-toggle, .resume-button')].map((control) => control.getBoundingClientRect().height),
+      }))
+      expect(geometry.scroll).toBeLessThanOrEqual(geometry.client)
+      expect(new Set(geometry.controls).size).toBe(1)
+      await page.locator('.mobile-direction-card img').first().evaluate((image: HTMLImageElement) => image.decode())
+    }
+    await page.screenshot({ path: `qa/screenshots/responsive-${width}.png`, fullPage: false })
+  }
 })
 
 test('approved MP4 assets return video MIME and support byte ranges', async ({ request }) => {
