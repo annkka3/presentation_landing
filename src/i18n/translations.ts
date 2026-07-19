@@ -29,7 +29,7 @@ export const copy = {
     requiredName: 'Enter your name.', requiredContact: 'Enter an email or Telegram handle.', requiredMessage: 'Add a message.', tooLong: 'This text is too long.', success: 'Message sent. Thank you!', configError: 'Message delivery is not configured yet. Please contact me by email or Telegram.', sendError: 'The message could not be sent. Please contact me by email or Telegram.',
     footer: '© 2026 Anna Gromyko · AI Product Builder', top: 'Back to top ↑', notFound: 'Page not found', home: 'Go home', current: 'CURRENT', nav: 'Main navigation', heroGroup: 'Professional focus areas', facts: 'Key facts',
     chapterNavigation: 'Chapter navigation', goToChapter: 'Go to chapter', chapterOf: 'of', scrollExplore: 'SCROLL TO EXPLORE', backToTop: 'BACK TO TOP', chapterHero: 'Home', chapterDirections: 'Focus areas', chapterFeatured: 'Featured case studies', chapterProjects: 'More projects', chapterProcess: 'Process', chapterExpertise: 'Expertise', chapterExperience: 'Experience and education', chapterContact: 'Contact',
-    chooseDirection: 'Choose a focus area →', directionsEyebrow: '02 · PROFESSIONAL FOCUS', directionsHeading: 'Focus areas', directionsIntro: 'Choose an area to explore the relevant case studies.', openDirection: 'Open case studies for', selectedDirection: 'Selected focus',
+    chooseDirection: 'Choose a direction →', directionsEyebrow: '02 · PROFESSIONAL FOCUS', directionsHeading: 'Focus areas', directionsIntro: 'Choose an area to explore the relevant case studies.', openDirection: 'Open case studies for', selectedDirection: 'Selected focus',
   },
 } as const
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FocusEvent, type TouchEvent } from 'react'
+import { useEffect, useRef, useState, type FocusEvent, type TouchEvent, type UIEvent } from 'react'
 import { useApp } from '../app/AppContext'
 import { Footer } from '../components/layout/Footer'
 import { ProjectCard } from '../components/ui/ProjectCard'
@@ -17,7 +17,6 @@ const chapters = [
   { id: 'contact' },
 ] as const
 
-type GoTo = (index: number, instant?: boolean) => void
 type HeroFocus = (typeof heroModes)[number]['key']
 
 function initialChapter() {
@@ -27,37 +26,29 @@ function initialChapter() {
   return stableIndex >= 0 ? stableIndex : numbered ? Math.min(Number(numbered[1]) - 1, chapters.length - 1) : 0
 }
 
-function CarouselNavigation({ active, total, goTo, label }: { active: number; total: number; goTo: GoTo; label: string }) {
-  const { locale } = useApp()
-  return <div className="mobile-carousel-navigation" aria-label={label}>
-    <button type="button" onClick={() => goTo(active - 1)} disabled={active === 0} aria-label={`${label}: ${locale === 'ru' ? 'предыдущий' : 'previous'}`}>←</button>
-    <span className="mobile-carousel-count" aria-live="polite">{String(active + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
-    <span className="mobile-carousel-dots">
-      {Array.from({ length: total }, (_, index) => <button key={index} type="button" className={active === index ? 'is-active' : ''} onClick={() => goTo(index)} aria-label={`${label}: ${index + 1}`} aria-current={active === index ? 'true' : undefined} />)}
-    </span>
-    <button type="button" onClick={() => goTo(active + 1)} disabled={active === total - 1} aria-label={`${label}: ${locale === 'ru' ? 'следующий' : 'next'}`}>→</button>
-  </div>
-}
-
 function MobileHero({ onDirections }: { onDirections: () => void }) {
   const { locale, t } = useApp()
   const proof = locale === 'ru' ? [
     ['20+ лет', 'коммерческого опыта'],
     ['10+ проектов', 'в продукте и дизайне'],
     ['Полный цикл', 'от идеи до релиза'],
-    ['AI-процесс', 'Claude · Codex · Cursor'],
+    ['AI-native подход', 'Claude · Codex · Cursor'],
   ] : [
     ['20+ years', 'commercial experience'],
     ['10+ projects', 'in product and design'],
-    ['Full cycle', 'from idea to launch'],
-    ['AI workflow', 'Claude · Codex · Cursor'],
+    ['Full-cycle', 'from idea to launch'],
+    ['AI-native workflow', 'Claude · Codex · Cursor'],
   ]
 
   return <div className="mobile-hero" id="top">
+    <span className="mobile-hero-eyebrow">01 · AI PRODUCT BUILDER</span>
     <div className="mobile-hero-copy">
       <h1>{t.heroTitle}</h1>
     </div>
     <button className="mobile-hero-directions" type="button" onClick={onDirections}>{t.chooseDirection}</button>
+    <button className="mobile-hero-strip" type="button" onClick={onDirections} aria-label={t.chooseDirection}>
+      {heroModes.map((mode) => <span key={mode.key}><img src={mode.image} alt="" width="900" height="563" loading="eager" decoding="async" style={{ objectPosition: mode.position }} /><small>{mode.num}</small></span>)}
+    </button>
     <div className="mobile-proof-grid" aria-label={t.facts}>{proof.map(([stat, label]) => <div key={stat}><strong>{stat}</strong><span>{label}</span></div>)}</div>
   </div>
 }
@@ -119,17 +110,19 @@ function MobileProjects({ featured, activeFocus = null }: { featured: boolean; a
 
 function MobileProcess() {
   const { locale, t } = useApp()
-  const { ref: carouselRef, active, goTo, onScroll, onKeyDown } = useSnapCarousel(processSteps.length)
+  const [active, setActive] = useState(0)
+  const current = processSteps[active]
   return <div className="mobile-section mobile-process-section">
     <h2>{t.process}</h2>
-    <div className="mobile-process-carousel" data-horizontal-carousel>
-      <div className="mobile-carousel-track" ref={carouselRef} onScroll={onScroll} onKeyDown={onKeyDown} tabIndex={0} role="region" aria-label={t.process}>
-        {processSteps.map((step) => <article className="mobile-process-card" key={step.num} aria-current={active === Number(step.num) - 1 ? 'step' : undefined}>
-          <span>{step.num}</span><h3>{step.title[locale]}</h3><p>{step.description[locale]}</p>
-        </article>)}
+    <div className="mobile-process-editorial">
+      <article className="mobile-process-card" aria-live="polite">
+        <span>{current.num}</span><h3>{current.title[locale]}</h3><p>{current.description[locale]}</p>
+      </article>
+      <div className="mobile-process-list" aria-label={t.process}>
+        {processSteps.map((step, index) => index === active ? null : <button key={step.num} type="button" onClick={() => setActive(index)} aria-label={`${step.num} ${step.title[locale]}`}>
+          <span>{step.num}</span><strong>{step.title[locale]}</strong><i aria-hidden="true">+</i>
+        </button>)}
       </div>
-      <div className="mobile-step-rail" aria-label={t.process}>{processSteps.map((step, index) => <button key={step.num} type="button" className={active === index ? 'is-active' : ''} onClick={() => goTo(index)} aria-current={active === index ? 'step' : undefined}>{step.num}</button>)}</div>
-      <CarouselNavigation active={active} total={processSteps.length} goTo={goTo} label={t.process} />
     </div>
   </div>
 }
@@ -197,6 +190,7 @@ export function MobileHomePage() {
     const hash = `#${chapters[activeChapter].id}`
     if (window.location.hash !== hash) history.replaceState(history.state, '', `${location.pathname}${location.search}${hash}`)
     window.dispatchEvent(new Event('mobile-chapter-change'))
+    window.dispatchEvent(new CustomEvent('mobile-chapter-scroll', { detail: { compact: false } }))
   }, [activeChapter])
 
   const navigateChapter = (index: number, focus: HeroFocus | null = activeFocus) => {
@@ -211,9 +205,14 @@ export function MobileHomePage() {
   const onFocusCapture = (event: FocusEvent<HTMLDivElement>) => {
     if (!(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) return
     setFormFocused(true)
-    requestAnimationFrame(() => event.target.scrollIntoView({ block: 'center', behavior: 'smooth' }))
+    requestAnimationFrame(() => event.target.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }))
   }
   const onBlurCapture = () => requestAnimationFrame(() => setFormFocused(document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement))
+  const onScrollCapture = (event: UIEvent<HTMLDivElement>) => {
+    const target = event.target
+    if (!(target instanceof HTMLElement) || !target.classList.contains('mobile-chapter')) return
+    window.dispatchEvent(new CustomEvent('mobile-chapter-scroll', { detail: { compact: target.scrollTop > 48 } }))
+  }
   const onTouchStart = (event: TouchEvent<HTMLDivElement>) => {
     const point = event.touches[0]
     const target = event.target as HTMLElement
@@ -230,7 +229,7 @@ export function MobileHomePage() {
     navigateChapter(activeChapter + (dx < 0 ? 1 : -1))
   }
 
-  return <div className="mobile-chapter-viewport" onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+  return <div className={`mobile-chapter-viewport ${formFocused ? 'is-form-focused' : ''}`} onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture} onScrollCapture={onScrollCapture} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
     <main id="main" className="mobile-chapter-track" ref={chapterRef} onScroll={onChapterScroll} onKeyDown={onChapterKeyDown} tabIndex={0} aria-label={t.chapterNavigation}>
       <section className="mobile-chapter home-chapter" id="chapter-hero" data-chapter="1"><MobileHero onDirections={() => navigateChapter(1)} /></section>
       <section className="mobile-chapter home-chapter mobile-directions-chapter" id="directions" data-chapter="2" aria-labelledby="mobile-directions-title"><MobileDirections onSelect={selectDirection} /></section>

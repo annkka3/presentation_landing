@@ -84,8 +84,7 @@ export function MobileMenu({ activeHash, onClose, onNavigate }: { activeHash: st
       <div className="mobile-menu-utilities">
         <div className="mobile-menu-resume" aria-label={t.resumeUnavailable}>
           <span>{locale === 'ru' ? 'РЕЗЮМЕ' : 'RÉSUMÉ'}</span>
-          <strong>{locale === 'ru' ? 'Резюме готовится' : 'Résumé coming soon'}</strong>
-          <small>PDF</small>
+          <strong>{locale === 'ru' ? 'PDF · скоро' : 'PDF · coming soon'}</strong>
         </div>
         <div className="mobile-menu-contacts">
           <a href="mailto:annagromyko88@gmail.com"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></a>

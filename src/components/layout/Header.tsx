@@ -11,6 +11,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [resumeMessageVisible, setResumeMessageVisible] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileCompact, setMobileCompact] = useState(false)
   const [activeHash, setActiveHash] = useState(() => window.location.hash.slice(1))
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
@@ -18,6 +19,11 @@ export function Header() {
     update()
     addEventListener('scroll', update, { passive: true })
     return () => removeEventListener('scroll', update)
+  }, [])
+  useEffect(() => {
+    const update = (event: Event) => setMobileCompact(Boolean((event as CustomEvent<{ compact?: boolean }>).detail?.compact))
+    addEventListener('mobile-chapter-scroll', update)
+    return () => removeEventListener('mobile-chapter-scroll', update)
   }, [])
   useEffect(() => {
     const update = () => setActiveHash(window.location.hash.slice(1))
@@ -49,7 +55,7 @@ export function Header() {
     })
   }
   return (
-    <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+    <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${mobileCompact ? 'is-mobile-compact' : ''}`}>
       <Container className="header-inner">
         <Link className="brand" to="/" aria-label="Anna Gromyko — AI Product Builder">
           <span>ANNA GROMYKO</span><small>AI PRODUCT BUILDER</small>

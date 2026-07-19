@@ -15,7 +15,7 @@ export function Contact({ mobile = false }: { mobile?: boolean }) {
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     if (status === 'loading') return
-    const nextErrors = validateContact(values, t)
+    const nextErrors = validateContact(values, t, !mobile)
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length) return
     if (values.website) return
@@ -37,7 +37,7 @@ export function Contact({ mobile = false }: { mobile?: boolean }) {
     </div></div>
     <form className="contact-form" onSubmit={submit} noValidate aria-labelledby="contact-form-heading">
       <h3 id="contact-form-heading">{t.formHeading}</h3><p>{t.formDescription}</p>
-      <div className="form-field"><label htmlFor="name">{t.name}</label><input id="name" value={values.name} onChange={(event) => update('name', event.target.value)} placeholder={t.namePlaceholder} maxLength={101} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'name-error' : undefined}/>{errors.name && <small id="name-error">{errors.name}</small>}</div>
+      {!mobile && <div className="form-field"><label htmlFor="name">{t.name}</label><input id="name" value={values.name} onChange={(event) => update('name', event.target.value)} placeholder={t.namePlaceholder} maxLength={101} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'name-error' : undefined}/>{errors.name && <small id="name-error">{errors.name}</small>}</div>}
       <div className="form-field"><label htmlFor="contact-field">{t.contactField}</label><input id="contact-field" value={values.contact} onChange={(event) => update('contact', event.target.value)} placeholder={t.contactPlaceholder} maxLength={161} aria-invalid={Boolean(errors.contact)} aria-describedby={errors.contact ? 'contact-error' : undefined}/>{errors.contact && <small id="contact-error">{errors.contact}</small>}</div>
       <div className="form-field"><label htmlFor="message">{t.message}</label><textarea id="message" rows={6} value={values.message} onChange={(event) => update('message', event.target.value)} placeholder={t.messagePlaceholder} maxLength={3001} aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? 'message-error' : undefined}/>{errors.message && <small id="message-error">{errors.message}</small>}</div>
       <div className="honeypot" aria-hidden="true"><label htmlFor="website">{t.website}</label><input id="website" tabIndex={-1} autoComplete="off" value={values.website} onChange={(event) => update('website', event.target.value)}/></div>

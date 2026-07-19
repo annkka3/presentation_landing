@@ -70,7 +70,7 @@ export const processSteps = [
   { num: '03', title: l('Готовлю спецификацию', 'Write the specification'), description: l('Фиксирую требования, граничные случаи и критерии готовности.', 'Capture requirements, edge cases, and the definition of done.') },
   { num: '04', title: l('Собираю прототип или MVP', 'Build a prototype or MVP'), description: l('Проектирую интерфейс и веду реализацию с поддержкой AI.', 'Design the interface and lead AI-assisted implementation.') },
   { num: '05', title: l('Проверяю результат', 'Validate the result'), description: l('Тестирую логику, UX, адаптивность и критические сценарии.', 'Test the logic, UX, responsive behavior, and critical scenarios.') },
-  { num: '06', title: l('Документирую решение', 'Document the solution'), description: l('Готовлю передачу результата, описание релиза и план следующей итерации.', 'Prepare the handoff, release notes, and a plan for the next iteration.') },
+  { num: '06', title: l('Передаю решение', 'Deliver the solution'), description: l('Готовлю документацию, материалы для передачи и план следующей итерации.', 'Prepare the documentation, handoff materials, and a plan for the next iteration.') },
 ]
 
 export const experience = [
