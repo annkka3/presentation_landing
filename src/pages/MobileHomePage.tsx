@@ -1,4 +1,4 @@
-import { useEffect, useState, type FocusEvent } from 'react'
+import { useEffect, useRef, useState, type FocusEvent, type TouchEvent } from 'react'
 import { useApp } from '../app/AppContext'
 import { Footer } from '../components/layout/Footer'
 import { ProjectCard } from '../components/ui/ProjectCard'
@@ -106,20 +106,13 @@ function MobileProjects({ featured, activeFocus = null }: { featured: boolean; a
   const { locale, t } = useApp()
   const focusProject: Record<HeroFocus, string> = { product: 'dao-system', design: 'the-dao-way', automation: 'crypto-reality', analytics: 'risk-journal-analytics' }
   const items = projects.filter((project) => project.featured === featured).sort((a, b) => featured && activeFocus ? Number(b.id === focusProject[activeFocus]) - Number(a.id === focusProject[activeFocus]) : 0)
-  const { ref: carouselRef, active, goTo, onScroll, onKeyDown } = useSnapCarousel(items.length)
   const heading = featured ? t.featured : t.more
-  useEffect(() => {
-    if (featured && activeFocus) goTo(0, true)
-  }, [activeFocus, featured, goTo])
 
   return <div className={`mobile-section mobile-projects-section ${featured ? 'is-featured' : 'is-more'}`}>
     <h2>{heading}</h2>
     {featured && activeFocus && <p className="mobile-project-focus">{t.selectedDirection}: <strong>{heroModes.find((mode) => mode.key === activeFocus)?.title[locale]}</strong></p>}
-    <div className="mobile-project-carousel" data-horizontal-carousel>
-      <div className="mobile-carousel-track" ref={carouselRef} onScroll={onScroll} onKeyDown={onKeyDown} tabIndex={0} role="region" aria-label={heading}>
-        {items.map((project) => <ProjectCard key={project.id} project={project} featured={featured} />)}
-      </div>
-      <CarouselNavigation active={active} total={items.length} goTo={goTo} label={heading} />
+    <div className="mobile-project-list" role="list" aria-label={heading}>
+      {items.map((project) => <div role="listitem" key={project.id}><ProjectCard project={project} featured={featured} /></div>)}
     </div>
   </div>
 }
@@ -180,6 +173,7 @@ export function MobileHomePage() {
   const { ref: chapterRef, active: activeChapter, goTo: goToChapter, onScroll: onChapterScroll, onKeyDown: onChapterKeyDown } = useSnapCarousel(chapters.length, initialChapter())
   const [formFocused, setFormFocused] = useState(false)
   const [activeFocus, setActiveFocus] = useState<HeroFocus | null>(() => history.state?.mobileFocus ?? null)
+  const touchStart = useRef<{ x: number; y: number; blocked: boolean } | null>(null)
   const chapterLabels = [t.chapterHero, t.chapterDirections, t.chapterFeatured, t.chapterProjects, t.chapterProcess, t.chapterExpertise, t.chapterExperience, t.chapterContact]
 
   useEffect(() => {
@@ -202,6 +196,7 @@ export function MobileHomePage() {
     if (window.location.pathname !== '/') return
     const hash = `#${chapters[activeChapter].id}`
     if (window.location.hash !== hash) history.replaceState(history.state, '', `${location.pathname}${location.search}${hash}`)
+    window.dispatchEvent(new Event('mobile-chapter-change'))
   }, [activeChapter])
 
   const navigateChapter = (index: number, focus: HeroFocus | null = activeFocus) => {
@@ -219,8 +214,23 @@ export function MobileHomePage() {
     requestAnimationFrame(() => event.target.scrollIntoView({ block: 'center', behavior: 'smooth' }))
   }
   const onBlurCapture = () => requestAnimationFrame(() => setFormFocused(document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement))
+  const onTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    const point = event.touches[0]
+    const target = event.target as HTMLElement
+    touchStart.current = { x: point.clientX, y: point.clientY, blocked: Boolean(target.closest('a,button,input,textarea,select,[data-horizontal-carousel]')) }
+  }
+  const onTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const start = touchStart.current
+    touchStart.current = null
+    if (!start || start.blocked) return
+    const point = event.changedTouches[0]
+    const dx = point.clientX - start.x
+    const dy = point.clientY - start.y
+    if (Math.abs(dx) < 56 || Math.abs(dx) <= Math.abs(dy) * 1.2) return
+    navigateChapter(activeChapter + (dx < 0 ? 1 : -1))
+  }
 
-  return <div className="mobile-chapter-viewport" onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture}>
+  return <div className="mobile-chapter-viewport" onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
     <main id="main" className="mobile-chapter-track" ref={chapterRef} onScroll={onChapterScroll} onKeyDown={onChapterKeyDown} tabIndex={0} aria-label={t.chapterNavigation}>
       <section className="mobile-chapter home-chapter" id="chapter-hero" data-chapter="1"><MobileHero onDirections={() => navigateChapter(1)} /></section>
       <section className="mobile-chapter home-chapter mobile-directions-chapter" id="directions" data-chapter="2" aria-labelledby="mobile-directions-title"><MobileDirections onSelect={selectDirection} /></section>

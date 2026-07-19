@@ -1,20 +1,53 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useLocation } from 'react-router-dom'
 import { useApp } from '../../app/AppContext'
 import { Container } from './Container'
+import { MobileMenu } from './MobileMenu'
 
 export function Header() {
   const { locale, setLocale, theme, toggleTheme, t } = useApp()
+  const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const [resumeMessageVisible, setResumeMessageVisible] = useState(false)
-  const location = useLocation()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [activeHash, setActiveHash] = useState(() => window.location.hash.slice(1))
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 8)
     update()
     addEventListener('scroll', update, { passive: true })
     return () => removeEventListener('scroll', update)
   }, [])
+  useEffect(() => {
+    const update = () => setActiveHash(window.location.hash.slice(1))
+    addEventListener('hashchange', update)
+    addEventListener('popstate', update)
+    addEventListener('mobile-chapter-change', update)
+    return () => {
+      removeEventListener('hashchange', update)
+      removeEventListener('popstate', update)
+      removeEventListener('mobile-chapter-change', update)
+    }
+  }, [])
   const prefix = location.pathname === '/' ? '' : '/'
+  const closeMenu = (restoreFocus = true) => {
+    setMenuOpen(false)
+    if (restoreFocus) requestAnimationFrame(() => menuButtonRef.current?.focus())
+  }
+  const navigateFromMenu = (id: string) => {
+    if (location.pathname !== '/') return
+    if (window.location.hash !== `#${id}`) history.pushState(history.state, '', `#${id}`)
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+    requestAnimationFrame(() => {
+      const chapter = document.getElementById(id)
+      const heading = chapter?.querySelector<HTMLElement>('h1, h2')
+      if (heading) {
+        heading.tabIndex = -1
+        heading.focus({ preventScroll: true })
+      }
+    })
+  }
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
       <Container className="header-inner">
@@ -43,11 +76,15 @@ export function Header() {
             <span className="resume-label-full" aria-hidden="true">{t.resume}</span>
             <span className="resume-label-compact" aria-hidden="true">CV ↓</span>
           </button>
+          <button ref={menuButtonRef} className="mobile-menu-button" type="button" onClick={() => setMenuOpen(true)} aria-label={locale === 'ru' ? 'Открыть меню' : 'Open menu'} aria-expanded={menuOpen} aria-controls="mobile-site-menu">
+            <span aria-hidden="true"><i /><i /></span>
+          </button>
           <span id="resume-status" className={`resume-status ${resumeMessageVisible ? 'is-visible' : ''}`} role="status" aria-live="polite">
             {resumeMessageVisible ? t.resumeUnavailable : ''}
           </span>
         </div>
       </Container>
+      {menuOpen && createPortal(<div id="mobile-site-menu"><MobileMenu activeHash={activeHash} onClose={closeMenu} onNavigate={navigateFromMenu} /></div>, document.body)}
     </header>
   )
 }

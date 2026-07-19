@@ -21,7 +21,7 @@ test('language, theme, routes, form validation and accessibility basics', async 
   expect(errors).toEqual([])
 })
 
-for (const width of [320, 375, 390, 430, 767, 768, 1024, 1440, 1920]) {
+for (const width of [320, 360, 375, 390, 393, 430, 767, 768, 1024, 1440, 1920]) {
   test(`has no horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
@@ -66,23 +66,23 @@ for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 })
     await page.goto('/')
     await expect(page.locator('html')).toHaveAttribute('data-page', 'home')
-    const resume = page.getByRole('button', { name: 'Резюме' })
-    await expect(resume).toBeVisible()
-    await expect(resume).toContainText('CV ↓')
-    const size = await resume.boundingBox()
-    expect(size?.width).toBe(width <= 374 ? 52 : 58)
-    expect(size?.height).toBe(width <= 374 ? 38 : 40)
-    await resume.focus()
-    await expect(resume).toBeFocused()
-    await resume.press('Enter')
-    await expect(page.getByRole('status')).toHaveText('Резюме будет добавлено перед публикацией')
+    const menu = page.getByRole('button', { name: 'Открыть меню' })
+    await expect(menu).toBeVisible()
+    const size = await menu.boundingBox()
+    expect(size?.width).toBe(width <= 374 ? 48 : 52)
+    expect(size?.height).toBe(width <= 374 ? 48 : 52)
+    await menu.click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByText('Резюме готовится')).toBeVisible()
+    await page.getByRole('button', { name: 'Закрыть меню' }).click()
+    await expect(menu).toBeFocused()
     await page.getByRole('button', { name: 'EN' }).click()
-    await expect(page.getByRole('button', { name: 'Resume' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Open menu' })).toBeVisible()
     const metrics = await page.evaluate(() => {
       const box = (selector: string) => document.querySelector<HTMLElement>(selector)?.getBoundingClientRect()
       const brand = box('.brand')
       const actions = box('.header-actions')
-      const controls = [...document.querySelectorAll<HTMLElement>('.language-toggle button, .theme-toggle, .resume-button')].map((control) => {
+      const controls = [...document.querySelectorAll<HTMLElement>('.language-toggle, .theme-toggle, .mobile-menu-button')].map((control) => {
         const rect = control.getBoundingClientRect()
         return { width: rect.width, height: rect.height }
       })
@@ -100,7 +100,7 @@ for (const width of [320, 390]) {
     expect(metrics.actionsVisible).toBe(true)
     expect(metrics.noCollision).toBe(true)
     expect(new Set(metrics.controls.map((control) => control.height)).size).toBe(1)
-    expect(metrics.controls.every((control) => control.height === (width <= 374 ? 38 : 40))).toBe(true)
+    expect(metrics.controls.every((control) => control.height === (width <= 374 ? 48 : 52))).toBe(true)
   })
 }
 
@@ -367,10 +367,11 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
   await expect(page.locator('.mobile-project-focus')).toContainText('АНАЛИТИКА')
   await expect(page.locator('#featured .project-card').first()).toContainText('Risk Journal Analytics')
   await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(780)
-  const chapterBefore = await track.evaluate((node) => node.scrollLeft)
-  await page.locator('#featured .mobile-carousel-navigation > button').last().click()
-  await expect(page.locator('#featured .mobile-carousel-count')).toHaveText('02 / 04')
-  expect(await track.evaluate((node) => node.scrollLeft)).toBe(chapterBefore)
+  await expect(page.locator('#featured .mobile-project-list .project-card')).toHaveCount(4)
+  await expect(page.locator('#more-projects .mobile-project-list .project-card')).toHaveCount(6)
+  await expect(page.locator('#featured .mobile-carousel-navigation, #more-projects .mobile-carousel-navigation')).toHaveCount(0)
+  await expect(page.locator('#featured .mobile-carousel-count, #more-projects .mobile-carousel-count')).toHaveCount(0)
+  await expect(page.locator('.mobile-chapter-navigation')).toHaveCount(1)
 
   await page.getByRole('button', { name: 'EN' }).click()
   await page.getByRole('button', { name: 'Switch theme' }).click()
@@ -381,6 +382,81 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
   await page.goBack()
   await expect(page.locator('.mobile-chapter-navigation')).toContainText('01 / 08')
 })
+
+test('mobile editorial menu traps focus, keeps honest utilities and navigates with history', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#featured')
+  const trigger = page.getByRole('button', { name: 'Открыть меню' })
+  await trigger.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('data-mobile-menu', 'open')
+  await expect(page.locator('.mobile-chapter-navigation')).toHaveCSS('pointer-events', 'none')
+  const close = page.getByRole('button', { name: 'Закрыть меню' })
+  await expect(close).toBeFocused()
+  await page.keyboard.press('Shift+Tab')
+  await expect(dialog.getByRole('link', { name: /github.com\/annkka3/ })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(close).toBeFocused()
+  await expect(dialog.getByRole('link', { name: /03 Избранные кейсы/ })).toHaveAttribute('aria-current', 'page')
+  await expect(dialog.getByText('Резюме готовится')).toBeVisible()
+  await expect(dialog.getByRole('link', { name: /annagromyko88@gmail.com/ })).toHaveAttribute('href', 'mailto:annagromyko88@gmail.com')
+  await page.keyboard.press('Escape')
+  await expect(dialog).toHaveCount(0)
+  await expect(trigger).toBeFocused()
+
+  await trigger.click()
+  await dialog.getByRole('link', { name: /08 Контакты/ }).click()
+  await expect(page).toHaveURL(/#contact$/)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('08 / 08')
+  await page.goBack()
+  await expect(page).toHaveURL(/#featured$/)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await page.getByRole('button', { name: 'EN' }).click()
+  await page.getByRole('button', { name: 'Switch theme' }).click()
+  const persistedTheme = await page.locator('html').getAttribute('data-theme')
+  await page.getByRole('button', { name: 'Open menu' }).click()
+  await expect(page.getByRole('dialog').getByRole('link', { name: /03 Featured Cases/ })).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByText('Résumé coming soon')).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', persistedTheme ?? 'dark')
+  await page.keyboard.press('Escape')
+})
+
+test('mobile chapter swipe uses a deliberate threshold and ignores interactive controls', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#directions')
+  const swipe = async (from: { x: number; y: number }, to: { x: number; y: number }, selector = '.mobile-chapter-viewport') => {
+    await page.dispatchEvent(selector, 'touchstart', { touches: [{ identifier: 1, clientX: from.x, clientY: from.y }], changedTouches: [] })
+    await page.dispatchEvent(selector, 'touchend', { touches: [], changedTouches: [{ identifier: 1, clientX: to.x, clientY: to.y }] })
+  }
+  await swipe({ x: 300, y: 240 }, { x: 260, y: 244 })
+  await expect(page).toHaveURL(/#directions$/)
+  await swipe({ x: 300, y: 180 }, { x: 245, y: 280 })
+  await expect(page).toHaveURL(/#directions$/)
+  await swipe({ x: 330, y: 240 }, { x: 100, y: 250 })
+  await expect(page).toHaveURL(/#featured$/)
+  await swipe({ x: 330, y: 240 }, { x: 80, y: 245 }, '#featured .mobile-project-list > div:first-child .project-card')
+  await expect(page).toHaveURL(/#featured$/)
+})
+
+for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 740 }, { width: 375, height: 667 }, { width: 390, height: 844 }, { width: 393, height: 852 }, { width: 430, height: 932 }]) {
+  test(`mobile menu and single project navigation fit at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport)
+    await page.goto('/#featured')
+    await expect(page.locator('#featured .mobile-project-list .project-card')).toHaveCount(4)
+    await expect(page.locator('#featured .mobile-carousel-navigation, #more-projects .mobile-carousel-navigation')).toHaveCount(0)
+    await expect(page.locator('.mobile-chapter-navigation')).toHaveCount(1)
+    const heights = await page.locator('.language-toggle, .theme-toggle, .mobile-menu-button').evaluateAll((controls) => controls.map((control) => Math.round(control.getBoundingClientRect().height)))
+    expect(new Set(heights).size).toBe(1)
+    await page.getByRole('button', { name: 'Открыть меню' }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    const geometry = await dialog.evaluate((menu) => ({ width: menu.clientWidth, scrollWidth: menu.scrollWidth, height: menu.clientHeight, viewportHeight: innerHeight }))
+    expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.width)
+    expect(geometry.height).toBe(geometry.viewportHeight)
+    await page.getByRole('button', { name: 'Закрыть меню' }).click()
+  })
+}
 
 for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 390, height: 844 }, { width: 430, height: 932 }]) {
   test(`mobile Directions 2x2 grid fits at ${viewport.width}x${viewport.height}`, async ({ page }) => {
@@ -428,7 +504,7 @@ test('responsive QA screenshots and critical geometry', async ({ page }, testInf
       const geometry = await page.evaluate(() => ({
         scroll: document.documentElement.scrollWidth,
         client: document.documentElement.clientWidth,
-        controls: [...document.querySelectorAll<HTMLElement>('.language-toggle, .theme-toggle, .resume-button')].map((control) => control.getBoundingClientRect().height),
+        controls: [...document.querySelectorAll<HTMLElement>('.language-toggle, .theme-toggle, .mobile-menu-button')].map((control) => control.getBoundingClientRect().height),
       }))
       expect(geometry.scroll).toBeLessThanOrEqual(geometry.client)
       expect(new Set(geometry.controls).size).toBe(1)
@@ -436,6 +512,29 @@ test('responsive QA screenshots and critical geometry', async ({ page }, testInf
     }
     await page.screenshot({ path: `qa/screenshots/responsive-${width}.png`, fullPage: false })
   }
+})
+
+test('mobile menu and vertical project QA screenshots', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'One screenshot set is sufficient')
+  await page.addInitScript(() => localStorage.setItem('anna-theme', 'dark'))
+  await page.setViewportSize({ width: 320, height: 568 })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Открыть меню' }).click()
+  await page.screenshot({ path: 'qa/screenshots/mobile-navigation-320.png', fullPage: false })
+  await page.getByRole('button', { name: 'Закрыть меню' }).click()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#featured')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await expect.poll(() => page.locator('.mobile-chapter-track').evaluate((track) => Math.round(track.scrollLeft))).toBe(780)
+  await page.locator('#featured .project-cover img').first().evaluate((image: HTMLImageElement) => image.decode())
+  await page.screenshot({ path: 'qa/screenshots/mobile-navigation-390.png', fullPage: false })
+  await page.setViewportSize({ width: 430, height: 932 })
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await page.getByRole('button', { name: 'Открыть меню' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.waitForTimeout(300)
+  await page.screenshot({ path: 'qa/screenshots/mobile-navigation-430.png', fullPage: false })
 })
 
 test('approved MP4 assets return video MIME and support byte ranges', async ({ request }) => {
