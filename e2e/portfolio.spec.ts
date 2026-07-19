@@ -254,7 +254,7 @@ test('mandatory scene snap is vertical on desktop and horizontal on mobile', asy
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.locator('.scroll-container')).toHaveCount(0)
   await expect(page.locator('.mobile-chapter-track')).toHaveCSS('scroll-snap-type', 'x mandatory')
-  await expect(page.locator('.mobile-chapter')).toHaveCount(7)
+  await expect(page.locator('.mobile-chapter')).toHaveCount(8)
   await expect(page.locator('.mobile-chapter').first()).toHaveCSS('scroll-snap-align', 'start')
   await expect(page.locator('.scene-navigation')).toBeHidden()
 })
@@ -315,7 +315,8 @@ test('direct Contact anchor restores the mobile chapter', async ({ page }) => {
   await expect(page.locator('.mobile-chapter-track')).toHaveCSS('scroll-snap-type', 'x mandatory')
   await expect(page.locator('#contact')).toBeInViewport()
   await expect(page.locator('#contact .contact-form')).toBeVisible()
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('07 / 07')
+  await expect(page.locator('#contact .contact-eyebrow')).toHaveText('08 · КОНТАКТ')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('08 / 08')
 })
 
 test('desktop Hero plays only the active approved video and pauses offscreen', async ({ page }, testInfo) => {
@@ -334,15 +335,14 @@ test('desktop Hero plays only the active approved video and pauses offscreen', a
   await expect.poll(() => page.locator('.hero-panel video').evaluateAll((videos: HTMLVideoElement[]) => videos.every((video) => video.paused && video.currentTime === 0))).toBe(true)
 })
 
-test('mobile keeps static Hero posters and never requests video files', async ({ page }) => {
+test('mobile Directions uses static visuals and never requests video files', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const videoRequests: string[] = []
   page.on('request', (request) => { if (/\.mp4(?:\?|$)/.test(request.url())) videoRequests.push(request.url()) })
   await page.goto('/')
-  await expect(page.locator('.mobile-direction-card')).toHaveCount(4)
-  await page.locator('.mobile-direction-selector button').last().click()
-  await expect(page.locator('.mobile-direction-card video')).toHaveCount(0)
-  await expect(page.locator('.mobile-direction-card > img')).toHaveCount(4)
+  await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
+  await expect(page.locator('.mobile-direction-tile video')).toHaveCount(0)
+  await expect(page.locator('.mobile-direction-tile > img')).toHaveCount(4)
   expect(videoRequests).toEqual([])
 })
 
@@ -350,15 +350,23 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
   const track = page.locator('.mobile-chapter-track')
-  await expect(track.locator(':scope > .mobile-chapter')).toHaveCount(7)
-  await expect(page.locator('.mobile-direction-card')).toHaveCount(4)
+  await expect(track.locator(':scope > .mobile-chapter')).toHaveCount(8)
+  await expect(page.locator('.mobile-hero .mobile-proof-grid > div')).toHaveCount(4)
+  await expect(page.locator('.mobile-hero .mobile-direction-tile, .mobile-hero .mobile-direction-card')).toHaveCount(0)
+  await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
   await expect(page.locator('.mobile-skills-accordion article.is-open')).toHaveCount(1)
   await expect(page.locator('.mobile-experience-tabs [aria-selected="true"]')).toHaveText('Опыт')
 
-  await page.locator('.mobile-chapter-dots button').nth(1).click()
-  await expect(page).toHaveURL(/#featured$/)
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 07')
+  await page.getByRole('button', { name: 'Выбрать направление →' }).click()
+  await expect(page).toHaveURL(/#directions$/)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
   await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(390)
+  await page.getByRole('button', { name: 'Открыть кейсы направления АНАЛИТИКА' }).click()
+  await expect(page).toHaveURL(/#featured$/)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await expect(page.locator('.mobile-project-focus')).toContainText('АНАЛИТИКА')
+  await expect(page.locator('#featured .project-card').first()).toContainText('Risk Journal Analytics')
+  await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(780)
   const chapterBefore = await track.evaluate((node) => node.scrollLeft)
   await page.locator('#featured .mobile-carousel-navigation > button').last().click()
   await expect(page.locator('#featured .mobile-carousel-count')).toHaveText('02 / 04')
@@ -366,11 +374,34 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
 
   await page.getByRole('button', { name: 'EN' }).click()
   await page.getByRole('button', { name: 'Switch theme' }).click()
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 07')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
   await expect(page).toHaveURL(/#featured$/)
   await page.goBack()
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('01 / 07')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
+  await page.goBack()
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('01 / 08')
 })
+
+for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 390, height: 844 }, { width: 430, height: 932 }]) {
+  test(`mobile Directions 2x2 grid fits at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport)
+    await page.goto('/#directions')
+    await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
+    const metrics = await page.evaluate(() => {
+      const chapter = document.querySelector<HTMLElement>('.mobile-directions-chapter')!
+      const heading = document.querySelector<HTMLElement>('.mobile-directions-header')!.getBoundingClientRect()
+      const grid = document.querySelector<HTMLElement>('.mobile-directions-grid')!.getBoundingClientRect()
+      const nav = document.querySelector<HTMLElement>('.mobile-chapter-navigation')!.getBoundingClientRect()
+      const cards = [...document.querySelectorAll<HTMLElement>('.mobile-direction-tile')].map((card) => card.getBoundingClientRect())
+      return { chapterScrolls: chapter.scrollHeight > chapter.clientHeight, headingBottom: heading.bottom, gridTop: grid.top, gridBottom: grid.bottom, navTop: nav.top, cardsVisible: cards.every((card) => card.width > 0 && card.height > 0), overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }
+    })
+    expect(metrics.chapterScrolls).toBe(false)
+    expect(metrics.headingBottom).toBeLessThanOrEqual(metrics.gridTop)
+    expect(metrics.gridBottom).toBeLessThanOrEqual(metrics.navTop)
+    expect(metrics.cardsVisible).toBe(true)
+    expect(metrics.overflow).toBeLessThanOrEqual(0)
+  })
+}
 
 test('mobile Contact focus clears the safe bottom navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
@@ -385,9 +416,10 @@ test('mobile Contact focus clears the safe bottom navigation', async ({ page }) 
 
 test('responsive QA screenshots and critical geometry', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'mobile', 'One screenshot set is sufficient')
-  for (const width of [320, 375, 390, 430, 768, 1024, 1440]) {
-    await page.setViewportSize({ width, height: width < 768 ? 844 : 900 })
-    await page.goto('/')
+  const viewports = [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 768, height: 900 }, { width: 1024, height: 900 }, { width: 1440, height: 900 }]
+  for (const { width, height } of viewports) {
+    await page.setViewportSize({ width, height })
+    await page.goto(width < 768 ? '/#directions' : '/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     if (width < 768) {
       await expect(page.locator('.site-header')).toHaveCSS('height', '72px')
@@ -400,7 +432,7 @@ test('responsive QA screenshots and critical geometry', async ({ page }, testInf
       }))
       expect(geometry.scroll).toBeLessThanOrEqual(geometry.client)
       expect(new Set(geometry.controls).size).toBe(1)
-      await page.locator('.mobile-direction-card img').first().evaluate((image: HTMLImageElement) => image.decode())
+      await page.locator('.mobile-direction-tile img').first().evaluate((image: HTMLImageElement) => image.decode())
     }
     await page.screenshot({ path: `qa/screenshots/responsive-${width}.png`, fullPage: false })
   }
