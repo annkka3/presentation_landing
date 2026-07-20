@@ -26,6 +26,11 @@ export function Header() {
     return () => removeEventListener('mobile-chapter-scroll', update)
   }, [])
   useEffect(() => {
+    if (mobileCompact) document.documentElement.dataset.mobileHeader = 'compact'
+    else delete document.documentElement.dataset.mobileHeader
+    return () => { delete document.documentElement.dataset.mobileHeader }
+  }, [mobileCompact])
+  useEffect(() => {
     const update = () => setActiveHash(window.location.hash.slice(1))
     addEventListener('hashchange', update)
     addEventListener('popstate', update)

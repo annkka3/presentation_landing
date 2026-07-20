@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FocusEvent, type TouchEvent, type UIEvent } from 'react'
+import { useEffect, useRef, useState, type FocusEvent, type ReactNode, type TouchEvent, type UIEvent } from 'react'
 import { useApp } from '../app/AppContext'
 import { Footer } from '../components/layout/Footer'
 import { ProjectCard } from '../components/ui/ProjectCard'
@@ -44,11 +44,16 @@ function MobileHero({ onDirections }: { onDirections: () => void }) {
     <span className="mobile-hero-eyebrow">01 · AI PRODUCT BUILDER</span>
     <div className="mobile-hero-copy">
       <h1>{t.heroTitle}</h1>
+      <p>{locale === 'ru' ? 'От продуктовой архитектуры и визуальной системы до реализации, проверки и запуска.' : 'From product architecture and visual systems to implementation, validation, and launch.'}</p>
     </div>
-    <button className="mobile-hero-directions" type="button" onClick={onDirections}>{t.chooseDirection}</button>
-    <button className="mobile-hero-strip" type="button" onClick={onDirections} aria-label={t.chooseDirection}>
-      {heroModes.map((mode) => <span key={mode.key}><img src={mode.image} alt="" width="900" height="563" loading="eager" decoding="async" style={{ objectPosition: mode.position }} /><small>{mode.num}</small></span>)}
+    <button className="mobile-hero-composite" type="button" onClick={onDirections} aria-label={t.chooseDirection}>
+      <span className="mobile-hero-composite-design"><img src="/assets/design.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
+      <span className="mobile-hero-composite-product"><img src="/assets/product.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
+      <span className="mobile-hero-composite-automation"><img src="/assets/automation.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
+      <svg className="mobile-hero-data-layer" viewBox="0 0 1000 625" preserveAspectRatio="none" aria-hidden="true"><path d="M34 465 C178 390 252 444 372 330 S570 238 690 292 S826 184 970 128"/><circle cx="372" cy="330" r="8"/><circle cx="690" cy="292" r="8"/><circle cx="970" cy="128" r="8"/></svg>
+      <span className="mobile-hero-composite-labels" aria-hidden="true"><i>PRODUCT</i><i>DESIGN</i><i>AI</i><i>DATA</i></span>
     </button>
+    <button className="mobile-hero-directions" type="button" onClick={onDirections}>{t.chooseDirection}</button>
     <div className="mobile-proof-grid" aria-label={t.facts}>{proof.map(([stat, label]) => <div key={stat}><strong>{stat}</strong><span>{label}</span></div>)}</div>
   </div>
 }
@@ -111,20 +116,40 @@ function MobileProjects({ featured, activeFocus = null }: { featured: boolean; a
 function MobileProcess() {
   const { locale, t } = useApp()
   const [active, setActive] = useState(0)
-  const current = processSteps[active]
   return <div className="mobile-section mobile-process-section">
     <h2>{t.process}</h2>
-    <div className="mobile-process-editorial">
-      <article className="mobile-process-card" aria-live="polite">
-        <span>{current.num}</span><h3>{current.title[locale]}</h3><p>{current.description[locale]}</p>
-      </article>
-      <div className="mobile-process-list" aria-label={t.process}>
-        {processSteps.map((step, index) => index === active ? null : <button key={step.num} type="button" onClick={() => setActive(index)} aria-label={`${step.num} ${step.title[locale]}`}>
-          <span>{step.num}</span><strong>{step.title[locale]}</strong><i aria-hidden="true">+</i>
-        </button>)}
-      </div>
+    <div className="mobile-process-timeline" aria-label={t.process}>
+      {processSteps.map((step, index) => {
+        const expanded = active === index
+        return <article className={expanded ? 'is-active' : ''} key={step.num}>
+          <button type="button" onClick={() => setActive(index)} aria-expanded={expanded} aria-controls={`mobile-process-${step.num}`}>
+            <i className="mobile-process-dot" aria-hidden="true"/><span>{step.num}</span><strong>{step.title[locale]}</strong><em aria-hidden="true">{expanded ? '−' : '+'}</em>
+          </button>
+          <div id={`mobile-process-${step.num}`} className="mobile-process-detail" hidden={!expanded} aria-live="polite">
+            <p>{step.description[locale]}</p><small>{locale === 'ru' ? 'РЕЗУЛЬТАТ' : 'OUTCOME'}</small><strong>{step.result[locale]}</strong>
+          </div>
+        </article>
+      })}
     </div>
   </div>
+}
+
+function MobileChapter({ id, index, active, className = '', labelledBy, navigation, children }: { id: string; index: number; active: boolean; className?: string; labelledBy?: string; navigation: ReactNode; children: ReactNode }) {
+  return <section className={`mobile-chapter home-chapter ${className}`} id={id} data-chapter={index + 1} aria-labelledby={labelledBy}>
+    <div className="mobile-chapter-content">{children}</div>
+    {active && <div className="mobile-chapter-navigation-slot">{navigation}</div>}
+  </section>
+}
+
+function MobileChapterNavigation({ activeChapter, formFocused, labels, navigate, scrollTop }: { activeChapter: number; formFocused: boolean; labels: string[]; navigate: (index: number) => void; scrollTop: () => void }) {
+  const { t } = useApp()
+  const finalChapter = activeChapter === chapters.length - 1
+  return <nav className={`mobile-chapter-navigation ${formFocused ? 'is-hidden' : ''}`} aria-label={t.chapterNavigation}>
+    <button type="button" onClick={() => navigate(activeChapter - 1)} disabled={activeChapter === 0} aria-label={`${t.goToChapter} ${Math.max(activeChapter, 1)} ${t.chapterOf} 8`}>←</button>
+    <span aria-live="polite">{String(activeChapter + 1).padStart(2, '0')} / 08</span>
+    <span className="mobile-chapter-dots">{chapters.map((item, index) => <button key={item.id} type="button" className={activeChapter === index ? 'is-active' : ''} onClick={() => navigate(index)} aria-label={`${t.goToChapter} ${index + 1}: ${labels[index]}`} aria-current={activeChapter === index ? 'step' : undefined} />)}</span>
+    <button type="button" onClick={finalChapter ? scrollTop : () => navigate(activeChapter + 1)} aria-label={finalChapter ? t.top : `${t.goToChapter} ${activeChapter + 2} ${t.chapterOf} 8`}>{finalChapter ? '↑' : '→'}</button>
+  </nav>
 }
 
 function MobileSkills() {
@@ -202,6 +227,7 @@ export function MobileHomePage() {
     setActiveFocus(focus)
     navigateChapter(2, focus)
   }
+  const scrollActiveChapterTop = () => document.getElementById(chapters[activeChapter].id)?.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   const onFocusCapture = (event: FocusEvent<HTMLDivElement>) => {
     if (!(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) return
     setFormFocused(true)
@@ -229,22 +255,18 @@ export function MobileHomePage() {
     navigateChapter(activeChapter + (dx < 0 ? 1 : -1))
   }
 
+  const navigation = <MobileChapterNavigation activeChapter={activeChapter} formFocused={formFocused} labels={chapterLabels} navigate={navigateChapter} scrollTop={scrollActiveChapterTop}/>
+
   return <div className={`mobile-chapter-viewport ${formFocused ? 'is-form-focused' : ''}`} onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture} onScrollCapture={onScrollCapture} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
     <main id="main" className="mobile-chapter-track" ref={chapterRef} onScroll={onChapterScroll} onKeyDown={onChapterKeyDown} tabIndex={0} aria-label={t.chapterNavigation}>
-      <section className="mobile-chapter home-chapter" id="chapter-hero" data-chapter="1"><MobileHero onDirections={() => navigateChapter(1)} /></section>
-      <section className="mobile-chapter home-chapter mobile-directions-chapter" id="directions" data-chapter="2" aria-labelledby="mobile-directions-title"><MobileDirections onSelect={selectDirection} /></section>
-      <section className="mobile-chapter home-chapter" id="featured" data-chapter="3"><MobileProjects featured activeFocus={activeFocus} /></section>
-      <section className="mobile-chapter home-chapter" id="more-projects" data-chapter="4"><MobileProjects featured={false} /></section>
-      <section className="mobile-chapter home-chapter" id="process" data-chapter="5"><MobileProcess /></section>
-      <section className="mobile-chapter home-chapter" id="skills" data-chapter="6"><MobileSkills /></section>
-      <section className="mobile-chapter home-chapter" id="experience-education" data-chapter="7"><MobileExperience /></section>
-      <section className="mobile-chapter home-chapter mobile-contact-chapter" id="contact" data-chapter="8"><Contact mobile /><Footer /></section>
+      <MobileChapter id="chapter-hero" index={0} active={activeChapter === 0} navigation={navigation}><MobileHero onDirections={() => navigateChapter(1)} /></MobileChapter>
+      <MobileChapter id="directions" index={1} active={activeChapter === 1} navigation={navigation} className="mobile-directions-chapter" labelledBy="mobile-directions-title"><MobileDirections onSelect={selectDirection} /></MobileChapter>
+      <MobileChapter id="featured" index={2} active={activeChapter === 2} navigation={navigation}><MobileProjects featured activeFocus={activeFocus} /></MobileChapter>
+      <MobileChapter id="more-projects" index={3} active={activeChapter === 3} navigation={navigation}><MobileProjects featured={false} /></MobileChapter>
+      <MobileChapter id="process" index={4} active={activeChapter === 4} navigation={navigation}><MobileProcess /></MobileChapter>
+      <MobileChapter id="skills" index={5} active={activeChapter === 5} navigation={navigation}><MobileSkills /></MobileChapter>
+      <MobileChapter id="experience-education" index={6} active={activeChapter === 6} navigation={navigation}><MobileExperience /></MobileChapter>
+      <MobileChapter id="contact" index={7} active={activeChapter === 7} navigation={navigation} className="mobile-contact-chapter"><Contact mobile /><Footer /></MobileChapter>
     </main>
-    <nav className={`mobile-chapter-navigation ${formFocused ? 'is-hidden' : ''}`} aria-label={t.chapterNavigation}>
-      <button type="button" onClick={() => navigateChapter(activeChapter - 1)} disabled={activeChapter === 0} aria-label={`${t.goToChapter} ${Math.max(activeChapter, 1)} ${t.chapterOf} 8`}>←</button>
-      <span aria-live="polite">{String(activeChapter + 1).padStart(2, '0')} / 08</span>
-      <span className="mobile-chapter-dots">{chapters.map((item, index) => <button key={item.id} type="button" className={activeChapter === index ? 'is-active' : ''} onClick={() => navigateChapter(index)} aria-label={`${t.goToChapter} ${index + 1}: ${chapterLabels[index]}`} aria-current={activeChapter === index ? 'step' : undefined} />)}</span>
-      <button type="button" onClick={() => navigateChapter(activeChapter === chapters.length - 1 ? 0 : activeChapter + 1)} aria-label={activeChapter === chapters.length - 1 ? t.top : `${t.goToChapter} ${activeChapter + 2} ${t.chapterOf} 8`}>{activeChapter === chapters.length - 1 ? '↑' : '→'}</button>
-    </nav>
   </div>
 }

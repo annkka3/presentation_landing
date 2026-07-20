@@ -65,12 +65,12 @@ export const skills: LocalizedItem[] = [
 ]
 
 export const processSteps = [
-  { num: '01', title: l('Разбираю бизнес-задачу', 'Frame the business problem'), description: l('Определяю цель, ограничения и критерии результата.', 'Define the goal, constraints, and success criteria.') },
-  { num: '02', title: l('Проектирую структуру', 'Design the structure'), description: l('Формирую архитектуру, пользовательские сценарии и ключевые состояния.', 'Define the architecture, user flows, and key states.') },
-  { num: '03', title: l('Готовлю спецификацию', 'Write the specification'), description: l('Фиксирую требования, граничные случаи и критерии готовности.', 'Capture requirements, edge cases, and the definition of done.') },
-  { num: '04', title: l('Собираю прототип или MVP', 'Build a prototype or MVP'), description: l('Проектирую интерфейс и веду реализацию с поддержкой AI.', 'Design the interface and lead AI-assisted implementation.') },
-  { num: '05', title: l('Проверяю результат', 'Validate the result'), description: l('Тестирую логику, UX, адаптивность и критические сценарии.', 'Test the logic, UX, responsive behavior, and critical scenarios.') },
-  { num: '06', title: l('Передаю решение', 'Deliver the solution'), description: l('Готовлю документацию, материалы для передачи и план следующей итерации.', 'Prepare the documentation, handoff materials, and a plan for the next iteration.') },
+  { num: '01', title: l('Разбираю бизнес-задачу', 'Frame the business problem'), description: l('Определяю цель, ограничения и критерии результата.', 'Define the goal, constraints, and success criteria.'), result: l('Краткий бриф и критерии успеха.', 'A concise brief and success criteria.') },
+  { num: '02', title: l('Проектирую структуру', 'Design the structure'), description: l('Формирую архитектуру, пользовательские сценарии и ключевые состояния.', 'Define the architecture, user flows, and key states.'), result: l('Карта продукта и пользовательские сценарии.', 'A product map and user flows.') },
+  { num: '03', title: l('Готовлю спецификацию', 'Write the specification'), description: l('Фиксирую требования, граничные случаи и критерии готовности.', 'Capture requirements, edge cases, and the definition of done.'), result: l('Спецификация и критерии приёмки.', 'A specification and acceptance criteria.') },
+  { num: '04', title: l('Собираю прототип или MVP', 'Build a prototype or MVP'), description: l('Проектирую интерфейс и веду реализацию с поддержкой AI.', 'Design the interface and lead AI-assisted implementation.'), result: l('Прототип или рабочая версия продукта.', 'A prototype or working product version.') },
+  { num: '05', title: l('Проверяю результат', 'Validate the result'), description: l('Тестирую логику, UX, адаптивность и критические сценарии.', 'Test the logic, UX, responsive behavior, and critical scenarios.'), result: l('QA-отчёт и перечень исправлений.', 'A QA report and a prioritized fix list.') },
+  { num: '06', title: l('Передаю решение', 'Deliver the solution'), description: l('Готовлю документацию, материалы для передачи и план следующей итерации.', 'Prepare the documentation, handoff materials, and a plan for the next iteration.'), result: l('Документация и план дальнейшего развития.', 'Documentation and a plan for the next iteration.') },
 ]
 
 export const experience = [

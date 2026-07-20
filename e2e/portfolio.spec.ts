@@ -55,7 +55,7 @@ test('canonical ЦветиМир route, legacy alias and internal link stay cano
   await page.getByRole('button', { name: 'EN' }).click()
   await expect(page.getByRole('heading', { level: 1, name: 'TsvetiMir' })).toBeVisible()
   await page.getByRole('link', { name: '← Back to home' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL(/\/(?:#chapter-hero)?$/)
 
   await page.goto('/projects/cvetimir')
   await expect(page).toHaveURL(/\/projects\/tsvetimir$/)
@@ -353,7 +353,9 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
   const track = page.locator('.mobile-chapter-track')
   await expect(track.locator(':scope > .mobile-chapter')).toHaveCount(8)
   await expect(page.locator('.mobile-hero .mobile-proof-grid > div')).toHaveCount(4)
-  await expect(page.locator('.mobile-hero-strip img')).toHaveCount(4)
+  await expect(page.locator('.mobile-hero-composite img')).toHaveCount(3)
+  await expect(page.locator('.mobile-hero-composite-labels i')).toHaveCount(4)
+  await expect(page.locator('.mobile-hero-copy')).toContainText('От продуктовой архитектуры и визуальной системы до реализации, проверки и запуска.')
   await expect(page.locator('.mobile-hero')).toContainText('AI-native подход')
   await expect(page.locator('.mobile-hero .mobile-direction-tile, .mobile-hero .mobile-direction-card')).toHaveCount(0)
   await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
@@ -374,7 +376,8 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
   await expect(page.locator('#more-projects .mobile-project-list .project-card')).toHaveCount(6)
   await expect(page.locator('#featured .mobile-carousel-navigation, #more-projects .mobile-carousel-navigation')).toHaveCount(0)
   await expect(page.locator('#featured .mobile-carousel-count, #more-projects .mobile-carousel-count')).toHaveCount(0)
-  await expect(page.locator('#process .mobile-process-list button')).toHaveCount(5)
+  await expect(page.locator('#process .mobile-process-timeline article')).toHaveCount(6)
+  await expect(page.locator('#process .mobile-process-timeline article.is-active')).toHaveCount(1)
   await expect(page.locator('#process .mobile-carousel-navigation, #process .mobile-step-rail, #process .mobile-carousel-count')).toHaveCount(0)
   await expect(page.locator('.mobile-chapter-navigation')).toHaveCount(1)
 
@@ -451,13 +454,16 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 740 }
     await expect(page.locator('#featured .mobile-project-list .project-card')).toHaveCount(4)
     await expect(page.locator('#featured .mobile-carousel-navigation, #more-projects .mobile-carousel-navigation')).toHaveCount(0)
     await expect(page.locator('.mobile-chapter-navigation')).toHaveCount(1)
-    const safeZone = await page.evaluate(() => {
-      const track = document.querySelector<HTMLElement>('.mobile-chapter-track')!.getBoundingClientRect()
-      const navigation = document.querySelector<HTMLElement>('.mobile-chapter-navigation')!.getBoundingClientRect()
-      return { gap: navigation.top - track.bottom, navigationBottom: navigation.bottom, viewportHeight: innerHeight }
+    await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+    const navigationFlow = await page.evaluate(() => {
+      const chapter = document.querySelector<HTMLElement>('#featured')!
+      const content = chapter.querySelector<HTMLElement>('.mobile-chapter-content')!.getBoundingClientRect()
+      const slot = chapter.querySelector<HTMLElement>('.mobile-chapter-navigation-slot')!.getBoundingClientRect()
+      const navigation = chapter.querySelector<HTMLElement>('.mobile-chapter-navigation')!
+      return { gap: slot.top - content.bottom, position: getComputedStyle(navigation).position }
     })
-    expect(safeZone.gap).toBeGreaterThanOrEqual(18)
-    expect(safeZone.navigationBottom).toBeLessThanOrEqual(safeZone.viewportHeight)
+    expect(navigationFlow.gap).toBeGreaterThanOrEqual(0)
+    expect(navigationFlow.position).toBe('relative')
     const heights = await page.locator('.language-toggle, .theme-toggle, .mobile-menu-button').evaluateAll((controls) => controls.map((control) => Math.round(control.getBoundingClientRect().height)))
     expect(new Set(heights).size).toBe(1)
     await page.getByRole('button', { name: 'Открыть меню' }).click()
@@ -475,17 +481,18 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
     await page.setViewportSize(viewport)
     await page.goto('/#directions')
     await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
+    await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
     const metrics = await page.evaluate(() => {
       const chapter = document.querySelector<HTMLElement>('.mobile-directions-chapter')!
       const heading = document.querySelector<HTMLElement>('.mobile-directions-header')!.getBoundingClientRect()
       const grid = document.querySelector<HTMLElement>('.mobile-directions-grid')!.getBoundingClientRect()
-      const nav = document.querySelector<HTMLElement>('.mobile-chapter-navigation')!.getBoundingClientRect()
+      const slot = document.querySelector<HTMLElement>('.mobile-chapter-navigation-slot')!.getBoundingClientRect()
       const cards = [...document.querySelectorAll<HTMLElement>('.mobile-direction-tile')].map((card) => card.getBoundingClientRect())
-      return { chapterScrolls: chapter.scrollHeight > chapter.clientHeight, headingBottom: heading.bottom, gridTop: grid.top, gridBottom: grid.bottom, navTop: nav.top, cardsVisible: cards.every((card) => card.width > 0 && card.height > 0), overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }
+      return { chapterScrolls: chapter.scrollHeight > chapter.clientHeight, headingBottom: heading.bottom, gridTop: grid.top, gridBottom: grid.bottom, slotTop: slot.top, cardsVisible: cards.every((card) => card.width > 0 && card.height > 0), overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }
     })
     expect(metrics.chapterScrolls).toBe(false)
     expect(metrics.headingBottom).toBeLessThanOrEqual(metrics.gridTop)
-    expect(metrics.gridBottom).toBeLessThanOrEqual(metrics.navTop)
+    expect(metrics.gridBottom).toBeLessThanOrEqual(metrics.slotTop)
     expect(metrics.cardsVisible).toBe(true)
     expect(metrics.overflow).toBeLessThanOrEqual(0)
   })
@@ -503,8 +510,10 @@ test('mobile Contact focus clears the safe bottom navigation', async ({ page }) 
   const submitGeometry = await page.evaluate(() => ({
     submitBottom: document.querySelector<HTMLElement>('#contact .submit-button')!.getBoundingClientRect().bottom,
     trackBottom: document.querySelector<HTMLElement>('.mobile-chapter-track')!.getBoundingClientRect().bottom,
+    slotTop: document.querySelector<HTMLElement>('#contact .mobile-chapter-navigation-slot')!.getBoundingClientRect().top,
   }))
   expect(submitGeometry.submitBottom).toBeLessThanOrEqual(submitGeometry.trackBottom)
+  expect(submitGeometry.submitBottom).toBeLessThan(submitGeometry.slotTop)
   await expect(navigation).not.toHaveClass(/is-hidden/)
   await page.getByLabel('Email или Telegram').focus()
   await expect(navigation).toHaveClass(/is-hidden/)
@@ -516,12 +525,14 @@ test('mobile Process is one editorial list with a single expanded step', async (
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#process')
   await expect(page.locator('.mobile-chapter-navigation')).toContainText('05 / 08')
-  await expect(page.locator('#process .mobile-process-card h3')).toHaveText('Разбираю бизнес-задачу')
-  await expect(page.locator('#process .mobile-process-list button')).toHaveCount(5)
+  await expect(page.locator('#process .mobile-process-timeline article')).toHaveCount(6)
+  await expect(page.locator('#process .mobile-process-timeline article.is-active button strong')).toHaveText('Разбираю бизнес-задачу')
+  await expect(page.locator('#process .mobile-process-timeline article.is-active .mobile-process-detail > strong')).toHaveText('Краткий бриф и критерии успеха.')
   await expect(page.locator('#process .mobile-carousel-navigation, #process .mobile-step-rail, #process .mobile-carousel-count')).toHaveCount(0)
   await page.getByRole('button', { name: '04 Собираю прототип или MVP' }).click()
-  await expect(page.locator('#process .mobile-process-card h3')).toHaveText('Собираю прототип или MVP')
-  await expect(page.locator('#process .mobile-process-list button')).toHaveCount(5)
+  await expect(page.locator('#process .mobile-process-timeline article.is-active button strong')).toHaveText('Собираю прототип или MVP')
+  await expect(page.locator('#process .mobile-process-timeline article.is-active .mobile-process-detail > strong')).toHaveText('Прототип или рабочая версия продукта.')
+  await expect(page.locator('#process .mobile-process-timeline article')).toHaveCount(6)
 })
 
 test('mobile chapter scroll compacts and restores the header brand', async ({ page }) => {
@@ -546,11 +557,13 @@ test('mobile project CTAs stay above the shared chapter safe zone', async ({ pag
     await cta.scrollIntoViewIfNeeded()
     const geometry = await page.evaluate((chapterId) => ({
       ctaBottom: document.querySelector<HTMLElement>(`#${chapterId} .project-card .card-cta`)!.getBoundingClientRect().bottom,
-      trackBottom: document.querySelector<HTMLElement>('.mobile-chapter-track')!.getBoundingClientRect().bottom,
-      navTop: document.querySelector<HTMLElement>('.mobile-chapter-navigation')!.getBoundingClientRect().top,
+      contentBottom: document.querySelector<HTMLElement>(`#${chapterId} .mobile-chapter-content`)!.getBoundingClientRect().bottom,
+      slotTop: document.querySelector<HTMLElement>(`#${chapterId} .mobile-chapter-navigation-slot`)!.getBoundingClientRect().top,
+      navPosition: getComputedStyle(document.querySelector<HTMLElement>(`#${chapterId} .mobile-chapter-navigation`)!).position,
     }), id)
-    expect(geometry.ctaBottom).toBeLessThanOrEqual(geometry.trackBottom)
-    expect(geometry.trackBottom).toBeLessThan(geometry.navTop)
+    expect(geometry.ctaBottom).toBeLessThan(geometry.slotTop)
+    expect(geometry.contentBottom).toBeLessThanOrEqual(geometry.slotTop)
+    expect(geometry.navPosition).toBe('relative')
   }
 })
 
@@ -560,17 +573,17 @@ test('mobile landscape keeps Directions and the global navigator usable', async 
   await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
   await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
   const geometry = await page.evaluate(() => {
-    const track = document.querySelector<HTMLElement>('.mobile-chapter-track')!.getBoundingClientRect()
-    const navigation = document.querySelector<HTMLElement>('.mobile-chapter-navigation')!.getBoundingClientRect()
+    const grid = document.querySelector<HTMLElement>('.mobile-directions-grid')!.getBoundingClientRect()
+    const slot = document.querySelector<HTMLElement>('.mobile-chapter-navigation-slot')!.getBoundingClientRect()
     const subtitle = document.querySelector<HTMLElement>('.brand small')!.getBoundingClientRect()
     return {
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      safeGap: navigation.top - track.bottom,
+      flowGap: slot.top - grid.bottom,
       subtitleHeight: subtitle.height,
     }
   })
   expect(geometry.overflow).toBeLessThanOrEqual(0)
-  expect(geometry.safeGap).toBeGreaterThanOrEqual(18)
+  expect(geometry.flowGap).toBeGreaterThanOrEqual(0)
   expect(geometry.subtitleHeight).toBe(0)
 })
 
@@ -621,13 +634,13 @@ test('mobile menu and vertical project QA screenshots', async ({ page }, testInf
   await page.screenshot({ path: 'qa/screenshots/mobile-navigation-430.png', fullPage: false })
 })
 
-test('mobile polish QA screenshots', async ({ page }, testInfo) => {
+test('mobile recomposition QA screenshots', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'mobile', 'One screenshot set is sufficient')
   await page.addInitScript(() => localStorage.setItem('anna-theme', 'dark'))
   const shots = [
-    { width: 320, height: 568, hash: '', index: 0, counter: '01 / 08', path: 'qa/screenshots/mobile-polish-320.png' },
-    { width: 390, height: 844, hash: '#process', index: 4, counter: '05 / 08', path: 'qa/screenshots/mobile-polish-390.png' },
-    { width: 430, height: 932, hash: '#contact', index: 7, counter: '08 / 08', path: 'qa/screenshots/mobile-polish-430.png' },
+    { width: 360, height: 740, hash: '', index: 0, counter: '01 / 08', path: 'qa/screenshots/mobile-recomposition-360.png' },
+    { width: 390, height: 844, hash: '#process', index: 4, counter: '05 / 08', path: 'qa/screenshots/mobile-recomposition-390.png' },
+    { width: 430, height: 932, hash: '#contact', index: 7, counter: '08 / 08', path: 'qa/screenshots/mobile-recomposition-430.png' },
   ]
   for (const shot of shots) {
     await page.setViewportSize({ width: shot.width, height: shot.height })
