@@ -70,8 +70,8 @@ for (const width of [320, 390]) {
     const menu = page.getByRole('button', { name: 'Открыть меню' })
     await expect(menu).toBeVisible()
     const size = await menu.boundingBox()
-    expect(size?.width).toBe(width <= 374 ? 48 : 52)
-    expect(size?.height).toBe(width <= 374 ? 48 : 52)
+    expect(size?.width).toBe(44)
+    expect(size?.height).toBe(44)
     await menu.click()
     await expect(page.getByRole('dialog')).toBeVisible()
     await expect(page.getByText('PDF · скоро')).toBeVisible()
@@ -101,7 +101,7 @@ for (const width of [320, 390]) {
     expect(metrics.actionsVisible).toBe(true)
     expect(metrics.noCollision).toBe(true)
     expect(new Set(metrics.controls.map((control) => control.height)).size).toBe(1)
-    expect(metrics.controls.every((control) => control.height === (width <= 374 ? 48 : 52))).toBe(true)
+    expect(metrics.controls.every((control) => control.height === 44)).toBe(true)
   })
 }
 
@@ -678,6 +678,7 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
       const heading = document.querySelector<HTMLElement>('.mobile-hero-copy h1')
       const proofValue = document.querySelector<HTMLElement>('.mobile-proof-grid strong')
       const proofLabel = document.querySelector<HTMLElement>('.mobile-proof-grid span')
+      const aiProof = document.querySelector<HTMLElement>('.mobile-proof-grid > div:last-child strong')
       const skillItem = document.querySelector<HTMLElement>('.mobile-skills-accordion article')
       const skillNumber = skillItem?.querySelector<HTMLElement>('h3 span')
       const automationStyle = automation ? getComputedStyle(automation) : null
@@ -702,6 +703,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
         headingFontSize: heading ? Number.parseFloat(getComputedStyle(heading).fontSize) : 0,
         proofValueFontSize: proofValue ? Number.parseFloat(getComputedStyle(proofValue).fontSize) : 0,
         proofLabelFontSize: proofLabel ? Number.parseFloat(getComputedStyle(proofLabel).fontSize) : 0,
+        headingLines: heading ? Math.round(heading.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(heading).lineHeight)) : 0,
+        aiProofLines: aiProof ? Math.round(aiProof.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(aiProof).lineHeight)) : 0,
         skillNumberOffset: skillItem && skillNumber ? skillNumber.getBoundingClientRect().left - skillItem.getBoundingClientRect().left : 0,
       }
     })
@@ -718,6 +721,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     expect(geometry.ctaRadius).toBe(geometry.visualRadius)
     expect(geometry.ctaAnimation).toBe('mobile-hero-cta-breathe')
     expect(geometry.skillNumberOffset).toBeGreaterThanOrEqual(7)
+    expect(geometry.aiProofLines).toBe(1)
+    if (viewport.width >= 360) expect(geometry.headingLines).toBe(4)
 
     if (viewport.width === 390) {
       const cta = await page.locator('.mobile-hero-directions').boundingBox()
