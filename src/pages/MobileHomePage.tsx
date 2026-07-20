@@ -53,7 +53,9 @@ function MobileHero({ onDirections }: { onDirections: () => void }) {
       <span className="mobile-hero-interface-layer" aria-hidden="true"><i /><i /><i /></span>
       <span className="mobile-hero-composite-labels" aria-hidden="true"><i>PRODUCT</i><i>DESIGN</i><i>AI</i><i>DATA</i></span>
     </button>
-    <button className="mobile-hero-directions" type="button" onClick={onDirections}>{t.chooseDirection}</button>
+    <button className="mobile-hero-directions" type="button" onClick={onDirections}>
+      <span>{t.chooseDirection.replace(/\s*→\s*$/, '')}</span><i aria-hidden="true">→</i>
+    </button>
     <div className="mobile-proof-grid" aria-label={t.facts}>{proof.map(([stat, label]) => <div key={stat}><strong>{stat}</strong><span>{label}</span></div>)}</div>
   </div>
 }

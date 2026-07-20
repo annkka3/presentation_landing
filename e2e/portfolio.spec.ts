@@ -672,6 +672,11 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
       const teaser = document.querySelector<HTMLElement>('.mobile-project-teaser')
       const badge = teaser?.querySelector<HTMLElement>('.status-badge')
       const controls = [...document.querySelectorAll<HTMLElement>('.language-toggle, .theme-toggle, .mobile-menu-button')]
+      const cta = document.querySelector<HTMLElement>('.mobile-hero-directions')
+      const visual = document.querySelector<HTMLElement>('.mobile-hero-composite')
+      const heading = document.querySelector<HTMLElement>('.mobile-hero-copy h1')
+      const skillItem = document.querySelector<HTMLElement>('.mobile-skills-accordion article')
+      const skillNumber = skillItem?.querySelector<HTMLElement>('h3 span')
       const automationStyle = automation ? getComputedStyle(automation) : null
       const automationLines = automation && automationStyle
         ? Math.round(automation.getBoundingClientRect().height / Number.parseFloat(automationStyle.lineHeight))
@@ -686,6 +691,11 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
         teaserHeight: teaser?.getBoundingClientRect().height ?? 0,
         teaserBadgeDisplay: badge ? getComputedStyle(badge).display : 'none',
         controlHeights: controls.map((control) => control.getBoundingClientRect().height),
+        ctaWidth: cta?.getBoundingClientRect().width ?? 0,
+        visualWidth: visual?.getBoundingClientRect().width ?? 0,
+        ctaAnimation: cta ? getComputedStyle(cta).animationName : 'none',
+        headingFontSize: heading ? Number.parseFloat(getComputedStyle(heading).fontSize) : 0,
+        skillNumberOffset: skillItem && skillNumber ? skillNumber.getBoundingClientRect().left - skillItem.getBoundingClientRect().left : 0,
       }
     })
 
@@ -697,10 +707,14 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     expect(geometry.teaserHeight).toBeLessThanOrEqual(84)
     expect(geometry.teaserBadgeDisplay).toBe('none')
     expect(new Set(geometry.controlHeights).size).toBe(1)
+    expect(Math.abs(geometry.ctaWidth - geometry.visualWidth)).toBeLessThanOrEqual(1)
+    expect(geometry.ctaAnimation).toBe('mobile-hero-cta-breathe')
+    expect(geometry.skillNumberOffset).toBeGreaterThanOrEqual(7)
 
     if (viewport.width === 390) {
       const cta = await page.locator('.mobile-hero-directions').boundingBox()
       expect((cta?.y ?? viewport.height) + (cta?.height ?? 0)).toBeLessThanOrEqual(viewport.height)
+      expect(geometry.headingFontSize).toBeLessThan(35)
     }
   }
 
@@ -733,9 +747,13 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
   const reducedMotion = await page.evaluate(() => ({
     plane: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-interface-layer')!).animationName,
     label: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-composite-labels i')!).animationName,
+    cta: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-directions')!).animationName,
+    arrow: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-directions i')!).animationName,
   }))
   expect(reducedMotion.plane).toBe('none')
   expect(reducedMotion.label).toBe('none')
+  expect(reducedMotion.cta).toBe('none')
+  expect(reducedMotion.arrow).toBe('none')
 })
 
 test('approved MP4 assets return video MIME and support byte ranges', async ({ request }) => {
