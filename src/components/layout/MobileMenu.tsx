@@ -70,7 +70,7 @@ export function MobileMenu({ activeHash, onClose, onNavigate }: { activeHash: st
       <nav className="mobile-menu-navigation" aria-label={locale === 'ru' ? 'Меню разделов' : 'Chapter menu'}>
         {items.map((item, index) => {
           const active = activeHash === item.id || (!activeHash && index === 0)
-          return <a key={item.id} href={`/#${item.id}`} onClick={(event) => {
+          return <a className={`mobile-menu-item mobile-menu-item--${item.id}`} key={item.id} href={`/#${item.id}`} onClick={(event) => {
             if (location.pathname === '/') event.preventDefault()
             select(item.id)
           }} aria-current={active ? 'page' : undefined}>

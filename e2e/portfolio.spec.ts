@@ -22,7 +22,7 @@ test('language, theme, routes, form validation and accessibility basics', async 
   expect(errors).toEqual([])
 })
 
-for (const width of [320, 360, 375, 390, 393, 430, 767, 768, 1024, 1440, 1920]) {
+for (const width of [320, 360, 375, 390, 393, 402, 430, 480, 767, 768, 1024, 1440, 1920]) {
   test(`has no horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
@@ -400,6 +400,26 @@ test('mobile editorial menu traps focus, keeps honest utilities and navigates wi
   await expect(dialog).toBeVisible()
   await expect(page.locator('html')).toHaveAttribute('data-mobile-menu', 'open')
   await expect(page.locator('.mobile-chapter-navigation')).toHaveCSS('pointer-events', 'none')
+  const menuGeometry = await page.evaluate(() => {
+    const rows = [...document.querySelectorAll<HTMLElement>('.mobile-menu-navigation a')]
+    const arrows = rows.map((row) => {
+      const arrow = row.querySelector<HTMLElement>('i')!.getBoundingClientRect()
+      const bounds = row.getBoundingClientRect()
+      return Math.abs((arrow.top + arrow.bottom) / 2 - (bounds.top + bounds.bottom) / 2)
+    })
+    const standard = getComputedStyle(rows[0].querySelector<HTMLElement>('strong')!)
+    const experience = getComputedStyle(document.querySelector<HTMLElement>('.mobile-menu-item--experience-education>strong')!)
+    return {
+      rowHeights: rows.map((row) => row.getBoundingClientRect().height),
+      arrowOffsets: arrows,
+      standardLineHeight: Number.parseFloat(standard.lineHeight),
+      experienceLineHeight: Number.parseFloat(experience.lineHeight),
+    }
+  })
+  expect(new Set(menuGeometry.rowHeights).size).toBe(1)
+  expect(menuGeometry.rowHeights[0]).toBe(58)
+  expect(Math.max(...menuGeometry.arrowOffsets)).toBeLessThanOrEqual(1)
+  expect(menuGeometry.experienceLineHeight).toBeLessThan(menuGeometry.standardLineHeight)
   const close = page.getByRole('button', { name: 'Закрыть меню' })
   await expect(close).toBeFocused()
   await page.keyboard.press('Shift+Tab')
@@ -660,7 +680,9 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     { width: 375, height: 667 },
     { width: 390, height: 844 },
     { width: 393, height: 852 },
+    { width: 402, height: 874 },
     { width: 430, height: 932 },
+    { width: 480, height: 960 },
   ]
 
   for (const viewport of viewports) {
@@ -684,6 +706,9 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
       const chapterNav = document.querySelector<HTMLElement>('#chapter-hero .mobile-chapter-navigation')
       const proofGrid = document.querySelector<HTMLElement>('.mobile-proof-grid')
       const automationStyle = automation ? getComputedStyle(automation) : null
+      const glassStyle = document.querySelector<HTMLElement>('.mobile-hero-interface-layer')
+        ? getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-interface-layer')!)
+        : null
       const automationLines = automation && automationStyle
         ? Math.round(automation.getBoundingClientRect().height / Number.parseFloat(automationStyle.lineHeight))
         : 0
@@ -710,6 +735,12 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
         skillNumberOffset: skillItem && skillNumber ? skillNumber.getBoundingClientRect().left - skillItem.getBoundingClientRect().left : 0,
         chapterNavBorder: chapterNav ? getComputedStyle(chapterNav).borderTopWidth : '',
         heroNavGap: chapterNav && proofGrid ? chapterNav.getBoundingClientRect().top - proofGrid.getBoundingClientRect().bottom : 0,
+        glassBorders: glassStyle ? [glassStyle.borderTopWidth, glassStyle.borderRightWidth, glassStyle.borderBottomWidth, glassStyle.borderLeftWidth] : [],
+        directionSubtitleGaps: [...document.querySelectorAll<HTMLElement>('.mobile-direction-tile-copy>span')].map((item) => getComputedStyle(item).marginTop),
+        tagPaddings: [...document.querySelectorAll<HTMLElement>('.mobile-projects-section .tags span')].map((item) => getComputedStyle(item).padding),
+        processRowHeights: [...document.querySelectorAll<HTMLElement>('.mobile-process-timeline article>button')].map((item) => item.getBoundingClientRect().height),
+        expertiseAccentRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-skills-accordion article.is-open')!, '::before').borderRadius,
+        contactFormMargin: getComputedStyle(document.querySelector<HTMLElement>('.mobile-contact-chapter .contact-form')!).marginTop,
       }
     })
 
@@ -727,6 +758,12 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     expect(geometry.skillNumberOffset).toBeGreaterThanOrEqual(7)
     expect(geometry.chapterNavBorder).toBe('0px')
     expect(geometry.aiProofLines).toBe(1)
+    expect(new Set(geometry.glassBorders).size).toBeGreaterThan(1)
+    expect(new Set(geometry.directionSubtitleGaps)).toEqual(new Set(['11px']))
+    expect(new Set(geometry.tagPaddings).size).toBe(1)
+    expect(new Set(geometry.processRowHeights)).toEqual(new Set([60]))
+    expect(geometry.expertiseAccentRadius).not.toBe('0px')
+    expect(geometry.contactFormMargin).toBe('38px')
     if (viewport.width >= 360) expect(geometry.headingLines).toBe(4)
 
     if (viewport.width === 390) {
@@ -740,6 +777,16 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
   }
 
   await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  const heroNavigationTop = (await page.locator('#chapter-hero .mobile-chapter-navigation').boundingBox())?.y
+  await page.goto('/#directions')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
+  const directionsNavigationTop = (await page.locator('#directions .mobile-chapter-navigation').boundingBox())?.y
+  expect(directionsNavigationTop).toBeCloseTo(heroNavigationTop ?? 0, 0)
+
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   const type = await page.evaluate(() => {
     const main = getComputedStyle(document.querySelector<HTMLElement>('.mobile-contact-chapter > .mobile-chapter-content .contact-display-heading')!)
     const form = getComputedStyle(document.querySelector<HTMLElement>('.mobile-contact-chapter .contact-form .contact-display-heading')!)
@@ -759,9 +806,22 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
   expect(type.mainTracking).toBeCloseTo(type.formTracking, 2)
   expect(type.mainLeading).toBeCloseTo(type.formLeading, 2)
 
+  const readThemeGeometry = () => page.evaluate(() => ({
+    ctaHeight: document.querySelector<HTMLElement>('.mobile-hero-directions')!.getBoundingClientRect().height,
+    ctaRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-directions')!).borderRadius,
+    directionRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-direction-tile')!).borderRadius,
+    projectPadding: getComputedStyle(document.querySelector<HTMLElement>('.mobile-projects-section .project-copy')!).padding,
+    tagPadding: getComputedStyle(document.querySelector<HTMLElement>('.mobile-projects-section .tags span')!).padding,
+    processHeight: document.querySelector<HTMLElement>('.mobile-process-timeline article>button')!.getBoundingClientRect().height,
+    expertiseHeight: document.querySelector<HTMLElement>('.mobile-skills-accordion h3 button')!.getBoundingClientRect().height,
+    tabsHeight: document.querySelector<HTMLElement>('.mobile-experience-tabs')!.getBoundingClientRect().height,
+    submitHeight: document.querySelector<HTMLElement>('.mobile-contact-chapter .submit-button')!.getBoundingClientRect().height,
+  }))
+  const lightDarkGeometryBefore = await readThemeGeometry()
   const themeBefore = await page.locator('html').getAttribute('data-theme')
   await page.locator('.theme-toggle').click()
   await expect(page.locator('html')).not.toHaveAttribute('data-theme', themeBefore ?? '')
+  expect(await readThemeGeometry()).toEqual(lightDarkGeometryBefore)
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0)
 
   await page.emulateMedia({ reducedMotion: 'reduce' })

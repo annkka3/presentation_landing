@@ -74,7 +74,7 @@ export const processSteps = [
 ]
 
 export const experience = [
-  { dates: l('2024—н.в.', '2024–present'), role: l('Независимый AI Product Builder', 'Independent AI Product Builder'), description: l('Собственные и клиентские цифровые продукты: архитектура продукта, UX/UI, разработка с поддержкой AI, QA и документация.', 'Independent and client digital products covering product architecture, UX/UI, AI-assisted development, QA, and documentation.'), current: true },
+  { dates: l('2024—н.в.', '2024–present'), role: l('Независимый AI Product Builder', 'Independent AI Product Builder'), description: l('Собственные и клиентские цифровые продукты: архитектура продукта, UX/UI, разработка с поддержкой AI, QA и документация.', 'End-to-end digital work for independent ventures and client teams, spanning architecture, UX/UI, AI-assisted development, QA, and documentation.'), current: true },
   { dates: l('2019–2022', '2019–2022'), role: l('Партнёр Farfetch Marketplace / электронная коммерция', 'Farfetch Marketplace Partner / E-commerce Operations'), description: l('Каталог, товарные фиды, ассортимент, ценообразование, промо и аналитика.', 'Catalog operations, product feeds, assortment, pricing, promotions, and analytics.'), current: false },
   { dates: l('2005–2019', '2005–2019'), role: l('Люксовый ритейл / закупки / коммерческое управление', 'Luxury Retail / Buying / Commercial Management'), description: l('Закупки, ассортимент, продажи, онлайн-витрина и управление коммерческими процессами.', 'Buying, assortment planning, sales, online storefront operations, and commercial process management.'), current: false },
 ]
