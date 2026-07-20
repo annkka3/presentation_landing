@@ -675,6 +675,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
       const cta = document.querySelector<HTMLElement>('.mobile-hero-directions')
       const visual = document.querySelector<HTMLElement>('.mobile-hero-composite')
       const heading = document.querySelector<HTMLElement>('.mobile-hero-copy h1')
+      const proofValue = document.querySelector<HTMLElement>('.mobile-proof-grid strong')
+      const proofLabel = document.querySelector<HTMLElement>('.mobile-proof-grid span')
       const skillItem = document.querySelector<HTMLElement>('.mobile-skills-accordion article')
       const skillNumber = skillItem?.querySelector<HTMLElement>('h3 span')
       const automationStyle = automation ? getComputedStyle(automation) : null
@@ -695,6 +697,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
         visualWidth: visual?.getBoundingClientRect().width ?? 0,
         ctaAnimation: cta ? getComputedStyle(cta).animationName : 'none',
         headingFontSize: heading ? Number.parseFloat(getComputedStyle(heading).fontSize) : 0,
+        proofValueFontSize: proofValue ? Number.parseFloat(getComputedStyle(proofValue).fontSize) : 0,
+        proofLabelFontSize: proofLabel ? Number.parseFloat(getComputedStyle(proofLabel).fontSize) : 0,
         skillNumberOffset: skillItem && skillNumber ? skillNumber.getBoundingClientRect().left - skillItem.getBoundingClientRect().left : 0,
       }
     })
@@ -714,7 +718,9 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     if (viewport.width === 390) {
       const cta = await page.locator('.mobile-hero-directions').boundingBox()
       expect((cta?.y ?? viewport.height) + (cta?.height ?? 0)).toBeLessThanOrEqual(viewport.height)
-      expect(geometry.headingFontSize).toBeLessThan(35)
+      expect(geometry.headingFontSize).toBeLessThan(34)
+      expect(geometry.proofValueFontSize).toBeLessThan(25)
+      expect(geometry.proofLabelFontSize).toBeLessThanOrEqual(12)
     }
   }
 

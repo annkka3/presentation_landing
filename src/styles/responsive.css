@@ -74,7 +74,7 @@
 
   .mobile-hero{width:100%;display:flex;flex-direction:column;align-items:stretch}
   .mobile-hero-eyebrow{display:block;margin-bottom:8px;color:var(--gold);font:500 9px/1.2 var(--font-mono);letter-spacing:.16em}
-  .mobile-hero-copy h1{margin:0 0 12px;max-width:100%;font-size:clamp(33px,8.9vw,43px);font-weight:300;line-height:.955;letter-spacing:-.05em;text-wrap:balance}
+  .mobile-hero-copy h1{margin:0 0 12px;max-width:100%;font-size:clamp(31.5px,8.5vw,41px);font-weight:300;line-height:.955;letter-spacing:-.05em;text-wrap:balance}
   .mobile-hero-copy p{max-width:360px;margin:0 0 9px;color:var(--text-muted);font-size:14px;line-height:1.42}
   .mobile-hero-directions{position:relative;width:100%;min-width:0;min-height:48px;margin-top:10px;padding:0 18px;border:1px solid var(--gold);border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:space-between;isolation:isolate;background:color-mix(in srgb,var(--gold) 9%,transparent);color:var(--text);font-size:12px;text-align:left;cursor:pointer;animation:mobile-hero-cta-breathe 4.8s var(--ease-premium) infinite;transition:background var(--duration-fast),border-color var(--duration-fast),transform var(--duration-fast)}
   .mobile-hero-directions::before{content:'';position:absolute;z-index:-1;inset:-30% auto -30% -32%;width:24%;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--gold) 22%,transparent),transparent);transform:skewX(-18deg) translateX(-180%);animation:mobile-hero-cta-sheen 4.8s var(--ease-premium) infinite;pointer-events:none}
@@ -130,8 +130,8 @@
   .mobile-proof-grid>div{min-width:0;padding:14px 16px;background:transparent}
   .mobile-proof-grid>div:nth-child(odd){border-right:1px solid var(--border)}
   .mobile-proof-grid>div:nth-child(n+3){border-top:1px solid var(--border)}
-  .mobile-proof-grid strong{display:block;margin-bottom:4px;font-size:clamp(26px,7vw,30px);font-weight:350;line-height:1.02;letter-spacing:-.035em}
-  .mobile-proof-grid span{display:block;color:var(--text-muted);font-size:clamp(12px,3.4vw,14px);line-height:1.32}
+  .mobile-proof-grid strong{display:block;margin-bottom:4px;font-size:clamp(23px,6.2vw,27px);font-weight:350;line-height:1.02;letter-spacing:-.035em}
+  .mobile-proof-grid span{display:block;color:var(--text-muted);font-size:clamp(11px,3vw,12.5px);line-height:1.32}
 
   .mobile-directions-chapter{height:100%;min-height:100%;max-height:100%;padding:0;overflow:hidden}
   .mobile-directions-chapter .mobile-chapter-content{flex:1 1 auto;min-height:0;padding:20px var(--mobile-page-x) 10px}
