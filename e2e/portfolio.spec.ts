@@ -667,6 +667,7 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     await page.setViewportSize(viewport)
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await page.evaluate(() => document.fonts.ready.then(() => undefined))
     const geometry = await page.evaluate(() => {
       const automation = document.querySelector<HTMLElement>('.mobile-direction-tile--automation .mobile-direction-tile-copy strong')
       const teaser = document.querySelector<HTMLElement>('.mobile-project-teaser')
@@ -695,6 +696,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
         controlHeights: controls.map((control) => control.getBoundingClientRect().height),
         ctaWidth: cta?.getBoundingClientRect().width ?? 0,
         visualWidth: visual?.getBoundingClientRect().width ?? 0,
+        ctaRadius: cta ? getComputedStyle(cta).borderRadius : '',
+        visualRadius: visual ? getComputedStyle(visual).borderRadius : '',
         ctaAnimation: cta ? getComputedStyle(cta).animationName : 'none',
         headingFontSize: heading ? Number.parseFloat(getComputedStyle(heading).fontSize) : 0,
         proofValueFontSize: proofValue ? Number.parseFloat(getComputedStyle(proofValue).fontSize) : 0,
@@ -712,6 +715,7 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     expect(geometry.teaserBadgeDisplay).toBe('none')
     expect(new Set(geometry.controlHeights).size).toBe(1)
     expect(Math.abs(geometry.ctaWidth - geometry.visualWidth)).toBeLessThanOrEqual(1)
+    expect(geometry.ctaRadius).toBe(geometry.visualRadius)
     expect(geometry.ctaAnimation).toBe('mobile-hero-cta-breathe')
     expect(geometry.skillNumberOffset).toBeGreaterThanOrEqual(7)
 
