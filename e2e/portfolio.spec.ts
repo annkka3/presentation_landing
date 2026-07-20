@@ -681,6 +681,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
       const aiProof = document.querySelector<HTMLElement>('.mobile-proof-grid > div:last-child strong')
       const skillItem = document.querySelector<HTMLElement>('.mobile-skills-accordion article')
       const skillNumber = skillItem?.querySelector<HTMLElement>('h3 span')
+      const chapterNav = document.querySelector<HTMLElement>('#chapter-hero .mobile-chapter-navigation')
+      const proofGrid = document.querySelector<HTMLElement>('.mobile-proof-grid')
       const automationStyle = automation ? getComputedStyle(automation) : null
       const automationLines = automation && automationStyle
         ? Math.round(automation.getBoundingClientRect().height / Number.parseFloat(automationStyle.lineHeight))
@@ -706,6 +708,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
         headingLines: heading ? Math.round(heading.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(heading).lineHeight)) : 0,
         aiProofLines: aiProof ? Math.round(aiProof.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(aiProof).lineHeight)) : 0,
         skillNumberOffset: skillItem && skillNumber ? skillNumber.getBoundingClientRect().left - skillItem.getBoundingClientRect().left : 0,
+        chapterNavBorder: chapterNav ? getComputedStyle(chapterNav).borderTopWidth : '',
+        heroNavGap: chapterNav && proofGrid ? chapterNav.getBoundingClientRect().top - proofGrid.getBoundingClientRect().bottom : 0,
       }
     })
 
@@ -721,6 +725,7 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     expect(geometry.ctaRadius).toBe(geometry.visualRadius)
     expect(geometry.ctaAnimation).toBe('mobile-hero-cta-breathe')
     expect(geometry.skillNumberOffset).toBeGreaterThanOrEqual(7)
+    expect(geometry.chapterNavBorder).toBe('0px')
     expect(geometry.aiProofLines).toBe(1)
     if (viewport.width >= 360) expect(geometry.headingLines).toBe(4)
 
@@ -730,6 +735,7 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
       expect(geometry.headingFontSize).toBeLessThan(34)
       expect(geometry.proofValueFontSize).toBeLessThan(25)
       expect(geometry.proofLabelFontSize).toBeLessThanOrEqual(12)
+      expect(geometry.heroNavGap).toBeLessThan(36)
     }
   }
 

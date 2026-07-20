@@ -257,11 +257,12 @@
   .mobile-contact-chapter .submit-button{width:100%;height:54px}
   .mobile-contact-chapter .contact-closing{padding-inline:var(--mobile-page-x);font-size:9px;line-height:1.4}
   #process .mobile-chapter-navigation-slot{padding-top:14px}
+  #chapter-hero .mobile-chapter-navigation-slot{padding-top:0;padding-bottom:calc(40px + env(safe-area-inset-bottom))}
   .mobile-contact-chapter .site-footer .container{min-height:74px;padding-inline:var(--mobile-page-x);gap:12px}
 
   .mobile-chapter-navigation-slot{position:relative;z-index:20;width:100%;margin-top:auto;padding:24px var(--mobile-page-x) calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center;flex:0 0 auto;background:var(--bg);pointer-events:none}
-  .mobile-chapter-navigation{position:relative;width:min(310px,calc(100vw - 56px));height:var(--mobile-chapter-nav-height);padding:0 7px;border:1px solid rgba(255,255,255,.12);border-radius:999px;display:flex;align-items:center;justify-content:center;gap:2px;background:rgba(8,10,10,.95);box-shadow:none;color:#f4f4ef;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity 160ms,transform 160ms;pointer-events:auto}
-  [data-theme='light'] .mobile-chapter-navigation{background:rgba(245,243,239,.92);border-color:rgba(23,23,23,.12);color:#171717}
+  .mobile-chapter-navigation{position:relative;width:min(310px,calc(100vw - 56px));height:var(--mobile-chapter-nav-height);padding:0 7px;border:0;border-radius:0;display:flex;align-items:center;justify-content:center;gap:2px;background:transparent;box-shadow:none;color:var(--text);backdrop-filter:none;-webkit-backdrop-filter:none;transition:opacity 160ms,transform 160ms;pointer-events:auto}
+  [data-theme='light'] .mobile-chapter-navigation{background:transparent;border-color:transparent;color:#171717}
   .mobile-chapter-navigation.is-hidden{opacity:0;pointer-events:none;transform:translateY(12px)}
   .mobile-chapter-navigation>button{width:36px;height:58px;flex:0 0 36px;padding:0;border:0;background:transparent;color:inherit;font-size:14px}
   .mobile-chapter-navigation>button:disabled{opacity:.25}
