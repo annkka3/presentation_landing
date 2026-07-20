@@ -651,6 +651,93 @@ test('mobile recomposition QA screenshots', async ({ page }, testInfo) => {
   }
 })
 
+test('mobile polish holds across the required responsive matrix', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'One responsive-matrix pass is sufficient')
+  test.setTimeout(60_000)
+  const viewports = [
+    { width: 320, height: 568 },
+    { width: 360, height: 740 },
+    { width: 375, height: 667 },
+    { width: 390, height: 844 },
+    { width: 393, height: 852 },
+    { width: 430, height: 932 },
+  ]
+
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    const geometry = await page.evaluate(() => {
+      const automation = document.querySelector<HTMLElement>('.mobile-direction-tile--automation .mobile-direction-tile-copy strong')
+      const teaser = document.querySelector<HTMLElement>('.mobile-project-teaser')
+      const badge = teaser?.querySelector<HTMLElement>('.status-badge')
+      const controls = [...document.querySelectorAll<HTMLElement>('.language-toggle, .theme-toggle, .mobile-menu-button')]
+      const automationStyle = automation ? getComputedStyle(automation) : null
+      const automationLines = automation && automationStyle
+        ? Math.round(automation.getBoundingClientRect().height / Number.parseFloat(automationStyle.lineHeight))
+        : 0
+
+      return {
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        graphCount: document.querySelectorAll('.mobile-hero-data-layer').length,
+        interfaceCount: document.querySelectorAll('.mobile-hero-interface-layer').length,
+        automationLines,
+        automationFits: automation ? automation.scrollWidth <= automation.clientWidth + 1 : false,
+        teaserHeight: teaser?.getBoundingClientRect().height ?? 0,
+        teaserBadgeDisplay: badge ? getComputedStyle(badge).display : 'none',
+        controlHeights: controls.map((control) => control.getBoundingClientRect().height),
+      }
+    })
+
+    expect(geometry.overflow).toBeLessThanOrEqual(0)
+    expect(geometry.graphCount).toBe(0)
+    expect(geometry.interfaceCount).toBe(1)
+    expect(geometry.automationLines).toBe(1)
+    expect(geometry.automationFits).toBe(true)
+    expect(geometry.teaserHeight).toBeLessThanOrEqual(84)
+    expect(geometry.teaserBadgeDisplay).toBe('none')
+    expect(new Set(geometry.controlHeights).size).toBe(1)
+
+    if (viewport.width === 390) {
+      const cta = await page.locator('.mobile-hero-directions').boundingBox()
+      expect((cta?.y ?? viewport.height) + (cta?.height ?? 0)).toBeLessThanOrEqual(viewport.height)
+    }
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  const type = await page.evaluate(() => {
+    const main = getComputedStyle(document.querySelector<HTMLElement>('.mobile-contact-chapter > .mobile-chapter-content .contact-display-heading')!)
+    const form = getComputedStyle(document.querySelector<HTMLElement>('.mobile-contact-chapter .contact-form .contact-display-heading')!)
+    return {
+      mainFamily: main.fontFamily,
+      formFamily: form.fontFamily,
+      mainWeight: main.fontWeight,
+      formWeight: form.fontWeight,
+      mainTracking: Number.parseFloat(main.letterSpacing) / Number.parseFloat(main.fontSize),
+      formTracking: Number.parseFloat(form.letterSpacing) / Number.parseFloat(form.fontSize),
+      mainLeading: Number.parseFloat(main.lineHeight) / Number.parseFloat(main.fontSize),
+      formLeading: Number.parseFloat(form.lineHeight) / Number.parseFloat(form.fontSize),
+    }
+  })
+  expect(type.mainFamily).toBe(type.formFamily)
+  expect(type.mainWeight).toBe(type.formWeight)
+  expect(type.mainTracking).toBeCloseTo(type.formTracking, 2)
+  expect(type.mainLeading).toBeCloseTo(type.formLeading, 2)
+
+  const themeBefore = await page.locator('html').getAttribute('data-theme')
+  await page.locator('.theme-toggle').click()
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', themeBefore ?? '')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0)
+
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const reducedMotion = await page.evaluate(() => ({
+    plane: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-interface-layer')!).animationName,
+    label: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-composite-labels i')!).animationName,
+  }))
+  expect(reducedMotion.plane).toBe('none')
+  expect(reducedMotion.label).toBe('none')
+})
+
 test('approved MP4 assets return video MIME and support byte ranges', async ({ request }) => {
   for (const path of ['/assets/product_v1.mp4', '/assets/design_v3.mp4', '/assets/automation.mp4', '/assets/analytics.mp4']) {
     const response = await request.get(path, { headers: { Range: 'bytes=0-1023' } })

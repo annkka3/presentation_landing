@@ -50,7 +50,7 @@ function MobileHero({ onDirections }: { onDirections: () => void }) {
       <span className="mobile-hero-composite-design"><img src="/assets/design.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
       <span className="mobile-hero-composite-product"><img src="/assets/product.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
       <span className="mobile-hero-composite-automation"><img src="/assets/automation.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
-      <svg className="mobile-hero-data-layer" viewBox="0 0 1000 625" preserveAspectRatio="none" aria-hidden="true"><path d="M34 465 C178 390 252 444 372 330 S570 238 690 292 S826 184 970 128"/><circle cx="372" cy="330" r="8"/><circle cx="690" cy="292" r="8"/><circle cx="970" cy="128" r="8"/></svg>
+      <span className="mobile-hero-interface-layer" aria-hidden="true"><i /><i /><i /></span>
       <span className="mobile-hero-composite-labels" aria-hidden="true"><i>PRODUCT</i><i>DESIGN</i><i>AI</i><i>DATA</i></span>
     </button>
     <button className="mobile-hero-directions" type="button" onClick={onDirections}>{t.chooseDirection}</button>
@@ -82,7 +82,7 @@ function MobileDirections({ onSelect }: { onSelect: (focus: HeroFocus) => void }
     </header>
     <div className="mobile-directions-grid">
       {heroModes.map((mode, index) => <button
-        className="mobile-direction-tile"
+        className={`mobile-direction-tile mobile-direction-tile--${mode.key}`}
         type="button"
         key={mode.key}
         onClick={() => onSelect(mode.key)}
@@ -108,7 +108,7 @@ function MobileProjects({ featured, activeFocus = null }: { featured: boolean; a
     <h2>{heading}</h2>
     {featured && activeFocus && <p className="mobile-project-focus">{t.selectedDirection}: <strong>{heroModes.find((mode) => mode.key === activeFocus)?.title[locale]}</strong></p>}
     <div className="mobile-project-list" role="list" aria-label={heading}>
-      {items.map((project) => <div role="listitem" key={project.id}><ProjectCard project={project} featured={featured} /></div>)}
+      {items.map((project, index) => <div role="listitem" className={!featured && index === 1 ? 'mobile-project-teaser' : undefined} key={project.id}><ProjectCard project={project} featured={featured} /></div>)}
     </div>
   </div>
 }

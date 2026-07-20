@@ -1,6 +1,9 @@
 :root {
   --font-display: 'Manrope', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
+  --display-weight: 300;
+  --display-line-height: 1;
+  --display-tracking: -.04em;
   --container-max: 1440px;
   --page-gutter: clamp(20px, 4vw, 64px);
   --header-height: 72px;
@@ -27,7 +30,7 @@
   --border-strong: rgba(255,255,255,.2);
   --form-panel: rgba(18,23,27,.72);
   --input-border: rgba(255,255,255,.18);
-  --placeholder: rgba(245,245,242,.46);
+  --placeholder: rgba(245,245,242,.58);
   --grid-line: rgba(255,255,255,.045);
   --scrollbar-thumb: rgba(255,255,255,.2);
   --scrollbar-thumb-hover: rgba(255,255,255,.32);
@@ -52,7 +55,7 @@
   --border-strong: #c9c0b0;
   --form-panel: #fcfbf8;
   --input-border: #c9c0b0;
-  --placeholder: rgba(23,23,23,.48);
+  --placeholder: rgba(23,23,23,.6);
   --grid-line: rgba(23,23,23,.09);
   --scrollbar-thumb: rgba(20,20,20,.2);
   --scrollbar-thumb-hover: rgba(20,20,20,.32);

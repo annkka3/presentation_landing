@@ -7,7 +7,7 @@ import { validateContact, type ContactErrors } from '../../services/validation'
 const initialValues: ContactPayload = { name: '', contact: '', message: '', website: '' }
 
 export function Contact({ mobile = false }: { mobile?: boolean }) {
-  const { t } = useApp()
+  const { locale, t } = useApp()
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState<ContactErrors>({})
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'config'>('idle')
@@ -30,13 +30,14 @@ export function Contact({ mobile = false }: { mobile?: boolean }) {
   }
   const copyEmail = () => navigator.clipboard?.writeText('annagromyko88@gmail.com')
   return <section className={`section contact-section ${mobile ? 'is-mobile-contact' : ''}`}><div className="contact-content"><Container className="contact-grid">
-    <div className="contact-copy"><span className="contact-eyebrow">{mobile ? t.mobileContactEyebrow : t.contactEyebrow}</span><h2>{t.contactHeading}</h2><p>{mobile ? t.mobileContactIntro : t.contactIntro}</p><p className="contact-availability">{t.availability}</p><div className="contact-links">
+    <div className="contact-copy"><span className="contact-eyebrow">{mobile ? t.mobileContactEyebrow : t.contactEyebrow}</span><h2 className="contact-display-heading">{t.contactHeading}</h2><p>{mobile ? t.mobileContactIntro : t.contactIntro}</p><p className="contact-availability">{t.availability}</p><div className="contact-links">
       {mobile ? <button type="button" onClick={copyEmail} aria-label={t.copyEmail}><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">⧉</i></button> : <a href="mailto:annagromyko88@gmail.com"><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">↗</i></a>}
       <a href="https://t.me/AnnaGromyko" target="_blank" rel="noopener noreferrer"><span className="contact-link-copy"><span>TELEGRAM</span><strong>@AnnaGromyko</strong></span><i aria-hidden="true">↗</i></a>
       <a href="https://github.com/annkka3" target="_blank" rel="noopener noreferrer"><span className="contact-link-copy"><span>GITHUB</span><strong>github.com/annkka3</strong></span><i aria-hidden="true">↗</i></a>
     </div></div>
     <form className="contact-form" onSubmit={submit} noValidate aria-labelledby="contact-form-heading">
-      <h3 id="contact-form-heading">{t.formHeading}</h3><p>{t.formDescription}</p>
+      {mobile && <span className="contact-form-helper">{locale === 'ru' ? 'ОПИШИТЕ ЗАДАЧУ' : 'DESCRIBE THE BRIEF'}</span>}
+      <h3 className="contact-display-heading" id="contact-form-heading">{t.formHeading}</h3><p>{t.formDescription}</p>
       {!mobile && <div className="form-field"><label htmlFor="name">{t.name}</label><input id="name" value={values.name} onChange={(event) => update('name', event.target.value)} placeholder={t.namePlaceholder} maxLength={101} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'name-error' : undefined}/>{errors.name && <small id="name-error">{errors.name}</small>}</div>}
       <div className="form-field"><label htmlFor="contact-field">{t.contactField}</label><input id="contact-field" value={values.contact} onChange={(event) => update('contact', event.target.value)} placeholder={t.contactPlaceholder} maxLength={161} aria-invalid={Boolean(errors.contact)} aria-describedby={errors.contact ? 'contact-error' : undefined}/>{errors.contact && <small id="contact-error">{errors.contact}</small>}</div>
       <div className="form-field"><label htmlFor="message">{t.message}</label><textarea id="message" rows={6} value={values.message} onChange={(event) => update('message', event.target.value)} placeholder={t.messagePlaceholder} maxLength={3001} aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? 'message-error' : undefined}/>{errors.message && <small id="message-error">{errors.message}</small>}</div>
