@@ -2,17 +2,17 @@ import { useEffect, useRef, useState, type FocusEvent, type ReactNode, type Touc
 import { useApp } from '../app/AppContext'
 import { Footer } from '../components/layout/Footer'
 import { ProjectCard } from '../components/ui/ProjectCard'
-import { education, experience, heroModes, processSteps, projects, skills } from '../data/portfolio'
+import { buildSystems, daoProofLayers, education, experience, featuredSystemStatements, heroModes, processSteps, projects } from '../data/portfolio'
 import { useSnapCarousel } from '../hooks/useSnapCarousel'
 import { Contact } from '../sections/Contact/Contact'
 
 const chapters = [
   { id: 'chapter-hero' },
+  { id: 'skills' },
   { id: 'directions' },
   { id: 'featured' },
   { id: 'more-projects' },
   { id: 'process' },
-  { id: 'skills' },
   { id: 'experience-education' },
   { id: 'contact' },
 ] as const
@@ -26,37 +26,39 @@ function initialChapter() {
   return stableIndex >= 0 ? stableIndex : numbered ? Math.min(Number(numbered[1]) - 1, chapters.length - 1) : 0
 }
 
-function MobileHero({ onDirections }: { onDirections: () => void }) {
+function MobileHero({ onExplore, onWork }: { onExplore: () => void; onWork: () => void }) {
   const { locale, t } = useApp()
-  const proof = locale === 'ru' ? [
-    ['20+ лет', 'коммерческого опыта'],
-    ['10+ проектов', 'в продукте и дизайне'],
-    ['Полный цикл', 'от идеи до релиза'],
-    ['AI-native подход', 'Claude · Codex · Cursor'],
-  ] : [
-    ['20+ years', 'commercial experience'],
-    ['10+ projects', 'in product and design'],
-    ['Full-cycle', 'from idea to launch'],
-    ['AI-native workflow', 'Claude · Codex · Cursor'],
-  ]
+  const [active, setActive] = useState(0)
+  const mode = heroModes[active]
+  const selectAdjacent = (delta: number) => setActive((current) => (current + delta + heroModes.length) % heroModes.length)
 
   return <div className="mobile-hero" id="top">
-    <span className="mobile-hero-eyebrow">01 · AI PRODUCT BUILDER</span>
+    <span className="mobile-hero-eyebrow">01 · {t.heroEyebrow}</span>
     <div className="mobile-hero-copy">
       <h1>{t.heroTitle}</h1>
-      <p>{locale === 'ru' ? 'От продуктовой архитектуры и визуальной системы до реализации, проверки и запуска.' : 'From product architecture and visual systems to implementation, validation, and launch.'}</p>
+      <p>{t.heroSubtitle}</p>
     </div>
-    <button className="mobile-hero-composite" type="button" onClick={onDirections} aria-label={t.chooseDirection}>
-      <span className="mobile-hero-composite-design"><img src="/assets/design.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
-      <span className="mobile-hero-composite-product"><img src="/assets/product.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
-      <span className="mobile-hero-composite-automation"><img src="/assets/automation.png" alt="" width="900" height="563" loading="eager" decoding="async" /></span>
-      <span className="mobile-hero-interface-layer" aria-hidden="true"><i /><i /><i /></span>
-      <span className="mobile-hero-composite-labels" aria-hidden="true"><i>PRODUCT</i><i>DESIGN</i><i>AI</i><i>DATA</i></span>
-    </button>
-    <button className="mobile-hero-directions" type="button" onClick={onDirections}>
-      <span>{t.chooseDirection.replace(/\s*→\s*$/, '')}</span><i aria-hidden="true">→</i>
-    </button>
-    <div className="mobile-proof-grid" aria-label={t.facts}>{proof.map(([stat, label]) => <div key={stat}><strong>{stat}</strong><span>{label}</span></div>)}</div>
+    <div className={`mobile-hero-system mobile-hero-system--${mode.key}`} style={{ '--mode-accent': mode.accent } as React.CSSProperties}>
+      <img key={mode.key} src={mode.image} alt="" width="900" height="563" loading="eager" decoding="async" style={{ objectPosition: mode.position }} />
+      <span className="mobile-hero-system-scrim" aria-hidden="true" />
+      <span className="mobile-hero-system-lines" aria-hidden="true"><i /><i /><i /><i /></span>
+      <div className="mobile-hero-state-copy">
+        <span>{mode.num} / 04</span>
+        <strong>{mode.title[locale]}</strong>
+        <p>{mode.transformation[locale]}</p>
+        <a href={mode.route} aria-label={`${t.openDirectionPage}: ${mode.title[locale]}`}>↗</a>
+      </div>
+      <button className="mobile-hero-state-arrow is-prev" type="button" onClick={() => selectAdjacent(-1)} aria-label={locale === 'ru' ? 'Предыдущее направление' : 'Previous direction'}>←</button>
+      <button className="mobile-hero-state-arrow is-next" type="button" onClick={() => selectAdjacent(1)} aria-label={locale === 'ru' ? 'Следующее направление' : 'Next direction'}>→</button>
+      <span className="mobile-hero-system-pulse" aria-hidden="true" />
+    </div>
+    <div className="mobile-hero-system-tabs" role="tablist" aria-label={t.heroGroup}>
+      {heroModes.map((item, index) => <button key={item.key} type="button" role="tab" aria-selected={active === index} onClick={() => setActive(index)}><span>{item.num}</span>{item.title[locale]}</button>)}
+    </div>
+    <div className="mobile-hero-actions">
+      <button type="button" className="is-primary" onClick={onExplore}>{t.heroPrimary}<span aria-hidden="true">↓</span></button>
+      <button type="button" onClick={onWork}>{t.heroSecondary}<span aria-hidden="true">→</span></button>
+    </div>
   </div>
 }
 
@@ -78,7 +80,7 @@ function MobileDirections({ onSelect }: { onSelect: (focus: HeroFocus) => void }
 
   return <div className="mobile-directions-content">
     <header className="mobile-directions-header">
-      <span>{t.directionsEyebrow}</span>
+      <span>{t.directionsEyebrow.replace(/^02/, '03')}</span>
       <h2 id="mobile-directions-title">{t.directionsHeading}</h2>
       <p>{t.directionsIntro}</p>
     </header>
@@ -102,15 +104,15 @@ function MobileDirections({ onSelect }: { onSelect: (focus: HeroFocus) => void }
 
 function MobileProjects({ featured, activeFocus = null }: { featured: boolean; activeFocus?: HeroFocus | null }) {
   const { locale, t } = useApp()
-  const focusProject: Record<HeroFocus, string> = { product: 'dao-system', design: 'the-dao-way', automation: 'crypto-reality', analytics: 'risk-journal-analytics' }
-  const items = projects.filter((project) => project.featured === featured).sort((a, b) => featured && activeFocus ? Number(b.id === focusProject[activeFocus]) - Number(a.id === focusProject[activeFocus]) : 0)
+  const items = projects.filter((project) => project.featured === featured)
   const heading = featured ? t.featured : t.more
 
   return <div className={`mobile-section mobile-projects-section ${featured ? 'is-featured' : 'is-more'}`}>
+    {featured && <span className="section-eyebrow">04 · SYSTEM ARCHIVE</span>}
     <h2>{heading}</h2>
     {featured && activeFocus && <p className="mobile-project-focus">{t.selectedDirection}: <strong>{heroModes.find((mode) => mode.key === activeFocus)?.title[locale]}</strong></p>}
     <div className="mobile-project-list" role="list" aria-label={heading}>
-      {items.map((project, index) => <div role="listitem" className={!featured && index === 1 ? 'mobile-project-teaser' : undefined} key={project.id}><ProjectCard project={project} featured={featured} /></div>)}
+      {items.map((project, index) => <div role="listitem" className={!featured && index === 1 ? 'mobile-project-teaser' : undefined} key={project.id}><ProjectCard project={project} featured={featured} lead={featured && project.id === 'dao-system'} statement={featured ? featuredSystemStatements[project.id] : undefined} proofLayers={featured && project.id === 'dao-system' ? daoProofLayers : []} /></div>)}
     </div>
   </div>
 }
@@ -154,17 +156,21 @@ function MobileChapterNavigation({ activeChapter, formFocused, labels, navigate,
   </nav>
 }
 
-function MobileSkills() {
+function MobileWhatIBuild() {
   const { locale, t } = useApp()
   const [open, setOpen] = useState(0)
-  return <div className="mobile-section mobile-skills-section">
+  return <div className="mobile-section mobile-skills-section mobile-what-i-build">
+    <span className="section-eyebrow">{t.whatIBuildEyebrow}</span>
     <h2>{t.expertise}</h2>
+    <p className="mobile-build-intro">{t.whatIBuildIntro}</p>
     <div className="mobile-skills-accordion">
-      {skills.map((skill, index) => {
+      {buildSystems.map((system, index) => {
         const expanded = open === index
-        return <article key={skill.title.en} className={expanded ? 'is-open' : ''}>
-          <h3><button type="button" onClick={() => setOpen(index)} aria-expanded={expanded} aria-controls={`mobile-skill-${index}`}><span>0{index + 1}</span><strong>{skill.title[locale]}</strong><i aria-hidden="true">{expanded ? '−' : '+'}</i></button></h3>
-          <div id={`mobile-skill-${index}`} hidden={!expanded}><p>{skill.description[locale]}</p></div>
+        return <article key={system.key} className={expanded ? 'is-open' : ''} style={{ '--build-accent': system.accent } as React.CSSProperties}>
+          <h3><button type="button" onClick={() => setOpen(index)} aria-expanded={expanded} aria-controls={`mobile-build-${index}`}><span>{system.num}</span><strong>{system.title[locale]}</strong><i aria-hidden="true">{expanded ? '−' : '+'}</i></button></h3>
+          <div id={`mobile-build-${index}`} hidden={!expanded}>
+            {system.outputs.map((output) => <div className="mobile-build-output" key={output.title.en}><h4>{output.title[locale]}</h4><p>{output.description[locale]}</p></div>)}
+          </div>
         </article>
       })}
     </div>
@@ -194,7 +200,7 @@ export function MobileHomePage() {
   const [formFocused, setFormFocused] = useState(false)
   const [activeFocus, setActiveFocus] = useState<HeroFocus | null>(() => history.state?.mobileFocus ?? null)
   const touchStart = useRef<{ x: number; y: number; blocked: boolean } | null>(null)
-  const chapterLabels = [t.chapterHero, t.chapterDirections, t.chapterFeatured, t.chapterProjects, t.chapterProcess, t.chapterExpertise, t.chapterExperience, t.chapterContact]
+  const chapterLabels = [t.chapterHero, t.chapterExpertise, t.chapterDirections, t.chapterFeatured, t.chapterProjects, t.chapterProcess, t.chapterExperience, t.chapterContact]
 
   useEffect(() => {
     document.documentElement.dataset.page = 'home'
@@ -227,7 +233,7 @@ export function MobileHomePage() {
   }
   const selectDirection = (focus: HeroFocus) => {
     setActiveFocus(focus)
-    navigateChapter(2, focus)
+    navigateChapter(3, focus)
   }
   const scrollActiveChapterTop = () => document.getElementById(chapters[activeChapter].id)?.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   const onFocusCapture = (event: FocusEvent<HTMLDivElement>) => {
@@ -261,12 +267,12 @@ export function MobileHomePage() {
 
   return <div className={`mobile-chapter-viewport ${formFocused ? 'is-form-focused' : ''}`} onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture} onScrollCapture={onScrollCapture} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
     <main id="main" className="mobile-chapter-track" ref={chapterRef} onScroll={onChapterScroll} onKeyDown={onChapterKeyDown} tabIndex={0} aria-label={t.chapterNavigation}>
-      <MobileChapter id="chapter-hero" index={0} active={activeChapter === 0} navigation={navigation}><MobileHero onDirections={() => navigateChapter(1)} /></MobileChapter>
-      <MobileChapter id="directions" index={1} active={activeChapter === 1} navigation={navigation} className="mobile-directions-chapter" labelledBy="mobile-directions-title"><MobileDirections onSelect={selectDirection} /></MobileChapter>
-      <MobileChapter id="featured" index={2} active={activeChapter === 2} navigation={navigation}><MobileProjects featured activeFocus={activeFocus} /></MobileChapter>
-      <MobileChapter id="more-projects" index={3} active={activeChapter === 3} navigation={navigation}><MobileProjects featured={false} /></MobileChapter>
-      <MobileChapter id="process" index={4} active={activeChapter === 4} navigation={navigation}><MobileProcess /></MobileChapter>
-      <MobileChapter id="skills" index={5} active={activeChapter === 5} navigation={navigation}><MobileSkills /></MobileChapter>
+      <MobileChapter id="chapter-hero" index={0} active={activeChapter === 0} navigation={navigation}><MobileHero onExplore={() => navigateChapter(1)} onWork={() => navigateChapter(3)} /></MobileChapter>
+      <MobileChapter id="skills" index={1} active={activeChapter === 1} navigation={navigation}><MobileWhatIBuild /></MobileChapter>
+      <MobileChapter id="directions" index={2} active={activeChapter === 2} navigation={navigation} className="mobile-directions-chapter" labelledBy="mobile-directions-title"><MobileDirections onSelect={selectDirection} /></MobileChapter>
+      <MobileChapter id="featured" index={3} active={activeChapter === 3} navigation={navigation}><MobileProjects featured activeFocus={activeFocus} /></MobileChapter>
+      <MobileChapter id="more-projects" index={4} active={activeChapter === 4} navigation={navigation}><MobileProjects featured={false} /></MobileChapter>
+      <MobileChapter id="process" index={5} active={activeChapter === 5} navigation={navigation}><MobileProcess /></MobileChapter>
       <MobileChapter id="experience-education" index={6} active={activeChapter === 6} navigation={navigation}><MobileExperience /></MobileChapter>
       <MobileChapter id="contact" index={7} active={activeChapter === 7} navigation={navigation} className="mobile-contact-chapter"><Contact mobile /><Footer /></MobileChapter>
     </main>

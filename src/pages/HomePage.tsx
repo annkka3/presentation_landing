@@ -4,7 +4,7 @@ import { Hero } from '../sections/Hero/Hero'
 import { TrustMarquee } from '../sections/TrustMarquee/TrustMarquee'
 import { FeaturedCases } from '../sections/FeaturedCases/FeaturedCases'
 import { MoreProjects } from '../sections/MoreProjects/MoreProjects'
-import { Skills } from '../sections/Skills/Skills'
+import { WhatIBuild } from '../sections/Skills/Skills'
 import { Process } from '../sections/Process/Process'
 import { Experience } from '../sections/Experience/Experience'
 import { Contact } from '../sections/Contact/Contact'
@@ -14,10 +14,10 @@ import { MobileHomePage } from './MobileHomePage'
 
 const scenes = [
   { id: 'chapter-hero' },
+  { id: 'skills' },
   { id: 'featured' },
   { id: 'more-projects' },
   { id: 'process' },
-  { id: 'skills' },
   { id: 'experience-education' },
   { id: 'contact' },
 ] as const
@@ -26,7 +26,7 @@ function DesktopHomePage() {
   const { t } = useApp()
   const containerRef = useRef<HTMLElement>(null)
   const [activeScene, setActiveScene] = useState(0)
-  const chapterLabels = [t.chapterHero, t.chapterFeatured, t.chapterProjects, t.chapterProcess, t.chapterExpertise, t.chapterExperience, t.chapterContact]
+  const chapterLabels = [t.chapterHero, t.chapterExpertise, t.chapterFeatured, t.chapterProjects, t.chapterProcess, t.chapterExperience, t.chapterContact]
 
   useEffect(() => {
     document.documentElement.dataset.page = 'home'
@@ -87,10 +87,10 @@ function DesktopHomePage() {
   return <>
     <main id="main" className="scroll-container" ref={containerRef} tabIndex={0} aria-label="Portfolio scenes">
       <div className={`home-chapter home-scene hero-scene ${activeScene === 0 ? 'is-scene-active' : ''}`} id="chapter-hero" data-home-chapter="01"><Hero /><TrustMarquee /></div>
-      <div className={`home-chapter home-scene featured-scene ${activeScene === 1 ? 'is-scene-active' : ''}`} id="featured" data-home-chapter="02"><FeaturedCases /></div>
-      <div className={`home-chapter home-scene cases-scene ${activeScene === 2 ? 'is-scene-active' : ''}`} id="more-projects" data-home-chapter="03"><MoreProjects /></div>
-      <div className={`home-chapter home-scene process-scene ${activeScene === 3 ? 'is-scene-active' : ''}`} id="process" data-home-chapter="04"><Process /></div>
-      <div className={`home-chapter home-scene skills-scene ${activeScene === 4 ? 'is-scene-active' : ''}`} id="skills" data-home-chapter="05"><Skills /></div>
+      <div className={`home-chapter home-scene skills-scene ${activeScene === 1 ? 'is-scene-active' : ''}`} id="skills" data-home-chapter="02"><WhatIBuild /></div>
+      <div className={`home-chapter home-scene featured-scene ${activeScene === 2 ? 'is-scene-active' : ''}`} id="featured" data-home-chapter="03"><FeaturedCases /></div>
+      <div className={`home-chapter home-scene cases-scene ${activeScene === 3 ? 'is-scene-active' : ''}`} id="more-projects" data-home-chapter="04"><MoreProjects /></div>
+      <div className={`home-chapter home-scene process-scene ${activeScene === 4 ? 'is-scene-active' : ''}`} id="process" data-home-chapter="05"><Process /></div>
       <div className={`home-chapter home-scene experience-scene ${activeScene === 5 ? 'is-scene-active' : ''}`} id="experience-education" data-home-chapter="06"><Experience /></div>
       <div className={`home-chapter home-scene contact-scene ${activeScene === 6 ? 'is-scene-active' : ''}`} id="contact" data-home-chapter="07"><Contact /><Footer /></div>
     </main>
@@ -103,7 +103,7 @@ function DesktopHomePage() {
           {scenes.map((scene, index) => <a key={scene.id} href={`#${scene.id}`} aria-label={`${t.goToChapter} ${index + 1} ${t.chapterOf} ${scenes.length}`} aria-current={activeScene === index ? 'step' : undefined}><span>{chapterLabels[index]}</span></a>)}
         </div>
       </div>
-      <span className="scene-navigation-total" aria-hidden="true">07</span>
+      <span className="scene-navigation-total" aria-hidden="true">{String(scenes.length).padStart(2, '0')}</span>
     </nav>
     <button
       className={`scene-footer ${activeScene === scenes.length - 1 ? 'is-final' : ''}`}
@@ -111,7 +111,7 @@ function DesktopHomePage() {
       aria-label={activeScene === scenes.length - 1 ? t.top : `${t.goToChapter} ${activeScene + 2} ${t.chapterOf} ${scenes.length}`}
       onClick={() => { window.location.hash = scenes[activeScene === scenes.length - 1 ? 0 : activeScene + 1].id }}
     >
-      <span>{String(activeScene + 1).padStart(2, '0')} / 07</span><span>{activeScene === scenes.length - 1 ? `${t.backToTop} ↑` : `${t.scrollExplore} ↓`}</span>
+      <span>{String(activeScene + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}</span><span>{activeScene === scenes.length - 1 ? `${t.backToTop} ↑` : `${t.scrollExplore} ↓`}</span>
     </button>
   </>
 }

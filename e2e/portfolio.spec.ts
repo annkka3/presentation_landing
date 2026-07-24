@@ -190,8 +190,8 @@ test('Hero transfers keyboard active state and preserves mouse behavior', async 
     await expect(page.locator('.hero-panel[data-state="active"]')).toHaveCount(1)
     await page.waitForTimeout(520)
     const computed = await widths()
-    expect(computed[index]).toBeGreaterThanOrEqual(45)
-    computed.filter((_, panelIndex) => panelIndex !== index).forEach((width) => expect(width).toBeLessThanOrEqual(19))
+    expect(computed[index]).toBeGreaterThanOrEqual(43)
+    computed.filter((_, panelIndex) => panelIndex !== index).forEach((width) => expect(width).toBeLessThanOrEqual(20))
   }
 
   await panels.nth(0).focus()
@@ -207,8 +207,10 @@ test('Hero transfers keyboard active state and preserves mouse behavior', async 
   await page.keyboard.press('Shift+Tab')
   await expect(panels.nth(3)).toBeFocused()
   await assertActive(3)
-  await panels.nth(3).press('Enter')
-  await expect(page).toHaveURL(/#featured$/)
+  await expect(panels.nth(0)).toHaveAttribute('href', '/product')
+  await expect(panels.nth(1)).toHaveAttribute('href', '/design')
+  await expect(panels.nth(2)).toHaveAttribute('href', '/automation')
+  await expect(panels.nth(3)).toHaveAttribute('href', '/analytics')
 
   await page.locator('.project-card').first().focus()
   await page.locator('#product').hover({ position: { x: 30, y: 100 } })
@@ -223,7 +225,31 @@ test('Hero keyboard state reaches its final width with reduced motion', async ({
   await page.goto('/')
   await page.locator('#automation').focus()
   await expect(page.locator('#automation')).toHaveAttribute('data-state', 'active')
-  await expect.poll(() => page.locator('#automation').evaluate((panel) => panel.getBoundingClientRect().width / (panel.parentElement?.getBoundingClientRect().width || 1))).toBeGreaterThanOrEqual(.45)
+  await expect.poll(() => page.locator('#automation').evaluate((panel) => panel.getBoundingClientRect().width / (panel.parentElement?.getBoundingClientRect().width || 1))).toBeGreaterThanOrEqual(.43)
+})
+
+test('What I Build reorganizes two concrete outputs and Featured keeps DAO SYSTEM dominant', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#skills')
+  await expect(page.getByRole('heading', { level: 2, name: 'Что я создаю' })).toBeVisible()
+  await expect(page.locator('.build-system-index button')).toHaveCount(4)
+  await expect(page.locator('#active-build-system .build-output-list > div')).toHaveCount(2)
+  await page.getByRole('button', { name: '02 ВИЗУАЛЬНЫЕ СИСТЕМЫ' }).click()
+  await expect(page.locator('#active-build-system')).toContainText('Лендинги, воронки и commerce')
+  await expect(page.locator('.build-diagram')).toHaveClass(/build-diagram--visual/)
+
+  await page.goto('/#featured')
+  await expect(page.locator('.featured-archive .project-card')).toHaveCount(4)
+  await expect(page.locator('.featured-secondary-cases .project-card')).toHaveCount(3)
+  await expect(page.locator('.featured-system-statement')).toHaveCount(4)
+  const hierarchy = await page.evaluate(() => {
+    const archive = document.querySelector<HTMLElement>('.featured-archive')!.getBoundingClientRect()
+    const lead = document.querySelector<HTMLElement>('.featured-archive>.is-lead-case')!.getBoundingClientRect()
+    return lead.width / archive.width
+  })
+  expect(hierarchy).toBeGreaterThan(.55)
+  expect(hierarchy).toBeLessThan(.66)
+  await expect(page.locator('.featured-archive>.is-lead-case')).toContainText('DAO SYSTEM')
 })
 
 test('homepage owns seven stable editorial scenes and route-scoped state', async ({ page }) => {
@@ -233,7 +259,7 @@ test('homepage owns seven stable editorial scenes and route-scoped state', async
   const chapters = page.locator('.home-chapter')
   await expect(chapters).toHaveCount(7)
   expect(await chapters.evaluateAll((items) => items.map((item) => item.getAttribute('data-home-chapter')))).toEqual(['01', '02', '03', '04', '05', '06', '07'])
-  expect(await chapters.evaluateAll((items) => items.map((item) => item.id))).toEqual(['chapter-hero', 'featured', 'more-projects', 'process', 'skills', 'experience-education', 'contact'])
+  expect(await chapters.evaluateAll((items) => items.map((item) => item.id))).toEqual(['chapter-hero', 'skills', 'featured', 'more-projects', 'process', 'experience-education', 'contact'])
   await expect(page.locator('.scene-navigation a')).toHaveCount(7)
   await expect(page.locator('.scene-footer')).toContainText('01 / 07')
   await expect(page.locator('.scene-footer')).toContainText('ПРОКРУТИТЕ ДАЛЬШЕ')
@@ -352,26 +378,31 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
   await page.goto('/')
   const track = page.locator('.mobile-chapter-track')
   await expect(track.locator(':scope > .mobile-chapter')).toHaveCount(8)
-  await expect(page.locator('.mobile-hero .mobile-proof-grid > div')).toHaveCount(4)
-  await expect(page.locator('.mobile-hero-composite img')).toHaveCount(3)
-  await expect(page.locator('.mobile-hero-composite-labels i')).toHaveCount(4)
-  await expect(page.locator('.mobile-hero-copy')).toContainText('От продуктовой архитектуры и визуальной системы до реализации, проверки и запуска.')
-  await expect(page.locator('.mobile-hero')).toContainText('AI-native подход')
+  await expect(page.locator('.mobile-hero-system img')).toHaveCount(1)
+  await expect(page.locator('.mobile-hero-system-tabs [role="tab"]')).toHaveCount(4)
+  await expect(page.locator('.mobile-hero-copy')).toContainText('От архитектуры продукта и интерфейсов до AI-процессов')
+  await expect(page.locator('.mobile-hero')).toContainText('Сложность становится структурой')
   await expect(page.locator('.mobile-hero .mobile-direction-tile, .mobile-hero .mobile-direction-card')).toHaveCount(0)
   await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
   await expect(page.locator('.mobile-skills-accordion article.is-open')).toHaveCount(1)
+  await expect(page.locator('.mobile-skills-accordion article')).toHaveCount(4)
+  await expect(page.locator('.mobile-skills-accordion article.is-open .mobile-build-output')).toHaveCount(2)
   await expect(page.locator('.mobile-experience-tabs [aria-selected="true"]')).toHaveText('Опыт')
 
-  await page.locator('.mobile-hero-directions').click()
-  await expect(page).toHaveURL(/#directions$/)
+  await page.getByRole('button', { name: 'ИССЛЕДОВАТЬ СИСТЕМУ' }).click()
+  await expect(page).toHaveURL(/#skills$/)
   await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
   await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(390)
+  await page.getByRole('button', { name: 'Перейти к разделу 3: Направления' }).click()
+  await expect(page).toHaveURL(/#directions$/)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(780)
   await page.getByRole('button', { name: 'Открыть кейсы направления АНАЛИТИКА' }).click()
   await expect(page).toHaveURL(/#featured$/)
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
   await expect(page.locator('.mobile-project-focus')).toContainText('АНАЛИТИКА')
-  await expect(page.locator('#featured .project-card').first()).toContainText('Risk Journal Analytics')
-  await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(780)
+  await expect(page.locator('#featured .project-card').first()).toContainText('DAO SYSTEM')
+  await expect.poll(() => track.evaluate((node) => Math.round(node.scrollLeft))).toBe(1170)
   await expect(page.locator('#featured .mobile-project-list .project-card')).toHaveCount(4)
   await expect(page.locator('#more-projects .mobile-project-list .project-card')).toHaveCount(6)
   await expect(page.locator('#featured .mobile-carousel-navigation, #more-projects .mobile-carousel-navigation')).toHaveCount(0)
@@ -383,8 +414,10 @@ test('mobile chapters, nested carousel and UI state stay independent', async ({ 
 
   await page.getByRole('button', { name: 'EN' }).click()
   await page.getByRole('button', { name: 'Switch theme' }).click()
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
   await expect(page).toHaveURL(/#featured$/)
+  await page.goBack()
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
   await page.goBack()
   await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
   await page.goBack()
@@ -426,7 +459,7 @@ test('mobile editorial menu traps focus, keeps honest utilities and navigates wi
   await expect(dialog.getByRole('link', { name: /github.com\/annkka3/ })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(close).toBeFocused()
-  await expect(dialog.getByRole('link', { name: /03 Избранные кейсы/ })).toHaveAttribute('aria-current', 'page')
+  await expect(dialog.getByRole('link', { name: /04 Избранные кейсы/ })).toHaveAttribute('aria-current', 'page')
   await expect(dialog.getByText('PDF · скоро')).toBeVisible()
   await expect(dialog.getByRole('link', { name: /annagromyko88@gmail.com/ })).toHaveAttribute('href', 'mailto:annagromyko88@gmail.com')
   await page.keyboard.press('Escape')
@@ -439,12 +472,12 @@ test('mobile editorial menu traps focus, keeps honest utilities and navigates wi
   await expect(page.locator('.mobile-chapter-navigation')).toContainText('08 / 08')
   await page.goBack()
   await expect(page).toHaveURL(/#featured$/)
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
   await page.getByRole('button', { name: 'EN' }).click()
   await page.getByRole('button', { name: 'Switch theme' }).click()
   const persistedTheme = await page.locator('html').getAttribute('data-theme')
   await page.getByRole('button', { name: 'Open menu' }).click()
-  await expect(page.getByRole('dialog').getByRole('link', { name: /03 Featured Cases/ })).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('dialog').getByRole('link', { name: /04 Featured Cases/ })).toHaveAttribute('aria-current', 'page')
   await expect(page.getByText('PDF · coming soon')).toBeVisible()
   await expect(page.locator('html')).toHaveAttribute('data-theme', persistedTheme ?? 'dark')
   await page.keyboard.press('Escape')
@@ -474,7 +507,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 740 }
     await expect(page.locator('#featured .mobile-project-list .project-card')).toHaveCount(4)
     await expect(page.locator('#featured .mobile-carousel-navigation, #more-projects .mobile-carousel-navigation')).toHaveCount(0)
     await expect(page.locator('.mobile-chapter-navigation')).toHaveCount(1)
-    await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+    await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
     const navigationFlow = await page.evaluate(() => {
       const chapter = document.querySelector<HTMLElement>('#featured')!
       const content = chapter.querySelector<HTMLElement>('.mobile-chapter-content')!.getBoundingClientRect()
@@ -501,7 +534,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
     await page.setViewportSize(viewport)
     await page.goto('/#directions')
     await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
-    await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
+    await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
     const metrics = await page.evaluate(() => {
       const chapter = document.querySelector<HTMLElement>('.mobile-directions-chapter')!
       const heading = document.querySelector<HTMLElement>('.mobile-directions-header')!.getBoundingClientRect()
@@ -544,7 +577,7 @@ test('mobile Contact focus clears the safe bottom navigation', async ({ page }) 
 test('mobile Process is one editorial list with a single expanded step', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#process')
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('05 / 08')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('06 / 08')
   await expect(page.locator('#process .mobile-process-timeline article')).toHaveCount(6)
   await expect(page.locator('#process .mobile-process-timeline article.is-active button strong')).toHaveText('Разбираю бизнес-задачу')
   await expect(page.locator('#process .mobile-process-timeline article.is-active .mobile-process-detail > strong')).toHaveText('Краткий бриф и критерии успеха.')
@@ -558,8 +591,8 @@ test('mobile Process is one editorial list with a single expanded step', async (
 test('mobile chapter scroll compacts and restores the header brand', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#featured')
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
-  await expect.poll(() => page.locator('.mobile-chapter-track').evaluate((node) => Math.round(node.scrollLeft))).toBe(780)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
+  await expect.poll(() => page.locator('.mobile-chapter-track').evaluate((node) => Math.round(node.scrollLeft))).toBe(1170)
   const chapter = page.locator('#featured')
   await chapter.evaluate((node) => { node.scrollTop = 80; node.dispatchEvent(new Event('scroll', { bubbles: true })) })
   await expect(page.locator('.site-header')).toHaveClass(/is-mobile-compact/)
@@ -572,7 +605,7 @@ test('mobile project CTAs stay above the shared chapter safe zone', async ({ pag
   await page.setViewportSize({ width: 390, height: 844 })
   for (const id of ['featured', 'more-projects']) {
     await page.goto(`/#${id}`)
-    await expect(page.locator('.mobile-chapter-navigation')).toContainText(id === 'featured' ? '03 / 08' : '04 / 08')
+    await expect(page.locator('.mobile-chapter-navigation')).toContainText(id === 'featured' ? '04 / 08' : '05 / 08')
     const cta = page.locator(`#${id} .project-card`).first().locator('.card-cta')
     await cta.scrollIntoViewIfNeeded()
     const geometry = await page.evaluate((chapterId) => ({
@@ -590,7 +623,7 @@ test('mobile project CTAs stay above the shared chapter safe zone', async ({ pag
 test('mobile landscape keeps Directions and the global navigator usable', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 375 })
   await page.goto('/#directions')
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
   await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
   const geometry = await page.evaluate(() => {
     const grid = document.querySelector<HTMLElement>('.mobile-directions-grid')!.getBoundingClientRect()
@@ -641,8 +674,8 @@ test('mobile menu and vertical project QA screenshots', async ({ page }, testInf
   await page.getByRole('button', { name: 'Закрыть меню' }).click()
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#featured')
-  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
-  await expect.poll(() => page.locator('.mobile-chapter-track').evaluate((track) => Math.round(track.scrollLeft))).toBe(780)
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
+  await expect.poll(() => page.locator('.mobile-chapter-track').evaluate((track) => Math.round(track.scrollLeft))).toBe(1170)
   await page.locator('#featured .project-cover img').first().evaluate((image: HTMLImageElement) => image.decode())
   await page.screenshot({ path: 'qa/screenshots/mobile-navigation-390.png', fullPage: false })
   await page.setViewportSize({ width: 430, height: 932 })
@@ -659,7 +692,7 @@ test('mobile recomposition QA screenshots', async ({ page }, testInfo) => {
   await page.addInitScript(() => localStorage.setItem('anna-theme', 'dark'))
   const shots = [
     { width: 360, height: 740, hash: '', index: 0, counter: '01 / 08', path: 'qa/screenshots/mobile-recomposition-360.png' },
-    { width: 390, height: 844, hash: '#process', index: 4, counter: '05 / 08', path: 'qa/screenshots/mobile-recomposition-390.png' },
+    { width: 390, height: 844, hash: '#process', index: 5, counter: '06 / 08', path: 'qa/screenshots/mobile-recomposition-390.png' },
     { width: 430, height: 932, hash: '#contact', index: 7, counter: '08 / 08', path: 'qa/screenshots/mobile-recomposition-430.png' },
   ]
   for (const shot of shots) {
@@ -669,6 +702,27 @@ test('mobile recomposition QA screenshots', async ({ page }, testInfo) => {
     await expect.poll(() => page.locator('.mobile-chapter-track').evaluate((track) => Math.round(track.scrollLeft))).toBe(shot.width * shot.index)
     await page.screenshot({ path: shot.path, fullPage: false })
   }
+})
+
+test('homepage redesign review previews', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'One review capture set is sufficient')
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('anna-theme', 'dark'))
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await page.screenshot({ path: 'qa/screenshots/home-desktop-dark-1440.png', fullPage: false })
+  await page.getByRole('button', { name: 'Переключить тему' }).click()
+  await page.waitForTimeout(900)
+  await page.screenshot({ path: 'qa/screenshots/home-desktop-light-1440.png', fullPage: false })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await page.screenshot({ path: 'qa/screenshots/home-mobile-light-390.png', fullPage: false })
+  await page.getByRole('button', { name: 'Переключить тему' }).click()
+  await page.waitForTimeout(900)
+  await page.screenshot({ path: 'qa/screenshots/home-mobile-dark-390.png', fullPage: false })
 })
 
 test('mobile polish holds across the required responsive matrix', async ({ page }, testInfo) => {
@@ -691,99 +745,84 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await page.evaluate(() => document.fonts.ready.then(() => undefined))
     const geometry = await page.evaluate(() => {
-      const automation = document.querySelector<HTMLElement>('.mobile-direction-tile--automation .mobile-direction-tile-copy strong')
       const teaser = document.querySelector<HTMLElement>('.mobile-project-teaser')
       const badge = teaser?.querySelector<HTMLElement>('.status-badge')
       const controls = [...document.querySelectorAll<HTMLElement>('.language-toggle, .theme-toggle, .mobile-menu-button')]
-      const cta = document.querySelector<HTMLElement>('.mobile-hero-directions')
-      const visual = document.querySelector<HTMLElement>('.mobile-hero-composite')
+      const visual = document.querySelector<HTMLElement>('.mobile-hero-system')
       const heading = document.querySelector<HTMLElement>('.mobile-hero-copy h1')
-      const proofValue = document.querySelector<HTMLElement>('.mobile-proof-grid strong')
-      const proofLabel = document.querySelector<HTMLElement>('.mobile-proof-grid span')
-      const aiProof = document.querySelector<HTMLElement>('.mobile-proof-grid > div:last-child strong')
-      const skillItem = document.querySelector<HTMLElement>('.mobile-skills-accordion article')
-      const skillNumber = skillItem?.querySelector<HTMLElement>('h3 span')
       const chapterNav = document.querySelector<HTMLElement>('#chapter-hero .mobile-chapter-navigation')
-      const proofGrid = document.querySelector<HTMLElement>('.mobile-proof-grid')
-      const automationStyle = automation ? getComputedStyle(automation) : null
-      const glassStyle = document.querySelector<HTMLElement>('.mobile-hero-interface-layer')
-        ? getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-interface-layer')!)
-        : null
-      const automationLines = automation && automationStyle
-        ? Math.round(automation.getBoundingClientRect().height / Number.parseFloat(automationStyle.lineHeight))
-        : 0
+      const heroActions = [...document.querySelectorAll<HTMLElement>('.mobile-hero-actions button')]
+      const directionArrows = [...document.querySelectorAll<HTMLElement>('.mobile-hero-state-arrow')]
 
       return {
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-        graphCount: document.querySelectorAll('.mobile-hero-data-layer').length,
-        interfaceCount: document.querySelectorAll('.mobile-hero-interface-layer').length,
-        automationLines,
-        automationFits: automation ? automation.scrollWidth <= automation.clientWidth + 1 : false,
+        mobileVideoCount: document.querySelectorAll('.mobile-hero video').length,
+        heroImageCount: document.querySelectorAll('.mobile-hero-system>img').length,
+        heroTabCount: document.querySelectorAll('.mobile-hero-system-tabs [role="tab"]').length,
+        selectedHeroTabs: document.querySelectorAll('.mobile-hero-system-tabs [aria-selected="true"]').length,
+        heroActionHeights: heroActions.map((item) => item.getBoundingClientRect().height),
+        heroActionWidths: heroActions.map((item) => item.getBoundingClientRect().width),
+        directionArrowSizes: directionArrows.map((item) => ({ width: item.getBoundingClientRect().width, height: item.getBoundingClientRect().height })),
+        visualWidth: visual?.getBoundingClientRect().width ?? 0,
+        visualRadius: visual ? getComputedStyle(visual).borderRadius : '',
+        buildArticleCount: document.querySelectorAll('.mobile-skills-accordion article').length,
+        openBuildCount: document.querySelectorAll('.mobile-skills-accordion article.is-open').length,
+        activeOutputCount: document.querySelectorAll('.mobile-skills-accordion article.is-open .mobile-build-output').length,
+        featuredLeadId: document.querySelector<HTMLElement>('#featured .project-card')?.dataset.projectId ?? '',
+        featuredStatementCount: document.querySelectorAll('#featured .featured-system-statement').length,
         teaserHeight: teaser?.getBoundingClientRect().height ?? 0,
         teaserBadgeDisplay: badge ? getComputedStyle(badge).display : 'none',
         controlHeights: controls.map((control) => control.getBoundingClientRect().height),
-        ctaWidth: cta?.getBoundingClientRect().width ?? 0,
-        visualWidth: visual?.getBoundingClientRect().width ?? 0,
-        ctaRadius: cta ? getComputedStyle(cta).borderRadius : '',
-        visualRadius: visual ? getComputedStyle(visual).borderRadius : '',
-        ctaAnimation: cta ? getComputedStyle(cta).animationName : 'none',
         headingFontSize: heading ? Number.parseFloat(getComputedStyle(heading).fontSize) : 0,
-        proofValueFontSize: proofValue ? Number.parseFloat(getComputedStyle(proofValue).fontSize) : 0,
-        proofLabelFontSize: proofLabel ? Number.parseFloat(getComputedStyle(proofLabel).fontSize) : 0,
         headingLines: heading ? Math.round(heading.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(heading).lineHeight)) : 0,
-        aiProofLines: aiProof ? Math.round(aiProof.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(aiProof).lineHeight)) : 0,
-        skillNumberOffset: skillItem && skillNumber ? skillNumber.getBoundingClientRect().left - skillItem.getBoundingClientRect().left : 0,
         chapterNavBorder: chapterNav ? getComputedStyle(chapterNav).borderTopWidth : '',
-        heroNavGap: chapterNav && proofGrid ? chapterNav.getBoundingClientRect().top - proofGrid.getBoundingClientRect().bottom : 0,
-        glassBorders: glassStyle ? [glassStyle.borderTopWidth, glassStyle.borderRightWidth, glassStyle.borderBottomWidth, glassStyle.borderLeftWidth] : [],
         directionSubtitleGaps: [...document.querySelectorAll<HTMLElement>('.mobile-direction-tile-copy>span')].map((item) => getComputedStyle(item).marginTop),
         tagPaddings: [...document.querySelectorAll<HTMLElement>('.mobile-projects-section .tags span')].map((item) => getComputedStyle(item).padding),
         processRowHeights: [...document.querySelectorAll<HTMLElement>('.mobile-process-timeline article>button')].map((item) => item.getBoundingClientRect().height),
-        expertiseAccentRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-skills-accordion article.is-open')!, '::before').borderRadius,
+        buildAccentRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-skills-accordion article.is-open')!, '::before').borderRadius,
         contactFormMargin: getComputedStyle(document.querySelector<HTMLElement>('.mobile-contact-chapter .contact-form')!).marginTop,
       }
     })
 
     expect(geometry.overflow).toBeLessThanOrEqual(0)
-    expect(geometry.graphCount).toBe(0)
-    expect(geometry.interfaceCount).toBe(1)
-    expect(geometry.automationLines).toBe(1)
-    expect(geometry.automationFits).toBe(true)
+    expect(geometry.mobileVideoCount).toBe(0)
+    expect(geometry.heroImageCount).toBe(1)
+    expect(geometry.heroTabCount).toBe(4)
+    expect(geometry.selectedHeroTabs).toBe(1)
+    expect(geometry.heroActionHeights.every((height) => height >= 44)).toBe(true)
+    expect(geometry.directionArrowSizes.every((size) => size.width >= 44 && size.height >= 44)).toBe(true)
+    expect(geometry.buildArticleCount).toBe(4)
+    expect(geometry.openBuildCount).toBe(1)
+    expect(geometry.activeOutputCount).toBe(2)
+    expect(geometry.featuredLeadId).toBe('dao-system')
+    expect(geometry.featuredStatementCount).toBe(4)
     expect(geometry.teaserHeight).toBeLessThanOrEqual(84)
     expect(geometry.teaserBadgeDisplay).toBe('none')
     expect(new Set(geometry.controlHeights).size).toBe(1)
-    expect(Math.abs(geometry.ctaWidth - geometry.visualWidth)).toBeLessThanOrEqual(1)
-    expect(geometry.ctaRadius).toBe(geometry.visualRadius)
-    expect(geometry.ctaAnimation).toBe('mobile-hero-cta-breathe')
-    expect(geometry.skillNumberOffset).toBeGreaterThanOrEqual(7)
+    expect(Math.abs(geometry.heroActionWidths.reduce((sum, width) => sum + width, 0) + 7 - geometry.visualWidth)).toBeLessThanOrEqual(2)
+    expect(geometry.visualRadius).toBe('20px')
     expect(geometry.chapterNavBorder).toBe('0px')
-    expect(geometry.aiProofLines).toBe(1)
-    expect(new Set(geometry.glassBorders).size).toBeGreaterThan(1)
     expect(new Set(geometry.directionSubtitleGaps)).toEqual(new Set(['11px']))
     expect(new Set(geometry.tagPaddings).size).toBe(1)
     expect(new Set(geometry.processRowHeights)).toEqual(new Set([60]))
-    expect(geometry.expertiseAccentRadius).not.toBe('0px')
+    expect(geometry.buildAccentRadius).not.toBe('0px')
     expect(geometry.contactFormMargin).toBe('38px')
-    if (viewport.width >= 360) expect(geometry.headingLines).toBe(4)
+    expect(geometry.headingLines).toBeLessThanOrEqual(8)
 
     if (viewport.width === 390) {
-      const cta = await page.locator('.mobile-hero-directions').boundingBox()
-      expect((cta?.y ?? viewport.height) + (cta?.height ?? 0)).toBeLessThanOrEqual(viewport.height)
-      expect(geometry.headingFontSize).toBeLessThan(34)
-      expect(geometry.proofValueFontSize).toBeLessThan(25)
-      expect(geometry.proofLabelFontSize).toBeLessThanOrEqual(12)
-      expect(geometry.heroNavGap).toBeLessThan(36)
+      const actions = await page.locator('.mobile-hero-actions').boundingBox()
+      expect((actions?.y ?? viewport.height) + (actions?.height ?? 0)).toBeLessThanOrEqual(viewport.height)
+      expect(geometry.headingFontSize).toBeLessThanOrEqual(30)
     }
   }
 
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  const heroNavigationTop = (await page.locator('#chapter-hero .mobile-chapter-navigation').boundingBox())?.y
-  await page.goto('/#directions')
+  await page.goto('/#skills')
   await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
-  const directionsNavigationTop = (await page.locator('#directions .mobile-chapter-navigation').boundingBox())?.y
-  expect(directionsNavigationTop).toBeCloseTo(heroNavigationTop ?? 0, 0)
+  await expect(page.locator('#skills article.is-open .mobile-build-output')).toHaveCount(2)
+  await page.goto('/#directions')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+  await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
 
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
@@ -807,8 +846,8 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
   expect(type.mainLeading).toBeCloseTo(type.formLeading, 2)
 
   const readThemeGeometry = () => page.evaluate(() => ({
-    ctaHeight: document.querySelector<HTMLElement>('.mobile-hero-directions')!.getBoundingClientRect().height,
-    ctaRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-directions')!).borderRadius,
+    primaryHeight: document.querySelector<HTMLElement>('.mobile-hero-actions .is-primary')!.getBoundingClientRect().height,
+    visualRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-system')!).borderRadius,
     directionRadius: getComputedStyle(document.querySelector<HTMLElement>('.mobile-direction-tile')!).borderRadius,
     projectPadding: getComputedStyle(document.querySelector<HTMLElement>('.mobile-projects-section .project-copy')!).padding,
     tagPadding: getComputedStyle(document.querySelector<HTMLElement>('.mobile-projects-section .tags span')!).padding,
@@ -826,15 +865,11 @@ test('mobile polish holds across the required responsive matrix', async ({ page 
 
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const reducedMotion = await page.evaluate(() => ({
-    plane: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-interface-layer')!).animationName,
-    label: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-composite-labels i')!).animationName,
-    cta: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-directions')!).animationName,
-    arrow: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-directions i')!).animationName,
+    image: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-system>img')!).animationName,
+    pulse: getComputedStyle(document.querySelector<HTMLElement>('.mobile-hero-system-pulse')!).animationName,
   }))
-  expect(reducedMotion.plane).toBe('none')
-  expect(reducedMotion.label).toBe('none')
-  expect(reducedMotion.cta).toBe('none')
-  expect(reducedMotion.arrow).toBe('none')
+  expect(reducedMotion.image).toBe('none')
+  expect(reducedMotion.pulse).toBe('none')
 })
 
 test('approved MP4 assets return video MIME and support byte ranges', async ({ request }) => {

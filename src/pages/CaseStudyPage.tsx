@@ -21,7 +21,7 @@ export default function CaseStudyPage() {
     <Link className="back-link" to="/">{t.back}</Link>
     <span className="eyebrow">{project.category[locale]}</span><h1>{project.title[locale]}</h1><p className="case-role">{project.role[locale]}</p><span className="status-badge detail-status">{project.statusLabel[locale]}</span>
     <p className="case-summary">{project.description[locale]}</p>
-    <img className="case-hero-image" src={project.coverSrc} alt={project.coverAlt[locale]} width="1670" height="982" />
+    <img className="case-hero-image" src={project.coverSrc} alt={project.coverAlt[locale]} width="1670" height="982" style={{ viewTransitionName: `project-${project.id}` } as React.CSSProperties} />
     <div className="case-details">
       <section><h2>{t.challenge}</h2><p>{project.description[locale]}</p></section>
       <section><h2>{t.scope}</h2><ul>{project.tags.map((tag) => <li key={tag.en}>{tag[locale]}</li>)}</ul></section>

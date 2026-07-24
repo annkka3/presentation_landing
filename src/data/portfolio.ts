@@ -3,11 +3,73 @@ import type { LocalizedItem, LocalizedText, Project } from '../types'
 const l = (ru: string, en: string): LocalizedText => ({ ru, en })
 
 export const heroModes = [
-  { key: 'product', num: '01', title: l('ПРОДУКТ', 'PRODUCT'), tag: l('Архитектура · UX', 'Architecture · UX'), image: '/assets/product.png', video: '/assets/product_v1.mp4', videoWidth: 688, videoHeight: 432, position: '48% 50%', accent: '#31b9cd' },
-  { key: 'design', num: '02', title: l('ДИЗАЙН', 'DESIGN'), tag: l('Визуальные системы', 'Visual systems'), image: '/assets/design.png', video: '/assets/design_v3.mp4', videoWidth: 1200, videoHeight: 752, position: '55% 42%', accent: '#c6a467' },
-  { key: 'automation', num: '03', title: l('АВТОМАТИЗАЦИЯ', 'AUTOMATION'), tag: l('Процессы · AI', 'Processes · AI'), image: '/assets/automation.png', video: '/assets/automation.mp4', videoWidth: 688, videoHeight: 432, position: '52% 50%', accent: '#2fd9c9' },
-  { key: 'analytics', num: '04', title: l('АНАЛИТИКА', 'ANALYTICS'), tag: l('SQL · Python', 'SQL · Python'), image: '/assets/analytics.png', video: '/assets/analytics.mp4', videoWidth: 688, videoHeight: 432, position: '58% 48%', accent: '#2ea2ff' },
+  { key: 'product', num: '01', title: l('ПРОДУКТ', 'PRODUCT'), tag: l('Архитектура · UX', 'Architecture · UX'), transformation: l('Сложность становится структурой.', 'Complexity becomes structure.'), route: '/product', image: '/assets/product.png', video: '/assets/product_v1.mp4', videoWidth: 688, videoHeight: 432, position: '48% 50%', accent: '#31b9cd' },
+  { key: 'design', num: '02', title: l('ДИЗАЙН', 'DESIGN'), tag: l('Визуальные системы', 'Visual systems'), transformation: l('Структура становится опытом.', 'Structure becomes experience.'), route: '/design', image: '/assets/design.png', video: '/assets/design_v3.mp4', videoWidth: 1200, videoHeight: 752, position: '55% 42%', accent: '#c6a467' },
+  { key: 'automation', num: '03', title: l('АВТОМАТИЗАЦИЯ', 'AUTOMATION'), tag: l('Процессы · AI', 'Processes · AI'), transformation: l('Процесс становится системой.', 'Process becomes system.'), route: '/automation', image: '/assets/automation.png', video: '/assets/automation.mp4', videoWidth: 688, videoHeight: 432, position: '52% 50%', accent: '#2fd9c9' },
+  { key: 'analytics', num: '04', title: l('АНАЛИТИКА', 'ANALYTICS'), tag: l('SQL · Python', 'SQL · Python'), transformation: l('Данные становятся решением.', 'Data becomes decision.'), route: '/analytics', image: '/assets/analytics.png', video: '/assets/analytics.mp4', videoWidth: 688, videoHeight: 432, position: '58% 48%', accent: '#2ea2ff' },
 ] as const
+
+export const buildSystems = [
+  {
+    key: 'product',
+    num: '01',
+    title: l('ПРОДУКТОВЫЕ СИСТЕМЫ', 'PRODUCT SYSTEMS'),
+    coordinate: '01 / STRUCTURE',
+    accent: '#31b9cd',
+    outputs: [
+      { title: l('Цифровые продукты и MVP', 'Digital Products & MVPs'), description: l('Telegram Mini Apps, веб-продукты, концепции платформ, архитектура продукта и полный цикл реализации.', 'Telegram Mini Apps, web products, platform concepts, product architecture, and end-to-end delivery.') },
+      { title: l('Продуктовый UX и архитектура', 'Product UX & Architecture'), description: l('Исследование задачи, пользовательские сценарии, информационная архитектура, требования, состояния и масштабируемая логика продукта.', 'Discovery, user flows, information architecture, requirements, states, and scalable product logic.') },
+    ],
+  },
+  {
+    key: 'visual',
+    num: '02',
+    title: l('ВИЗУАЛЬНЫЕ СИСТЕМЫ', 'VISUAL SYSTEMS'),
+    coordinate: '02 / EXPERIENCE',
+    accent: '#c6a467',
+    outputs: [
+      { title: l('UX/UI и дизайн-системы', 'UX/UI & Design Systems'), description: l('Интерфейсы, адаптивный UX, компоненты, состояния продукта и целостные дизайн-системы.', 'Interfaces, responsive UX, components, product states, and cohesive design systems.') },
+      { title: l('Лендинги, воронки и commerce', 'Landing Pages, Funnels & Commerce'), description: l('Лендинги, конверсионные сценарии, marketplace-системы, ecommerce-интерфейсы и rich content.', 'Landing pages, conversion paths, marketplace systems, ecommerce interfaces, and rich content.') },
+    ],
+  },
+  {
+    key: 'automation',
+    num: '03',
+    title: l('СИСТЕМЫ АВТОМАТИЗАЦИИ', 'AUTOMATION SYSTEMS'),
+    coordinate: '03 / SYSTEM',
+    accent: '#2fd9c9',
+    outputs: [
+      { title: l('AI-автоматизация и агенты', 'AI Automation & Agents'), description: l('AI-процессы, ассистенты, классификация, валидация, human-in-the-loop и повторяемые операции.', 'AI workflows, assistants, classification, validation, human-in-the-loop processes, and repeatable operations.') },
+      { title: l('Интеграции и контент-пайплайны', 'Integrations & Content Pipelines'), description: l('API, Telegram-автоматизация, CRM-процессы, уведомления и производство контента с поддержкой AI.', 'APIs, Telegram automation, CRM processes, notifications, and AI-assisted content production.') },
+    ],
+  },
+  {
+    key: 'analytics',
+    num: '04',
+    title: l('АНАЛИТИЧЕСКИЕ СИСТЕМЫ', 'ANALYTICS SYSTEMS'),
+    coordinate: '04 / DECISION',
+    accent: '#2ea2ff',
+    outputs: [
+      { title: l('Продуктовая аналитика и эксперименты', 'Product Analytics & Experimentation'), description: l('Событийные модели, воронки, когорты, KPI-фреймворки, A/B-тесты и продуктовые инсайты.', 'Event systems, funnels, cohorts, KPI frameworks, A/B tests, and product insights.') },
+      { title: l('Данные, отчётность и решения', 'Data, Reporting & Decision Systems'), description: l('SQL, Python, дашборды, отчётность, качество данных и практические рекомендации.', 'SQL, Python, dashboards, reporting, data quality, and actionable recommendations.') },
+    ],
+  },
+] as const
+
+export const featuredSystemStatements: Record<string, LocalizedText> = {
+  'dao-system': l('ОДНА ЭКОСИСТЕМА. НЕСКОЛЬКО ПРОДУКТОВ. ОБЩАЯ ЛОГИКА.', 'ONE ECOSYSTEM. MULTIPLE PRODUCTS. SHARED LOGIC.'),
+  'crypto-reality': l('ПОВЕДЕНЧЕСКИЙ ПРОДУКТОВЫЙ ДИЗАЙН ЧЕРЕЗ ИГРОВЫЕ МЕХАНИКИ.', 'BEHAVIOURAL PRODUCT DESIGN THROUGH GAME MECHANICS.'),
+  'the-dao-way': l('СЛОЖНОЕ ЗНАНИЕ ПРЕВРАЩАЕТСЯ В ЯСНЫЙ ПРОДУКТОВЫЙ ПУТЬ.', 'COMPLEX KNOWLEDGE TURNED INTO A CLEAR PRODUCT JOURNEY.'),
+  'risk-journal-analytics': l('ТОРГОВОЕ ПОВЕДЕНИЕ ПРЕВРАЩАЕТСЯ В СИГНАЛЫ РИСКА.', 'TRADING BEHAVIOUR TURNED INTO ACTIONABLE RISK SIGNALS.'),
+}
+
+export const daoProofLayers = [
+  l('Архитектура', 'Architecture'),
+  l('UX-стратегия', 'UX strategy'),
+  l('Дизайн-система', 'Design system'),
+  l('Требования', 'Requirements'),
+  l('Критерии выпуска', 'Release gates'),
+]
 
 export const proofItems = [
   { stat: l('20+ лет', '20+ years'), label: l('коммерческого и управленческого опыта', 'of commercial and management experience') },

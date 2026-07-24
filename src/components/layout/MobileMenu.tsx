@@ -9,11 +9,11 @@ export function MobileMenu({ activeHash, onClose, onNavigate }: { activeHash: st
   const closeRef = useRef<HTMLButtonElement>(null)
   const items: MenuItem[] = [
     { id: 'chapter-hero', label: t.chapterHero },
+    { id: 'skills', label: t.chapterExpertise },
     { id: 'directions', label: t.chapterDirections },
     { id: 'featured', label: locale === 'ru' ? 'Избранные кейсы' : 'Featured Cases' },
     { id: 'more-projects', label: locale === 'ru' ? 'Ещё проекты' : 'More Projects' },
     { id: 'process', label: t.chapterProcess },
-    { id: 'skills', label: t.chapterExpertise },
     { id: 'experience-education', label: locale === 'ru' ? 'Опыт и образование' : 'Experience & Education' },
     { id: 'contact', label: t.chapterContact },
   ]
