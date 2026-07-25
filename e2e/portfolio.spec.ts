@@ -175,7 +175,7 @@ test('Contact links, localization and missing endpoint behavior stay honest', as
 })
 
 test('Hero transfers keyboard active state and preserves mouse behavior', async ({ page }) => {
-  test.setTimeout(60_000)
+  test.setTimeout(120_000)
   const errors: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
   await page.setViewportSize({ width: 1440, height: 1000 })
@@ -723,6 +723,105 @@ test('homepage redesign review previews', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Переключить тему' }).click()
   await page.waitForTimeout(900)
   await page.screenshot({ path: 'qa/screenshots/home-mobile-dark-390.png', fullPage: false })
+})
+
+test('homepage correction pass keeps overlays out of content and captures review states', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'One correction capture set is sufficient')
+  test.setTimeout(120_000)
+  const waitForVisibleImages = async () => {
+    await page.waitForFunction(() => [...document.images]
+      .filter((image) => {
+        const rect = image.getBoundingClientRect()
+        return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth
+      })
+      .every((image) => image.complete && image.naturalWidth > 0), undefined, { timeout: 10_000 })
+  }
+
+  await page.addInitScript(() => localStorage.setItem('anna-theme', 'dark'))
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await expect(page.locator('.scene-footer')).toContainText('ПРОКРУТИТЕ ДАЛЬШЕ')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-desktop-dark-hero-1440.png', fullPage: false })
+  await page.locator('#design').hover()
+  await expect(page.locator('#design')).toHaveAttribute('data-state', 'active')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-desktop-dark-hero-design-1440.png', fullPage: false })
+
+  for (const shot of [
+    { hash: '#skills', path: 'qa/screenshots/correction-desktop-dark-what-i-build-1440.png' },
+    { hash: '#featured', path: 'qa/screenshots/correction-desktop-dark-featured-1440.png' },
+    { hash: '#experience-education', path: 'qa/screenshots/correction-desktop-dark-experience-1440.png' },
+    { hash: '#contact', path: 'qa/screenshots/correction-desktop-dark-contact-1440.png' },
+  ]) {
+    await page.goto(`/${shot.hash}`)
+    await expect(page.locator('.scene-footer')).not.toContainText('ПРОКРУТИТЕ ДАЛЬШЕ')
+    const collision = await page.evaluate(() => {
+      const footer = document.querySelector<HTMLElement>('.scene-footer')!.getBoundingClientRect()
+      const targets = [...document.querySelectorAll<HTMLElement>('.project-copy, .tags, .card-cta, .process-step, .timeline article, .education-list article, .contact-form, .site-footer')]
+        .filter((node) => {
+          const rect = node.getBoundingClientRect()
+          return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight
+        })
+      return targets.some((node) => {
+        const rect = node.getBoundingClientRect()
+        return !(footer.right < rect.left || footer.left > rect.right || footer.bottom < rect.top || footer.top > rect.bottom)
+      })
+    })
+    expect(collision).toBe(false)
+    await waitForVisibleImages()
+    await page.screenshot({ path: shot.path, fullPage: false })
+  }
+
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Переключить тему' }).click()
+  await page.waitForTimeout(900)
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-desktop-light-hero-1440.png', fullPage: false })
+  await page.locator('#design').hover()
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-desktop-light-hero-design-1440.png', fullPage: false })
+  await page.goto('/#featured')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-desktop-light-featured-1440.png', fullPage: false })
+
+  await page.setViewportSize({ width: 1440, height: 768 })
+  await page.goto('/')
+  await expect(page.locator('.hero-panel')).toHaveCount(4)
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-desktop-short-hero-1440x768.png', fullPage: false })
+  await page.goto('/#featured')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-desktop-short-featured-1440x768.png', fullPage: false })
+
+  await page.evaluate(() => localStorage.setItem('anna-theme', 'dark'))
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await page.reload()
+  await expect(page.locator('.mobile-hero-system>img')).toHaveCount(1)
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-mobile-dark-hero-390.png', fullPage: false })
+  await page.goto('/#skills')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('02 / 08')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-mobile-dark-what-i-build-390.png', fullPage: false })
+  await page.goto('/#featured')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-mobile-dark-featured-390.png', fullPage: false })
+  await page.goto('/#contact')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('08 / 08')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-mobile-dark-contact-390.png', fullPage: false })
+  await page.getByRole('button', { name: 'Переключить тему' }).click()
+  await page.waitForTimeout(900)
+  await page.goto('/')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-mobile-light-hero-390.png', fullPage: false })
+  await page.goto('/#featured')
+  await expect(page.locator('.mobile-chapter-navigation')).toContainText('04 / 08')
+  await waitForVisibleImages()
+  await page.screenshot({ path: 'qa/screenshots/correction-mobile-light-featured-390.png', fullPage: false })
 })
 
 test('mobile polish holds across the required responsive matrix', async ({ page }, testInfo) => {

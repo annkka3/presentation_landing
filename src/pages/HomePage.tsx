@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Footer } from '../components/layout/Footer'
 import { Hero } from '../sections/Hero/Hero'
 import { TrustMarquee } from '../sections/TrustMarquee/TrustMarquee'
@@ -22,11 +23,21 @@ const scenes = [
   { id: 'contact' },
 ] as const
 
+function getSceneIndexFromHash() {
+  if (typeof window === 'undefined') return 0
+  const id = decodeURIComponent(window.location.hash.slice(1))
+  const index = scenes.findIndex((scene) => scene.id === id)
+  return index >= 0 ? index : 0
+}
+
 function DesktopHomePage() {
   const { t } = useApp()
   const containerRef = useRef<HTMLElement>(null)
-  const [activeScene, setActiveScene] = useState(0)
+  const [activeScene, setActiveScene] = useState(getSceneIndexFromHash)
   const chapterLabels = [t.chapterHero, t.chapterExpertise, t.chapterFeatured, t.chapterProjects, t.chapterProcess, t.chapterExperience, t.chapterContact]
+  const isHeroScene = activeScene === 0
+  const isFinalScene = activeScene === scenes.length - 1
+  const footerLabel = isFinalScene ? `${t.backToTop} ↑` : isHeroScene ? `${t.scrollExplore} ↓` : '↓'
 
   useEffect(() => {
     document.documentElement.dataset.page = 'home'
@@ -41,13 +52,14 @@ function DesktopHomePage() {
         const usesContainerScroll = containerStyle.overflowY === 'auto' || containerStyle.overflowY === 'scroll'
         const containerTop = usesContainerScroll ? container.getBoundingClientRect().top : 0
         const viewportHeight = usesContainerScroll ? container.clientHeight : window.innerHeight
+        const scrollTop = usesContainerScroll ? container.scrollTop : window.scrollY
         const nodes = scenes.map(({ id }) => document.getElementById(id)).filter((node): node is HTMLElement => Boolean(node))
         let closestIndex = 0
         let closestDistance = Number.POSITIVE_INFINITY
 
         nodes.forEach((node, index) => {
           const distance = (node.getBoundingClientRect().top - containerTop) / Math.max(viewportHeight, 1)
-          const absoluteDistance = Math.abs(distance)
+          const absoluteDistance = Math.abs((usesContainerScroll ? node.offsetTop : node.getBoundingClientRect().top + window.scrollY) - scrollTop)
           if (absoluteDistance < closestDistance) {
             closestDistance = absoluteDistance
             closestIndex = index
@@ -55,18 +67,26 @@ function DesktopHomePage() {
           node.style.setProperty('--parallax-y', `${Math.max(-20, Math.min(20, distance * 20))}px`)
         })
 
+        document.documentElement.dataset.homeScene = scenes[closestIndex].id
         setActiveScene((current) => current === closestIndex ? current : closestIndex)
       })
     }
 
     const scrollToCurrentAnchor = () => {
       cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(() => {
-        const id = decodeURIComponent(window.location.hash.slice(1))
-        if (id) document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'auto' })
-        else container.scrollTo({ top: 0, behavior: 'auto' })
-        updateScene()
+      const id = decodeURIComponent(window.location.hash.slice(1))
+      const sceneIndex = id ? scenes.findIndex((scene) => scene.id === id) : 0
+      const targetIndex = sceneIndex >= 0 ? sceneIndex : 0
+      const target = document.getElementById(scenes[targetIndex].id)
+
+      document.documentElement.dataset.homeScene = scenes[targetIndex].id
+      flushSync(() => {
+        setActiveScene((current) => current === targetIndex ? current : targetIndex)
       })
+
+      if (target) container.scrollTo({ top: target.offsetTop, behavior: 'auto' })
+      else container.scrollTo({ top: 0, behavior: 'auto' })
+      updateScene()
     }
 
     container.addEventListener('scroll', updateScene, { passive: true })
@@ -83,6 +103,11 @@ function DesktopHomePage() {
       if (document.documentElement.dataset.page === 'home') delete document.documentElement.dataset.page
     }
   }, [])
+
+  useEffect(() => {
+    document.documentElement.dataset.homeScene = scenes[activeScene].id
+    return () => { delete document.documentElement.dataset.homeScene }
+  }, [activeScene])
 
   return <>
     <main id="main" className="scroll-container" ref={containerRef} tabIndex={0} aria-label="Portfolio scenes">
@@ -106,12 +131,12 @@ function DesktopHomePage() {
       <span className="scene-navigation-total" aria-hidden="true">{String(scenes.length).padStart(2, '0')}</span>
     </nav>
     <button
-      className={`scene-footer ${activeScene === scenes.length - 1 ? 'is-final' : ''}`}
+      className={`scene-footer ${isHeroScene ? 'is-hero' : 'is-compact'} ${isFinalScene ? 'is-final' : ''}`}
       type="button"
-      aria-label={activeScene === scenes.length - 1 ? t.top : `${t.goToChapter} ${activeScene + 2} ${t.chapterOf} ${scenes.length}`}
-      onClick={() => { window.location.hash = scenes[activeScene === scenes.length - 1 ? 0 : activeScene + 1].id }}
+      aria-label={isFinalScene ? t.top : `${t.goToChapter} ${activeScene + 2} ${t.chapterOf} ${scenes.length}`}
+      onClick={() => { window.location.hash = scenes[isFinalScene ? 0 : activeScene + 1].id }}
     >
-      <span>{String(activeScene + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}</span><span>{activeScene === scenes.length - 1 ? `${t.backToTop} ↑` : `${t.scrollExplore} ↓`}</span>
+      <span>{String(activeScene + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}</span><span>{footerLabel}</span>
     </button>
   </>
 }

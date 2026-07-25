@@ -445,3 +445,30 @@
 @media (prefers-reduced-motion:reduce) and (max-width:767px){
   .mobile-hero-system>img,.mobile-hero-system-pulse{animation:none!important;transform:none!important}
 }
+
+/* Correction pass mobile safe areas */
+@media (max-width:767px){
+  :root{
+    --floating-character-size:44px;
+    --floating-character-compact-size:40px;
+    --floating-character-left:max(14px,env(safe-area-inset-left));
+    --floating-character-bottom:calc(var(--mobile-chapter-nav-height) + 18px + env(safe-area-inset-bottom));
+  }
+  :is(.floating-character,.pixel-character,.site-character,.mascot,[data-floating-character],[data-character='pixel']){
+    max-width:var(--floating-character-compact-size)!important;
+    height:var(--floating-character-compact-size)!important;
+    max-height:var(--floating-character-compact-size)!important;
+  }
+  .mobile-chapter-navigation-slot{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+  #chapter-hero .mobile-chapter-navigation-slot,#directions .mobile-chapter-navigation-slot{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .mobile-hero-copy h1{max-height:8em}
+  .mobile-hero-system>img{filter:brightness(.72) saturate(.76) contrast(1.02)}
+  .mobile-hero-system--design>img{filter:brightness(.82) saturate(.86) contrast(1.02)}
+  .mobile-hero-system--analytics>img{filter:brightness(.7) saturate(.64) contrast(1)}
+  .mobile-projects-section.is-featured .is-lead-case .project-description{color:var(--text-soft)}
+  .mobile-projects-section .card-cta{color:color-mix(in srgb,var(--gold) 88%,var(--text))}
+}
+
+@media (max-width:767px) and (max-height:700px), (max-width:359px){
+  :is(.floating-character,.pixel-character,.site-character,.mascot,[data-floating-character],[data-character='pixel']){display:none!important}
+}

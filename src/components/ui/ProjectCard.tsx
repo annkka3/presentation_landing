@@ -40,7 +40,7 @@ export function ProjectCard({
       style={featured ? { '--span': project.span, viewTransitionName: `project-${project.id}` } as React.CSSProperties : undefined}
     >
       <div className="project-cover">
-        <img src={project.coverSrc} alt={project.coverAlt[locale]} width="1670" height="982" loading="lazy" decoding="async" style={{ objectPosition: project.coverPosition }} />
+        <img src={project.coverSrc} alt={project.coverAlt[locale]} width="1670" height="982" loading={lead ? 'eager' : 'lazy'} fetchPriority={lead ? 'high' : 'auto'} decoding="async" style={{ objectPosition: project.coverPosition }} />
         <span className="status-badge">{project.statusLabel[locale]}</span>
         {statement && <span className="featured-system-signal" aria-hidden="true"><i /><i /><i /></span>}
       </div>

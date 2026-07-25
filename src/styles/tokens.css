@@ -11,6 +11,13 @@
   --header-control-radius: 4px;
   --header-control-border: 1px;
   --header-control-gap: 10px;
+  --chapter-rail-width: 52px;
+  --bottom-control-height: 42px;
+  --bottom-control-offset: max(20px, env(safe-area-inset-bottom));
+  --floating-character-size: 52px;
+  --floating-character-compact-size: 44px;
+  --floating-character-left: clamp(20px, 1.8vw, 28px);
+  --floating-character-bottom: calc(var(--bottom-control-offset) + 4px);
   --radius-card: 12px;
   --radius-control: 4px;
   --ease-premium: cubic-bezier(.22,1,.36,1);
