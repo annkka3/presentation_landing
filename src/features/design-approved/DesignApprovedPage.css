@@ -654,6 +654,50 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@media (min-width: 1600px) and (min-height: 1200px) {
+  .design-approved-hero-header {
+    top: 16px;
+    right: 109px;
+    left: 32px;
+  }
+
+  .design-approved-hero-scene {
+    width: calc(59vw - 4px);
+  }
+
+  .design-approved-hero-copy {
+    left: 12px;
+  }
+
+  .design-approved-hero-axis {
+    transform: translate(-18px, -1px);
+  }
+
+  .design-approved-hero-stack {
+    right: 109px;
+  }
+
+  .design-approved-hero-mobile,
+  .design-approved-hero-mobile-label,
+  .design-approved-hero-commerce {
+    transform: translateY(-4px);
+  }
+
+  .design-approved-hero-brand {
+    transform: translate(2px, 1px);
+  }
+
+  .design-approved-chapter-rail {
+    right: calc(clamp(10px, 1.25vw, 24px) + 18px);
+    transform: translateY(calc(-50% + 3px));
+  }
+
+  .design-approved-hero-scroll-cue {
+    right: 101px;
+    bottom: 24px;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
   .design-approved-chapter-rail {
     height: 160px;

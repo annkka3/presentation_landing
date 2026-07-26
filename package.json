@@ -27,6 +27,8 @@
     "@testing-library/react": "latest",
     "@testing-library/user-event": "latest",
     "@types/node": "latest",
+    "@types/pixelmatch": "^5.2.6",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "latest",
@@ -34,6 +36,8 @@
     "eslint-plugin-react-refresh": "latest",
     "globals": "latest",
     "jsdom": "latest",
+    "pixelmatch": "^7.2.0",
+    "pngjs": "^7.0.0",
     "typescript-eslint": "latest",
     "vitest": "latest"
   }
