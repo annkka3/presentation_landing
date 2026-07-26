@@ -320,6 +320,71 @@ test('design route honors reduced motion without videos or snap', async ({ page 
   await expect(page.locator('.design-hero-media video')).toBeHidden()
 })
 
+test('approved design preview isolates the exact milestone A hero', async ({ page }) => {
+  const errors: string[] = []
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/design-approved-preview')
+
+  await expect(page.locator('html')).toHaveAttribute('data-page', 'design-approved-preview')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ru')
+  await expect(page.getByRole('heading', { level: 1, name: /Создаю визуальные/ })).toBeVisible()
+  await expect(page.getByText('01 / 10')).toBeVisible()
+  await expect(page.locator('.site-header, .floating-character, .glass-panel, [class*="character-wrapper"], [class*="character-badge"]')).toHaveCount(0)
+  await expect(page.locator('.design-approved-hero-header')).toBeVisible()
+  await expect(page.locator('.design-approved-chapter-rail__track button')).toHaveCount(10)
+
+  const geometry = await page.evaluate(() => {
+    const rect = (selector: string) => {
+      const box = document.querySelector<HTMLElement>(selector)?.getBoundingClientRect()
+      return box && { top: box.top, right: innerWidth - box.right, bottom: innerHeight - box.bottom, left: box.left, width: box.width, height: box.height }
+    }
+    return {
+      hero: rect('.design-approved-hero'),
+      header: rect('.design-approved-hero-header'),
+      scene: rect('.design-approved-hero-scene'),
+      copy: rect('.design-approved-hero-copy'),
+      axis: rect('.design-approved-hero-axis'),
+      stack: rect('.design-approved-hero-stack'),
+      commerce: rect('.design-approved-hero-commerce'),
+      brand: rect('.design-approved-hero-brand'),
+      mobile: rect('.design-approved-hero-mobile'),
+      scrollCue: rect('.design-approved-hero-scroll-cue'),
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    }
+  })
+
+  expect(geometry.hero).toMatchObject({ top: 0, left: 0, width: 1440, height: 900 })
+  expect(geometry.header).toMatchObject({ top: 20, right: 90, left: 36 })
+  expect(geometry.scene).toMatchObject({ top: 0, left: 0, height: 900, width: 849.59375 })
+  expect(geometry.copy).toMatchObject({ bottom: 70, left: 16 })
+  expect(geometry.axis).toMatchObject({ top: 198, left: 652, width: 2, height: 495 })
+  expect(geometry.stack).toMatchObject({ top: 48, right: 90, width: 633.59375, height: 810 })
+  expect(geometry.commerce).toMatchObject({ top: 98, right: 90, width: 633.59375 })
+  expect(geometry.brand).toMatchObject({ right: 90, bottom: 102, width: 633.59375, height: 324 })
+  expect(geometry.mobile).toMatchObject({ right: -50, width: 382 })
+  expect(geometry.scrollCue).toMatchObject({ right: 82, bottom: 26 })
+  expect(geometry.overflow).toBeLessThanOrEqual(0)
+
+  await page.getByRole('button', { name: 'EN' }).click()
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page.getByRole('heading', { level: 1, name: /I create visual systems/ })).toBeVisible()
+  await page.getByRole('button', { name: 'Toggle theme' }).click()
+  const theme = await page.locator('html').getAttribute('data-theme')
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', theme ?? 'light')
+  expect(errors).toEqual([])
+})
+
+test('approved design preview has no horizontal overflow on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/design-approved-preview')
+  await expect(page.locator('.design-approved-chapter-rail')).toBeHidden()
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  expect(overflow).toBeLessThanOrEqual(0)
+})
+
 test('mandatory scene snap is vertical on desktop and horizontal on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
