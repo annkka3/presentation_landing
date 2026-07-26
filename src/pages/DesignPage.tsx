@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../app/AppContext'
 
@@ -217,7 +217,7 @@ function DesignCase({ title, meta, text, img, alt }: { title: string; meta: stri
 }
 
 export default function DesignPage() {
-  const { locale, theme } = useApp()
+  const { locale, setLocale, theme, toggleTheme } = useApp()
   const text = ui[locale]
   const containerRef = useRef<HTMLElement>(null)
   const emotionVideoRef = useRef<HTMLVideoElement>(null)
@@ -232,10 +232,6 @@ export default function DesignPage() {
   const [activeProcess, setActiveProcess] = useState(0)
   const activeCapability = capabilities[activeDirection]
   const process = processSteps[activeProcess]
-  const h1Parts = useMemo(() => {
-    const [first, ...rest] = text.heroH1.split(' ')
-    return { first, rest: ` ${rest.join(' ')}` }
-  }, [text.heroH1])
 
   useEffect(() => {
     document.documentElement.dataset.page = 'design'
@@ -310,23 +306,46 @@ export default function DesignPage() {
     </nav>
 
     <section id="design-hero" className="design-chapter design-hero" aria-labelledby="design-hero-title">
+      <header className="design-hero-header">
+        <Link className="design-hero-brandmark" to="/">
+          <span>ANNA GROMYKO</span>
+          <small>AI PRODUCT BUILDER</small>
+        </Link>
+        <nav aria-label={locale === 'ru' ? 'Основная навигация' : 'Primary navigation'}>
+          <button type="button" onClick={() => goToChapter(2)}>Product</button>
+          <button type="button" className="is-active" onClick={() => goToChapter(1)}>Design</button>
+          <button type="button" onClick={() => goToChapter(3)}>Automation</button>
+          <button type="button" onClick={() => goToChapter(6)}>Analytics</button>
+          <Link to="/#contact">{locale === 'ru' ? 'Контакты' : 'Contact'}</Link>
+        </nav>
+        <div className="design-hero-controls">
+          <div className="design-hero-language" role="group" aria-label={locale === 'ru' ? 'Язык' : 'Language'}>
+            <button type="button" aria-pressed={locale === 'ru'} onClick={() => setLocale('ru')}>RU</button>
+            <button type="button" aria-pressed={locale === 'en'} onClick={() => setLocale('en')}>EN</button>
+          </div>
+          <button className="design-hero-theme" type="button" onClick={toggleTheme} aria-label={locale === 'ru' ? 'Переключить тему' : 'Toggle theme'}>
+            <span aria-hidden="true">{theme === 'light' ? '◐' : '☀'}</span>
+          </button>
+          <button className="design-hero-resume" type="button">{locale === 'ru' ? 'Резюме' : 'Résumé'}</button>
+        </div>
+      </header>
       <div className="design-hero-media">
         <picture><img src={src('hero-fashion.png')} alt="" width="1600" height="1200" loading="eager" fetchPriority="high" decoding="async" /></picture>
         <video src={src('case1-hover.mp4')} muted loop playsInline preload="metadata" aria-hidden="true" />
       </div>
       <div className="design-hero-copy">
         <span className="design-kicker">{text.eyebrow}</span>
-        <h1 id="design-hero-title"><span>{h1Parts.first}</span>{h1Parts.rest}</h1>
+        <h1 id="design-hero-title">{text.heroH1}</h1>
         <p>{text.heroSub}</p>
-        <div className="design-hero-actions">
-          <a href="#design-fashion-system">{text.ctaPrimary}</a>
-          <Link to="/#contact">{text.ctaSecondary}</Link>
-        </div>
         <div className="design-hero-index" aria-label={locale === 'ru' ? 'Дизайн направления' : 'Design directions'}>
           {heroDirections.map((direction, index) => <button key={direction.num} type="button" onPointerEnter={() => setHeroDirection(index)} onFocus={() => setHeroDirection(index)} onBlur={() => setHeroDirection(null)}>
             <span>{direction.num}</span>{direction.label[locale]}
           </button>)}
           <small>{heroDirection === null ? '' : heroDirections[heroDirection].outcome[locale]}</small>
+        </div>
+        <div className="design-hero-actions">
+          <a href="#design-fashion-system">{text.ctaPrimary}</a>
+          <Link to="/#contact">{text.ctaSecondary}</Link>
         </div>
         <dl className="design-proof">
           {proofPoints.map((point) => <div key={point.stat.en}><dt>{point.stat[locale]}</dt><dd>{point.label[locale]}</dd></div>)}
