@@ -29,7 +29,7 @@ async function stabiliseHero(page: Page) {
   await page.waitForLoadState('networkidle')
   await page.evaluate(async () => {
     await document.fonts.ready
-    await Promise.all([...document.images].map((image) => image.complete
+    await Promise.all([...document.querySelectorAll<HTMLImageElement>('.design-approved-hero img')].map((image) => image.complete
       ? Promise.resolve()
       : new Promise<void>((resolve) => {
           image.addEventListener('load', () => resolve(), { once: true })

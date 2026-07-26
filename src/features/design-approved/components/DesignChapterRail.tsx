@@ -1,25 +1,31 @@
 import { DESIGN_APPROVED_CHAPTERS } from '../designApprovedContent'
 import type { DesignApprovedLocale } from '../designApprovedTypes'
 
-export function DesignChapterRail({ locale }: { locale: DesignApprovedLocale }) {
+interface DesignChapterRailProps {
+  locale: DesignApprovedLocale
+  activeChapter: number
+  onNavigate: (index: number) => void
+}
+
+export function DesignChapterRail({ locale, activeChapter, onNavigate }: DesignChapterRailProps) {
   return (
-    <nav className="design-approved-chapter-rail" aria-label={locale === 'ru' ? 'Навигация Design Page' : 'Design page navigation'}>
-      <span className="design-approved-chapter-rail__current">01</span>
+    <nav className="design-approved-chapter-rail" data-on-hero={activeChapter === 0} aria-label={locale === 'ru' ? 'Навигация Design Page' : 'Design page navigation'}>
+      <span className="design-approved-chapter-rail__current">{String(activeChapter + 1).padStart(2, '0')}</span>
       <div className="design-approved-chapter-rail__track">
         {DESIGN_APPROVED_CHAPTERS.map((chapter, index) => (
           <button
             key={chapter.id}
             type="button"
             aria-label={`${locale === 'ru' ? 'Перейти к разделу' : 'Go to chapter'} ${index + 1}: ${chapter.label[locale]}`}
-            aria-current={index === 0 ? 'step' : undefined}
+            aria-current={index === activeChapter ? 'step' : undefined}
+            disabled={index > 4}
             style={{ top: `${index / 9 * 100}%` }}
-            onClick={() => index === 0 && document.getElementById(chapter.id)?.scrollIntoView()}
+            onClick={() => onNavigate(index)}
           />
         ))}
-        <i aria-hidden="true" />
+        <i aria-hidden="true" style={{ top: `${activeChapter / 9 * 100}%` }} />
       </div>
       <span>10</span>
     </nav>
   )
 }
-

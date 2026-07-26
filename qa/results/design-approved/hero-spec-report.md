@@ -7,7 +7,7 @@
 - Diff: `qa/results/design-approved/hero-diff-1746x1406.png`
 - Device scale factor: 1
 - Pixelmatch threshold: 0.25 (rasterisation tolerance only; geometry is unmasked)
-- Overall difference: 0.6718%
+- Overall difference: 0.6681%
 - Native scrollbar mask: rightmost 16px only
 
 ### Region differences
@@ -16,10 +16,10 @@
 - leftScene: 0.7120%
 - text: 1.2713%
 - axis: 1.6526%
-- commerce: 0.3477%
-- mobile: 0.5608%
-- brand: 1.1286%
-- rail: 0.5026%
+- commerce: 0.3475%
+- mobile: 0.5622%
+- brand: 1.1097%
+- rail: 0.4989%
 
 ## Pixel-spec compliance — 1440×900
 

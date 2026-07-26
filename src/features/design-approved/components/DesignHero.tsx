@@ -29,7 +29,7 @@ export function DesignHero() {
   }
 
   return (
-    <section id="design-approved-hero" className="design-approved-hero" aria-label="Design Hero">
+    <section id="design-approved-hero" className="design-approved-hero" data-chapter="1" aria-label="Design Hero">
       <header className="design-approved-hero-header">
         <Link className="design-approved-hero-brandmark" to="/" aria-label="Anna Gromyko — AI Product Builder">
           <span>ANNA GROMYKO</span>
@@ -93,7 +93,7 @@ export function DesignHero() {
             <p aria-live="polite">{activeDirection === null ? '' : HERO_DIRECTIONS[activeDirection].outcome[locale]}</p>
           </div>
           <div className="design-approved-hero-actions">
-            <a href="#design-approved-marketplace-system">{text.ctaPrimary}</a>
+            <a href="#design-fashion-system">{text.ctaPrimary}</a>
             <Link to="/#contact">{text.ctaSecondary}</Link>
           </div>
           <dl className="design-approved-hero-proof">
@@ -140,4 +140,3 @@ export function DesignHero() {
     </section>
   )
 }
-

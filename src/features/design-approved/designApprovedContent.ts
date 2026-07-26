@@ -120,9 +120,84 @@ export const CAPABILITIES = [
   { num: '05', title: { ru: 'Motion и визуальный сторителлинг', en: 'Motion & Visual Storytelling' }, outcome: { ru: 'ОТ СТАТИКИ К СЕРИЙНОМУ КОНТЕНТУ', en: 'FROM STATIC ASSETS TO SERIAL CONTENT' }, desc: { ru: 'Motion-системы, AI-video, презентации и адаптация кампаний под форматы и каналы.', en: 'Motion systems, AI-assisted video, presentations, and campaign adaptation across formats.' }, sample: A.motionEmotionHero, sampleObjectPosition: '50% 15%' },
 ] as const
 
+export const MARKETPLACE_CASE = {
+  num: '01',
+  title: { ru: 'Визуальная система для fashion-бренда', en: 'Visual System for a Fashion Brand' },
+  category: { ru: 'FASHION E-COMMERCE · DESIGN SYSTEM', en: 'FASHION E-COMMERCE · DESIGN SYSTEM' },
+  role: { ru: 'Visual Strategy · Marketplace Design · Content System', en: 'Visual Strategy · Marketplace Design · Content System' },
+  description: {
+    ru: 'Масштабируемая система карточек и rich-контента для оформления большого каталога без потери узнаваемости, качества и мобильной читаемости.',
+    en: 'A scalable product-card and rich-content system for building a large catalog without losing brand recognition, quality, or mobile readability.',
+  },
+  tags: { ru: 'Marketplace · Design system · SKU scaling', en: 'Marketplace · Design system · SKU scaling' },
+  status: { ru: 'Концепт', en: 'Concept' },
+  href: '/projects/marketplace-visual-systems',
+} as const
+
+export const LOOKBOOK_SLIDES = [
+  A.case1Cover,
+  A.lookbook1,
+  A.lookbook2,
+  A.lookbook3,
+  A.lookbook4,
+  A.lookbook5,
+] as const
+
+export const FASHION_PIPELINE_CASE = {
+  num: '02',
+  title: { ru: 'AI-Assisted Fashion Production Pipeline', en: 'AI-Assisted Fashion Production Pipeline' },
+  category: { ru: 'AI PRODUCTION · APPAREL PIPELINE', en: 'AI PRODUCTION · APPAREL PIPELINE' },
+  description: {
+    ru: 'Один SKU, проведённый через полный конвейер: ghost mannequin спереди и сзади, деталь кроя, модель, десктоп и мобильная карточка.',
+    en: 'One SKU carried through the full pipeline: front and back ghost mannequin, construction detail, on-model shot, desktop and mobile card.',
+  },
+  tags: { ru: 'AI production · Consistency', en: 'AI production · Consistency' },
+  status: { ru: 'Концепт', en: 'Concept' },
+  cover: A.case2Pipeline,
+  href: '/projects/marketplace-visual-systems',
+} as const
+
+export const TECHNICAL_AB_CASE = {
+  title: { ru: 'A/B-тест — Eclipse Drape Gown', en: 'A/B Test — Eclipse Drape Gown' },
+  category: { ru: 'MAISON NOIREE · A/B ТЕСТ', en: 'MAISON NOIREE · A/B TEST' },
+  description: {
+    ru: 'Вариант A — editorial on-model hero: эмоциональная подача и контекст.\nВариант B — product-first composition: силуэт, конструкция и детали. Период теста — 14 дней.',
+    en: 'Variant A — editorial on-model hero: emotional framing and context.\nVariant B — product-first composition: silhouette, construction and detail. 14-day test period.',
+  },
+  cover: A.abTestEclipse,
+  href: '/projects/marketplace-visual-systems',
+} as const
+
+export const EUFASHION_CASE = {
+  num: '04',
+  title: { ru: 'Eufashion Glasses — Luxury E-commerce System', en: 'Eufashion Glasses — Luxury E-commerce System' },
+  category: { ru: 'LUXURY E-COMMERCE · AI ART DIRECTION', en: 'LUXURY E-COMMERCE · AI ART DIRECTION' },
+  description: {
+    ru: 'Премиальная digital-система для eyewear-бренда: карточки товаров, AI-визуалы и единая подача ассортимента без искажения геометрии оправы.',
+    en: 'A premium digital system for an eyewear brand: product cards, AI visuals, and a consistent assortment presentation that preserves the frame’s real geometry.',
+  },
+  tags: { ru: 'Luxury · E-commerce · Consistency', en: 'Luxury · E-commerce · Consistency' },
+  status: { ru: 'Исследование', en: 'Research' },
+  cover: A.eufashionGlasses,
+  objectPosition: '50% 30%',
+  href: '/projects/eufashion-glasses',
+} as const
+
 export const DIGITAL_CASES = [
-  { num: '01', title: { ru: 'Maison Noiree', en: 'Maison Noiree' }, category: { ru: 'BRAND SYSTEM', en: 'BRAND SYSTEM' }, tags: { ru: 'Identity · Typography · Guidelines', en: 'Identity · Typography · Guidelines' }, cover: A.theDaoWay },
-  { num: '02', title: { ru: 'Anna Gromyko Portfolio', en: 'Anna Gromyko Portfolio' }, category: { ru: 'UX/UI PORTFOLIO', en: 'UX/UI PORTFOLIO' }, tags: { ru: 'UX/UI · Responsive · Motion', en: 'UX/UI · Responsive · Motion' }, cover: A.annaPortfolio },
+  {
+    num: '01', title: { ru: 'Maison Noiree', en: 'Maison Noiree' },
+    category: { ru: 'BRAND SYSTEM', en: 'BRAND SYSTEM' },
+    tags: { ru: 'Identity · Typography · Guidelines', en: 'Identity · Typography · Guidelines' },
+    cover: A.theDaoWay, objectPosition: '50% 45%', href: '/cases/the-dao-way',
+    aspect: '16 / 10', titleSize: 'clamp(24px, 2.2vw, 30px)', fit: 'cover', dominant: true,
+  },
+  {
+    num: '02', title: { ru: 'Anna Gromyko Portfolio', en: 'Anna Gromyko Portfolio' },
+    category: { ru: 'UX/UI PORTFOLIO', en: 'UX/UI PORTFOLIO' },
+    tags: { ru: 'UX/UI · Responsive · Motion', en: 'UX/UI · Responsive · Motion' },
+    cover: A.annaPortfolio, objectPosition: '50% 100%', href: '/',
+    aspect: '4 / 3.4', titleSize: 'clamp(20px, 1.8vw, 25px)', fit: 'contain', dominant: false,
+  },
 ] as const
 
 export const RAIL_STAGES = [
@@ -191,14 +266,13 @@ export const OUTPUTS = ['Design systems', 'UX/UI', 'Brand systems', 'Marketplace
 
 export const DESIGN_APPROVED_CHAPTERS: readonly DesignApprovedChapter[] = [
   { id: 'design-approved-hero', label: { ru: 'Hero', en: 'Hero' } },
-  { id: 'design-approved-directions', label: { ru: 'Направления', en: 'Capabilities' } },
-  { id: 'design-approved-marketplace-system', label: { ru: 'Marketplace System', en: 'Marketplace System' } },
-  { id: 'design-approved-ai-production', label: { ru: 'AI Production', en: 'AI Production' } },
-  { id: 'design-approved-luxury-brand', label: { ru: 'Luxury и Brand', en: 'Luxury & Brand' } },
+  { id: 'design-directions', label: { ru: 'Направления', en: 'Capabilities' } },
+  { id: 'design-fashion-system', label: { ru: 'Marketplace System', en: 'Marketplace System' } },
+  { id: 'design-fashion-pipeline', label: { ru: 'AI Production', en: 'AI Production' } },
+  { id: 'design-brand-systems', label: { ru: 'Luxury и Brand', en: 'Luxury & Brand' } },
   { id: 'design-approved-system-method', label: { ru: 'Система', en: 'System Method' } },
   { id: 'design-approved-commercial', label: { ru: 'Коммерция', en: 'Commercial Studies' } },
   { id: 'design-approved-motion', label: { ru: 'Motion', en: 'Motion' } },
   { id: 'design-approved-principles', label: { ru: 'Принципы и процесс', en: 'Principles & Process' } },
   { id: 'design-approved-contact', label: { ru: 'Контакт', en: 'Contact' } },
 ]
-
