@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext'
 import { Container } from '../../components/layout/Container'
 import { buildSystems } from '../../data/portfolio'
@@ -84,6 +85,7 @@ export function WhatIBuild() {
               <p>{output.description[locale]}</p>
             </div>)}
           </div>
+          {system.key === 'visual' && <Link className="build-system-route-link" to="/design">{locale === 'ru' ? 'Открыть дизайн-направление →' : 'Open design direction →'}</Link>}
         </article>
         <SystemDiagram system={system} />
       </div>

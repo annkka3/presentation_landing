@@ -6,5 +6,5 @@ import { useApp } from '../../app/AppContext'
 export function SiteLayout() {
   const { t } = useApp()
   const location = useLocation()
-  return <><a className="skip-link" href="#main">{t.skip}</a><Header /><Outlet />{location.pathname !== '/' && <Footer />}</>
+  return <><a className="skip-link" href="#main">{t.skip}</a><Header /><Outlet />{location.pathname !== '/' && location.pathname !== '/design' && <Footer />}</>
 }

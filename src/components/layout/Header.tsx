@@ -42,6 +42,7 @@ export function Header() {
     }
   }, [])
   const prefix = location.pathname === '/' ? '' : '/'
+  const isDesignRoute = location.pathname === '/design'
   const closeMenu = (restoreFocus = true) => {
     setMenuOpen(false)
     if (restoreFocus) requestAnimationFrame(() => menuButtonRef.current?.focus())
@@ -66,7 +67,7 @@ export function Header() {
           <span>ANNA GROMYKO</span><small>AI PRODUCT BUILDER</small>
         </Link>
         <nav className="main-nav" aria-label={t.nav}>
-          <a href={`${prefix}#product`}>{t.navProduct}</a><a href={`${prefix}#design`}>{t.navDesign}</a><a href={`${prefix}#automation`}>{t.navAutomation}</a><a href={`${prefix}#analytics`}>{t.navAnalytics}</a><a href={`${prefix}#contact`}>{t.contact}</a>
+          <a href={`${prefix}#product`}>{t.navProduct}</a><Link to="/design" aria-current={isDesignRoute ? 'page' : undefined}>{t.navDesign}</Link><a href={`${prefix}#automation`}>{t.navAutomation}</a><a href={`${prefix}#analytics`}>{t.navAnalytics}</a><a href={`${prefix}#contact`}>{t.contact}</a>
         </nav>
         <div className="header-actions">
           <div className="language-toggle" role="group" aria-label={t.language}>

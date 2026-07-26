@@ -1,21 +1,24 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useApp } from '../../app/AppContext'
 
-type MenuItem = { id: string; label: string }
+type MenuItem = { id: string; label: string; href: string }
 
 export function MobileMenu({ activeHash, onClose, onNavigate }: { activeHash: string; onClose: (restoreFocus?: boolean) => void; onNavigate: (id: string) => void }) {
   const { locale, t } = useApp()
+  const location = useLocation()
   const dialogRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const items: MenuItem[] = [
-    { id: 'chapter-hero', label: t.chapterHero },
-    { id: 'skills', label: t.chapterExpertise },
-    { id: 'directions', label: t.chapterDirections },
-    { id: 'featured', label: locale === 'ru' ? 'Избранные кейсы' : 'Featured Cases' },
-    { id: 'more-projects', label: locale === 'ru' ? 'Ещё проекты' : 'More Projects' },
-    { id: 'process', label: t.chapterProcess },
-    { id: 'experience-education', label: locale === 'ru' ? 'Опыт и образование' : 'Experience & Education' },
-    { id: 'contact', label: t.chapterContact },
+    { id: 'chapter-hero', label: t.chapterHero, href: '/#chapter-hero' },
+    { id: 'design-route', label: t.navDesign, href: '/design' },
+    { id: 'skills', label: t.chapterExpertise, href: '/#skills' },
+    { id: 'directions', label: t.chapterDirections, href: '/#directions' },
+    { id: 'featured', label: locale === 'ru' ? 'Избранные кейсы' : 'Featured Cases', href: '/#featured' },
+    { id: 'more-projects', label: locale === 'ru' ? 'Ещё проекты' : 'More Projects', href: '/#more-projects' },
+    { id: 'process', label: t.chapterProcess, href: '/#process' },
+    { id: 'experience-education', label: locale === 'ru' ? 'Опыт и образование' : 'Experience & Education', href: '/#experience-education' },
+    { id: 'contact', label: t.chapterContact, href: '/#contact' },
   ]
 
   useEffect(() => {
@@ -69,8 +72,12 @@ export function MobileMenu({ activeHash, onClose, onNavigate }: { activeHash: st
       </header>
       <nav className="mobile-menu-navigation" aria-label={locale === 'ru' ? 'Меню разделов' : 'Chapter menu'}>
         {items.map((item, index) => {
-          const active = activeHash === item.id || (!activeHash && index === 0)
-          return <a className={`mobile-menu-item mobile-menu-item--${item.id}`} key={item.id} href={`/#${item.id}`} onClick={(event) => {
+          const active = item.id === 'design-route' ? location.pathname === '/design' : activeHash === item.id || (location.pathname === '/' && !activeHash && index === 0)
+          return <a className={`mobile-menu-item mobile-menu-item--${item.id}`} key={item.id} href={item.href} onClick={(event) => {
+            if (item.id === 'design-route') {
+              onClose(false)
+              return
+            }
             if (location.pathname === '/') event.preventDefault()
             select(item.id)
           }} aria-current={active ? 'page' : undefined}>
