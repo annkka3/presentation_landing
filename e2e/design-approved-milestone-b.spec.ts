@@ -15,7 +15,7 @@ test('chapters 2–5 expose the approved structure and exact content', async ({ 
   await page.goto('/design-approved-preview')
 
   await expect(page.getByText('01 / 10')).toBeVisible()
-  await expect(page.locator('[data-chapter]')).toHaveCount(5)
+  await expect(page.locator('[data-chapter]')).toHaveCount(10)
   for (const id of ['design-directions', 'design-fashion-system', 'design-fashion-pipeline', 'design-brand-systems']) {
     await expect(page.locator(`#${id}`)).toHaveCount(1)
   }
@@ -27,7 +27,6 @@ test('chapters 2–5 expose the approved structure and exact content', async ({ 
   await expect(page.locator('#design-brand-systems')).toContainText('Eufashion Glasses — Luxury E-commerce System')
   await expect(page.locator('#design-brand-systems')).toContainText('Maison Noiree')
   await expect(page.locator('#design-brand-systems')).toContainText('Anna Gromyko Portfolio')
-  await expect(page.locator('[data-chapter="6"], [data-chapter="7"], [data-chapter="8"], [data-chapter="9"], [data-chapter="10"]')).toHaveCount(0)
   await expect(page.locator('.floating-character, .glass-panel, [class*="character-wrapper"], [class*="character-badge"]')).toHaveCount(0)
   expect(errors).toEqual([])
 })
@@ -119,8 +118,7 @@ test('chapter geometry, routes, rail availability, hash navigation and theme are
 
   const railButtons = page.locator('.design-approved-chapter-rail__track button')
   await expect(railButtons).toHaveCount(10)
-  for (let index = 0; index < 5; index += 1) await expect(railButtons.nth(index)).toBeEnabled()
-  for (let index = 5; index < 10; index += 1) await expect(railButtons.nth(index)).toBeDisabled()
+  for (let index = 0; index < 10; index += 1) await expect(railButtons.nth(index)).toBeEnabled()
   await railButtons.nth(4).click()
   await expect(page).toHaveURL(/#design-brand-systems$/)
   await expect(page.locator('#design-brand-systems')).toBeInViewport()

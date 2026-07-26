@@ -201,27 +201,32 @@ export const DIGITAL_CASES = [
 ] as const
 
 export const RAIL_STAGES = [
-  { num: '01 SOURCE', title: { ru: 'Источник', en: 'Source' }, desc: { ru: 'Оригинальные фото платья, доступные ракурсы и исходная карточка листинга.', en: 'Original dress photography, available angles, and the original listing card.' }, thumb: A.railSource },
-  { num: '02 ANALYSIS', title: { ru: 'Анализ и правила', en: 'Analysis & rules' }, desc: { ru: 'Конкурентный обзор, структура слайдов, типографика и правила мобильной читаемости.', en: 'Competitor review, slide structure, typography, and mobile-readability rules.' }, thumb: A.railAnalysis },
-  { num: '03 PRODUCTION', title: { ru: 'Production', en: 'Production' }, desc: { ru: 'Обложка, посадка, деталь кроя, размерная сетка, модель и rich-контент.', en: 'Cover, fit, construction detail, sizing, model, and rich content.' }, thumb: A.railProduction },
-  { num: '04 SYSTEM', title: { ru: 'Система', en: 'System' }, desc: { ru: 'Десктоп, мобильная версия, вариации SKU и масштабируемый шаблон каталога.', en: 'Desktop, mobile, SKU variations, and a scalable catalog template.' }, thumb: A.railSystem },
+  { num: '01 SOURCE', title: { ru: 'Источник', en: 'Source' }, desc: { ru: 'Оригинальные фото платья, доступные ракурсы и исходная карточка листинга.', en: 'Original dress photography, available angles, and the original listing card.' }, thumb: A.railSource, objectPosition: '50% 25%', filter: 'saturate(.9) contrast(.97)', fit: 'cover' },
+  { num: '02 ANALYSIS', title: { ru: 'Анализ и правила', en: 'Analysis & rules' }, desc: { ru: 'Конкурентный обзор, структура слайдов, типографика и правила мобильной читаемости.', en: 'Competitor review, slide structure, typography, and mobile-readability rules.' }, thumb: A.railAnalysis, objectPosition: '0% 0%', filter: 'grayscale(.35) contrast(1.03)', fit: 'contain' },
+  { num: '03 PRODUCTION', title: { ru: 'Production', en: 'Production' }, desc: { ru: 'Обложка, посадка, деталь кроя, размерная сетка, модель и rich-контент.', en: 'Cover, fit, construction detail, sizing, model, and rich content.' }, thumb: A.railProduction, objectPosition: '50% 8%', filter: 'none', fit: 'cover' },
+  { num: '04 SYSTEM', title: { ru: 'Система', en: 'System' }, desc: { ru: 'Десктоп, мобильная версия, вариации SKU и масштабируемый шаблон каталога.', en: 'Desktop, mobile, SKU variations, and a scalable catalog template.' }, thumb: A.railSystem, objectPosition: '50% 0%', filter: 'saturate(1.02)', fit: 'cover' },
 ] as const
 
 export const COMMERCIAL_CASES = [
-  { num: '01', title: { ru: 'Редизайн карточки женской одежды', en: 'Women’s Fashion Listing Redesign' }, category: { ru: 'MARKETPLACE REDESIGN', en: 'MARKETPLACE REDESIGN' }, role: { ru: 'Audit · Visual Funnel · A/B', en: 'Audit · Visual Funnel · A/B' }, description: { ru: 'Аудит текущей карточки и новая фотоворонка из 10 слайдов с адаптацией под WB, Ozon и Lamoda.', en: 'An audit of the current listing and a new 10-slide visual funnel adapted for WB, Ozon, and Lamoda.' }, cover: A.commercialCase1 },
-  { num: '02', title: { ru: 'Аналитика карточек и конкурентов', en: 'Marketplace Competitor & Card Analytics' }, category: { ru: 'MARKETPLACE ANALYTICS', en: 'MARKETPLACE ANALYTICS' }, role: { ru: 'Competitor Analysis · Recommendations', en: 'Competitor Analysis · Recommendations' }, description: { ru: 'Структурированный анализ 10–20 конкурентов и рекомендации по продукту, упаковке и фотоворонке.', en: 'A structured analysis of 10–20 competitors with recommendations on product, packaging, and visual funnel.' }, cover: A.commercialCase2Ru, coverEn: A.commercialCase2En },
-  { num: '03', title: { ru: 'AI-кампания для fashion-бренда', en: 'AI Campaign for a Fashion Brand' }, category: { ru: 'CAMPAIGN SYSTEM', en: 'CAMPAIGN SYSTEM' }, role: { ru: 'Campaign Concept · Channel Adaptation', en: 'Campaign Concept · Channel Adaptation' }, description: { ru: 'Одна рекламная идея, масштабированная на баннер, Stories, Reels и карточку товара.', en: 'One visual idea scaled across a banner, Stories, Reels, and product card.' }, cover: A.commercialCase3 },
+  { num: '01', title: { ru: 'Редизайн карточки женской одежды', en: 'Women’s Fashion Listing Redesign' }, category: { ru: 'MARKETPLACE REDESIGN', en: 'MARKETPLACE REDESIGN' }, role: { ru: 'Audit · Visual Funnel · A/B', en: 'Audit · Visual Funnel · A/B' }, description: { ru: 'Аудит текущей карточки и новая фотоворонка из 10 слайдов с адаптацией под WB, Ozon и Lamoda.', en: 'An audit of the current listing and a new 10-slide visual funnel adapted for WB, Ozon, and Lamoda.' }, hypothesis: { ru: 'Гипотеза: более крупный силуэт и меньше текста на первом слайде повышают заметность в выдаче.', en: 'Hypothesis: a larger silhouette and less text on the first slide improve search visibility.' }, status: { ru: 'Концепт', en: 'Concept' }, cover: A.commercialCase1, objectPosition: '50% 20%', href: '/projects/marketplace-visual-systems' },
+  { num: '02', title: { ru: 'Аналитика карточек и конкурентов', en: 'Marketplace Competitor & Card Analytics' }, category: { ru: 'MARKETPLACE ANALYTICS', en: 'MARKETPLACE ANALYTICS' }, role: { ru: 'Competitor Analysis · Recommendations', en: 'Competitor Analysis · Recommendations' }, description: { ru: 'Структурированный анализ 10–20 конкурентов и рекомендации по продукту, упаковке и фотоворонке.', en: 'A structured analysis of 10–20 competitors with recommendations on product, packaging, and visual funnel.' }, hypothesis: null, status: { ru: 'Исследование', en: 'Research' }, cover: A.commercialCase2Ru, coverEn: A.commercialCase2En, objectPosition: '50% 18%', href: '/projects/marketplace-visual-systems' },
+  { num: '03', title: { ru: 'AI-кампания для fashion-бренда', en: 'AI Campaign for a Fashion Brand' }, category: { ru: 'CAMPAIGN SYSTEM', en: 'CAMPAIGN SYSTEM' }, role: { ru: 'Campaign Concept · Channel Adaptation', en: 'Campaign Concept · Channel Adaptation' }, description: { ru: 'Одна рекламная идея, масштабированная на баннер, Stories, Reels и карточку товара.', en: 'One visual idea scaled across a banner, Stories, Reels, and product card.' }, hypothesis: null, status: { ru: 'Концепт', en: 'Concept' }, cover: A.commercialCase3, objectPosition: '50% 0%', href: '/projects/marketplace-visual-systems' },
 ] as const
 
 export const MOTION_DATA = {
   filmstrip: [
-    { src: A.motionEmotionHero, label: { ru: 'HERO', en: 'HERO' } },
-    { src: A.motionEmotionTryOn, label: { ru: 'ПРИМЕРКА', en: 'TRY-ON' } },
-    { src: A.motionEmotionFit, label: { ru: 'ПОСАДКА', en: 'FIT' } },
-    { src: A.motionEmotionFabric, label: { ru: 'ТКАНЬ', en: 'FABRIC' } },
-    { src: A.motionEmotionDetail, label: { ru: 'ДЕТАЛЬ', en: 'DETAIL' } },
+    { src: A.motionEmotionHero, pos: '50% 15%', label: { ru: 'HERO', en: 'HERO' } },
+    { src: A.motionEmotionTryOn, pos: '50% 12%', label: { ru: 'ПРИМЕРКА', en: 'TRY-ON' } },
+    { src: A.motionEmotionFit, pos: '50% 10%', label: { ru: 'ПОСАДКА', en: 'FIT' } },
+    { src: A.motionEmotionFabric, pos: '50% 30%', label: { ru: 'ТКАНЬ', en: 'FABRIC' } },
+    { src: A.motionEmotionDetail, pos: '50% 45%', label: { ru: 'ДЕТАЛЬ', en: 'DETAIL' } },
   ],
-  angles: [A.motionControl07, A.motionControl09, A.motionControl10, A.motionControl12],
+  angles: [
+    { src: A.motionControl07, pos: '50% 15%' },
+    { src: A.motionControl09, pos: '50% 15%' },
+    { src: A.motionControl10, pos: '50% 20%' },
+    { src: A.motionControl12, pos: '50% 20%' },
+  ],
   tokens: { ru: ['ЛИЦО', 'ВОЛОСЫ', 'КОСТЮМ', 'СВЕТ', 'КАМЕРА', 'НЕ МЕНЯТЬ'], en: ['FACE', 'HAIR', 'WARDROBE', 'LIGHT', 'CAMERA', 'DO NOT CHANGE'] },
   scenarios: [
     { num: '01', label: { ru: 'HERO', en: 'HERO' } },
@@ -234,6 +239,13 @@ export const MOTION_DATA = {
     ru: ['ИСТОЧНИК', '→', 'ЛОК ПЕРСОНАЖА', '→', 'ШОТ-ПЛАН', '→', 'MOTION', '→', 'QC', '→', 'ЭКСПОРТ'],
     en: ['SOURCE', '→', 'CHARACTER LOCK', '→', 'SHOT PLAN', '→', 'MOTION', '→', 'QC', '→', 'EXPORT'],
   },
+  storyboard: [
+    { src: A.motionScale34, pos: '50% 8%', ratio: '4:5', col: '1', row: '1 / 3', num: '01' },
+    { src: A.motionScale916, pos: '50% 6%', ratio: '9:16', col: '2', row: '1', num: '02' },
+    { src: A.motionScale11, pos: '50% 30%', ratio: '1:1', col: '3', row: '1', num: '03' },
+    { src: A.motionScale169, pos: '50% 15%', ratio: '16:9', col: '2 / 4', row: '2', num: '04' },
+  ],
+  detail: { src: A.motionScale45, pos: '50% 22%', num: '05' },
 } as const
 
 export const PRINCIPLES = [
@@ -270,9 +282,9 @@ export const DESIGN_APPROVED_CHAPTERS: readonly DesignApprovedChapter[] = [
   { id: 'design-fashion-system', label: { ru: 'Marketplace System', en: 'Marketplace System' } },
   { id: 'design-fashion-pipeline', label: { ru: 'AI Production', en: 'AI Production' } },
   { id: 'design-brand-systems', label: { ru: 'Luxury и Brand', en: 'Luxury & Brand' } },
-  { id: 'design-approved-system-method', label: { ru: 'Система', en: 'System Method' } },
-  { id: 'design-approved-commercial', label: { ru: 'Коммерция', en: 'Commercial Studies' } },
-  { id: 'design-approved-motion', label: { ru: 'Motion', en: 'Motion' } },
-  { id: 'design-approved-principles', label: { ru: 'Принципы и процесс', en: 'Principles & Process' } },
-  { id: 'design-approved-contact', label: { ru: 'Контакт', en: 'Contact' } },
+  { id: 'design-visual-system', label: { ru: 'Система', en: 'System Method' } },
+  { id: 'design-marketplace', label: { ru: 'Коммерция', en: 'Commercial Studies' } },
+  { id: 'design-motion', label: { ru: 'Motion', en: 'Motion' } },
+  { id: 'design-principles', label: { ru: 'Принципы и процесс', en: 'Principles & Process' } },
+  { id: 'design-tools', label: { ru: 'Контакт', en: 'Contact' } },
 ]
