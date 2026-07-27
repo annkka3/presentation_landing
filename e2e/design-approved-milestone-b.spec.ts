@@ -63,7 +63,7 @@ test('design directions are semantic and support pointer plus keyboard state cha
   expect(geometry.ratio).toBeCloseTo(1.25, 2)
   expect(geometry.activeClass).toBe(true)
   await expect(directions.nth(0)).toHaveCSS('opacity', '1')
-  await expect(directions.nth(0)).toHaveCSS('padding-top', '26px')
+  await expect(directions.nth(0)).toHaveCSS('padding-top', '20px')
 })
 
 test('lookbook carousel loops, has no autoplay, and supports controls, dots, keyboard and swipe', async ({ page }) => {
@@ -144,9 +144,9 @@ test('mobile chapters stack without horizontal overflow and reduced motion disab
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/design#design-directions')
   await expect(page.locator('.design-approved-chapter-rail')).toBeHidden()
-  await expect(page.locator('.design-approved-directions__grid')).toHaveCSS('grid-template-columns', '350px')
-  await expect(page.locator('.design-approved-pipeline__grid')).toHaveCSS('grid-template-columns', '350px')
-  await expect(page.locator('.design-approved-brand-systems__grid')).toHaveCSS('grid-template-columns', '350px')
+  await expect(page.locator('.design-approved-directions__grid')).toHaveCSS('grid-template-columns', '354px')
+  await expect(page.locator('.design-approved-pipeline__grid')).toHaveCSS('grid-template-columns', '354px')
+  await expect(page.locator('.design-approved-brand-systems__grid')).toHaveCSS('grid-template-columns', '354px')
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(0)
 

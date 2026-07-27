@@ -14,6 +14,18 @@ import { DesignToolsCta } from './components/DesignToolsCta'
 import { DesignVisualSystemRail } from './components/DesignVisualSystemRail'
 import './DesignApprovedPage.css'
 import './DesignApprovedMilestoneC.css'
+import './DesignApprovedPolish.css'
+
+const DESIGN_CHARACTER_SELECTOR = [
+  '.floating-character',
+  '.pixel-character',
+  '.site-character',
+  '.mascot',
+  '[data-floating-character]',
+  '[data-character="pixel"]',
+  '[class*="character-wrapper"]',
+  '[class*="character-badge"]',
+].join(',')
 
 export default function DesignApprovedPage() {
   const { locale } = useApp()
@@ -39,9 +51,24 @@ export default function DesignApprovedPage() {
 
   useEffect(() => {
     document.documentElement.dataset.page = 'design'
+    const removeCharacterNodes = (root: ParentNode = document) => {
+      root.querySelectorAll(DESIGN_CHARACTER_SELECTOR).forEach((node) => node.remove())
+    }
+    removeCharacterNodes()
+    const characterGuard = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return
+          if (node.matches(DESIGN_CHARACTER_SELECTOR)) node.remove()
+          else removeCharacterNodes(node)
+        })
+      })
+    })
+    characterGuard.observe(document.body, { childList: true, subtree: true })
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
     if (canonical) canonical.href = `${location.origin}/design`
     return () => {
+      characterGuard.disconnect()
       if (document.documentElement.dataset.page === 'design') delete document.documentElement.dataset.page
       if (canonical) canonical.href = `${location.origin}/`
       document.title = 'Anna Gromyko — AI Product Builder'

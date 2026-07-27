@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -21,5 +21,14 @@ describe('DesignApprovedPage milestone A', () => {
     expect(document.documentElement.lang).toBe('en')
     expect(screen.getByRole('heading', { level: 1, name: /I create visual systems/ })).toBeInTheDocument()
   })
-})
 
+  it('removes character nodes injected while the Design route is mounted', async () => {
+    render(<MemoryRouter><AppProvider><DesignApprovedPage /></AppProvider></MemoryRouter>)
+
+    const injectedCharacter = document.createElement('div')
+    injectedCharacter.className = 'floating-character'
+    document.body.append(injectedCharacter)
+
+    await waitFor(() => expect(document.querySelector('.floating-character')).not.toBeInTheDocument())
+  })
+})

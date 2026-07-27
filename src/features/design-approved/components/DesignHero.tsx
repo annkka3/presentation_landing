@@ -10,9 +10,9 @@ export function DesignHero() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [activeDirection, setActiveDirection] = useState<number | null>(null)
   const [resumeMessageVisible, setResumeMessageVisible] = useState(false)
-  const words = text.heroH1.split(' ')
-  const firstWord = words[0]
-  const rest = ` ${words.slice(1).join(' ')}`
+  const firstBreak = text.heroH1.indexOf(' ')
+  const firstWord = text.heroH1.slice(0, firstBreak)
+  const rest = text.heroH1.slice(firstBreak)
   const activeArtifact = activeDirection === null ? null : activeDirection < 3 ? 'commerce' : activeDirection === 3 ? 'brand' : 'mobile'
   const artifactOpacity = (artifact: 'commerce' | 'brand' | 'mobile') => activeArtifact === null || activeArtifact === artifact ? 1 : .35
 
