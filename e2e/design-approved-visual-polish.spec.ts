@@ -64,7 +64,8 @@ test('polish matrix has no overflow, collisions, broken media or character nodes
   })
   page.on('pageerror', (error) => runtimeErrors.push(error.message))
   page.on('requestfailed', (request) => {
-    if (request.url().startsWith('http://127.0.0.1:4173')) {
+    const intentionallyAborted = request.failure()?.errorText.includes('ERR_ABORTED')
+    if (request.url().startsWith('http://127.0.0.1:4173') && !intentionallyAborted) {
       failedRequests.push(`${request.method()} ${request.url()}`)
     }
   })
@@ -157,4 +158,42 @@ test('captures the approved visual-polish evidence set', async ({ page }) => {
     ['#design-motion', 'mobile-390x844-08-motion.png'],
     ['.design-approved-final-cta', 'mobile-390x844-10-cta.png'],
   ] as const) await capture(page, selector, name)
+})
+
+test('hero commerce and brand panels keep a controlled responsive overlap', async ({ page }) => {
+  await setMode(page, 'ru', 'dark')
+
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 1440, height: 900 },
+    { width: 1512, height: 982 },
+    { width: 1728, height: 1117 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/design')
+    await expect(page.locator('.design-approved-hero-commerce__card')).toBeVisible()
+    await expect(page.locator('.design-approved-hero-brand__card')).toBeVisible()
+    await expect(page.locator('.design-approved-hero-mobile')).toBeVisible()
+    const geometry = await page.evaluate(() => {
+      const commerce = document.querySelector<HTMLElement>('.design-approved-hero-commerce__card')!.getBoundingClientRect()
+      const brand = document.querySelector<HTMLElement>('.design-approved-hero-brand__card')!.getBoundingClientRect()
+      const phone = document.querySelector<HTMLElement>('.design-approved-hero-mobile')!.getBoundingClientRect()
+      const root = document.querySelector<HTMLElement>('.design-approved-page')!
+      return {
+        panelOverlap: commerce.bottom - brand.top,
+        phoneOverCommerce: phone.left < commerce.right && phone.right > commerce.left,
+        overflow: root.scrollWidth - root.clientWidth,
+      }
+    })
+
+    expect(geometry.panelOverlap).toBeGreaterThanOrEqual(-14)
+    expect(geometry.panelOverlap).toBeLessThanOrEqual(14)
+    expect(geometry.phoneOverCommerce).toBe(true)
+    expect(geometry.overflow).toBeLessThanOrEqual(0)
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/design')
+  await expect(page.locator('.design-approved-hero-commerce')).toHaveCSS('position', 'static')
+  await expect(page.locator('.design-approved-hero-brand')).toHaveCSS('position', 'static')
 })
