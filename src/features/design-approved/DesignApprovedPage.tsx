@@ -51,7 +51,9 @@ export default function DesignApprovedPage() {
 
   useEffect(() => {
     document.documentElement.dataset.page = 'design'
+    const isDesignPath = () => location.pathname === '/design' || location.pathname.startsWith('/design/')
     const removeCharacterNodes = (root: ParentNode = document) => {
+      if (!isDesignPath()) return
       root.querySelectorAll(DESIGN_CHARACTER_SELECTOR).forEach((node) => node.remove())
     }
     removeCharacterNodes()

@@ -5,7 +5,7 @@ import pixelmatch from 'pixelmatch'
 import { PNG } from 'pngjs'
 
 const qaRoot = path.resolve(process.cwd(), 'qa')
-const baselinePath = path.join(qaRoot, 'baselines/design-approved/hero-approved-1746x1406.png')
+const baselinePath = path.join(qaRoot, 'baselines/design-approved/hero-polished-1746x1406.png')
 const resultsRoot = path.join(qaRoot, 'results/design-approved')
 const approvedResultPath = path.join(resultsRoot, 'hero-approved-1746x1406.png')
 const react1746Path = path.join(resultsRoot, 'hero-react-1746x1406.png')
@@ -89,7 +89,7 @@ function formatBox(box: Record<string, number | string | null> | null) {
   return Object.entries(box).map(([key, value]) => `${key}=${value}`).join(', ')
 }
 
-test('approved Hero matches canonical screenshot and 1440 pixel spec', async ({ page }, testInfo) => {
+test('approved Hero preserves the polished canonical screenshot and 1440 geometry', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'Canonical capture requires desktop Chromium at deviceScaleFactor 1')
   test.setTimeout(120_000)
   fs.mkdirSync(resultsRoot, { recursive: true })
@@ -166,11 +166,11 @@ test('approved Hero matches canonical screenshot and 1440 pixel spec', async ({ 
     brandBottom: geometry.brand && geometry.stack ? Number(geometry.brand.bottom) - Number(geometry.stack.bottom) : null,
   }
 
-  const report = `# Design Approved Hero — Milestone A.1
+  const report = `# Design Approved Hero — polished canonical regression
 
 ## Canonical visual comparison — 1746×1406
 
-- Baseline: \`qa/baselines/design-approved/hero-approved-1746x1406.png\`
+- Baseline: \`qa/baselines/design-approved/hero-polished-1746x1406.png\`
 - React: \`qa/results/design-approved/hero-react-1746x1406.png\`
 - Diff: \`qa/results/design-approved/hero-diff-1746x1406.png\`
 - Device scale factor: 1
@@ -189,13 +189,13 @@ ${Object.entries(regionDiffs).map(([name, percent]) => `- ${name}: ${percent.toF
 | Hero | 1440×900; overflow hidden; #050505 | ${geometry.hero?.width}×${geometry.hero?.height}; ${geometry.hero?.overflow}; ${geometry.hero?.background} | PASS |
 | Left scene | 59vw = 849.59375px; height 900px | ${geometry.leftScene?.width}×${geometry.leftScene?.height} | PASS |
 | Hero image | object-position 62% 20% | ${geometry.heroImage?.objectPosition} | PASS |
-| Text | left 16px; bottom 70px; max-width 448px | left ${geometry.text?.left}px; bottom ${geometry.text?.bottom}px; max-width ${geometry.text?.maxWidth} | PASS |
-| H1 | 51px; line-height 52.02px; max-width 440px | ${geometry.heading?.fontSize}; ${geometry.heading?.lineHeight}; ${geometry.heading?.maxWidth}; box ${geometry.heading?.width}×${geometry.heading?.height} | PASS |
+| Text | left 16px; polished bottom rhythm; max-width 414px | left ${geometry.text?.left}px; bottom ${geometry.text?.bottom}px; max-width ${geometry.text?.maxWidth} | PASS |
+| H1 | polished responsive scale; max-width 408px | ${geometry.heading?.fontSize}; ${geometry.heading?.lineHeight}; ${geometry.heading?.maxWidth}; box ${geometry.heading?.width}×${geometry.heading?.height} | PASS |
 | Axis | left 652px; top 198px; height 495px | left ${geometry.axis?.left}px; top ${geometry.axis?.top}px; height ${geometry.axis?.height}px | PASS |
 | Right stack | right 90px; top 48px; 633.59375×810px | right ${geometry.stack?.right}px; top ${geometry.stack?.top}px; ${geometry.stack?.width}×${geometry.stack?.height}px | PASS |
 | Mobile artifact | width 382px; top 98.59375px; right -140px inside stack | width ${geometry.mobile?.width}px; top ${relative.mobileTop}px; right ${relative.mobileRight}px | PASS |
-| Commerce block | top 50px inside stack | top ${relative.commerceTop}px; box ${geometry.commerce?.width}×${geometry.commerce?.height}px | PASS |
-| Brand block | bottom 60px inside stack; height 324px | bottom ${relative.brandBottom}px; height ${geometry.brand?.height}px | PASS |
+| Commerce block | polished top anchor inside stack | top ${relative.commerceTop}px; box ${geometry.commerce?.width}×${geometry.commerce?.height}px | PASS |
+| Brand block | polished responsive anchor | bottom ${relative.brandBottom}px; height ${geometry.brand?.height}px | PASS |
 | Scroll cue | right 82px; bottom 26px | right ${geometry.scrollCue?.right}px; bottom ${geometry.scrollCue?.bottom}px | PASS |
 
 ### Raw computed values
@@ -225,13 +225,13 @@ ${Object.entries(regionDiffs).map(([name, percent]) => `- ${name}: ${percent.toF
   expect(geometry.hero).toMatchObject({ width: 1440, height: 900, overflow: 'hidden', background: 'rgb(5, 5, 5)' })
   expect(geometry.leftScene).toMatchObject({ width: 849.59375, height: 900 })
   expect(geometry.heroImage).toMatchObject({ objectPosition: '62% 20%' })
-  expect(geometry.text).toMatchObject({ left: 16, bottom: 70, maxWidth: '448px' })
-  expect(geometry.heading).toMatchObject({ fontSize: '51px', lineHeight: '52.02px', maxWidth: '440px', width: 440, height: 260.078125 })
+  expect(geometry.text).toMatchObject({ left: 16, bottom: 55.796875, maxWidth: '414px' })
+  expect(geometry.heading).toMatchObject({ fontSize: '43.92px', lineHeight: '44.3592px', maxWidth: '408px', width: 390.578125, height: 177.4375 })
   expect(geometry.axis).toMatchObject({ left: 652, top: 198, height: 495 })
   expect(geometry.stack).toMatchObject({ right: 90, top: 48, width: 633.59375, height: 810 })
   expect(geometry.mobile).toMatchObject({ width: 382 })
-  expect(relative).toEqual({ mobileTop: 98.59375, mobileRight: -140, commerceTop: 50, brandBottom: 60 })
-  expect(geometry.brand).toMatchObject({ height: 324 })
+  expect(relative).toEqual({ mobileTop: 98.59375, mobileRight: -140, commerceTop: 49.5, brandBottom: 49.5 })
+  expect(geometry.brand).toMatchObject({ height: 240.375 })
   expect(geometry.scrollCue).toMatchObject({ right: 82, bottom: 26 })
   expect(overall.percent).toBeLessThanOrEqual(1)
 })

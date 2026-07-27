@@ -160,15 +160,19 @@ test('captures the approved visual-polish evidence set', async ({ page }) => {
   ] as const) await capture(page, selector, name)
 })
 
-test('hero commerce and brand panels keep a controlled responsive overlap', async ({ page }) => {
+test('hero commerce and brand panels keep a controlled responsive relationship', async ({ page }) => {
+  test.setTimeout(60_000)
   await setMode(page, 'ru', 'dark')
 
-  for (const viewport of [
+  const regressionViewports = [
     { width: 1280, height: 800 },
     { width: 1440, height: 900 },
     { width: 1512, height: 982 },
     { width: 1728, height: 1117 },
-  ]) {
+    { width: 1746, height: 1406 },
+  ]
+
+  for (const viewport of regressionViewports) {
     await page.setViewportSize(viewport)
     await page.goto('/design')
     await expect(page.locator('.design-approved-hero-commerce__card')).toBeVisible()
@@ -190,6 +194,65 @@ test('hero commerce and brand panels keep a controlled responsive overlap', asyn
     expect(geometry.panelOverlap).toBeLessThanOrEqual(14)
     expect(geometry.phoneOverCommerce).toBe(true)
     expect(geometry.overflow).toBeLessThanOrEqual(0)
+  }
+
+  for (const viewport of [
+    { width: 2048, height: 1107 },
+    { width: 1920, height: 1000 },
+    { width: 1728, height: 930 },
+    { width: 1680, height: 900 },
+    { width: 1512, height: 820 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/design')
+    const hero = page.locator('#design-approved-hero')
+    const commerce = page.locator('.design-approved-hero-commerce__card')
+    const brand = page.locator('.design-approved-hero-brand__card')
+    const phone = page.locator('.design-approved-hero-mobile')
+    const brandLabel = page.locator('.design-approved-hero-brand .design-approved-hero-stack-label b')
+    const scrollCue = page.locator('.design-approved-hero-scroll-cue')
+    await expect(commerce).toBeVisible()
+    await expect(brand).toBeVisible()
+    await expect(phone).toBeVisible()
+
+    const [heroBox, commerceBox, brandBox, phoneBox, brandLabelBox, scrollCueBox] = await Promise.all([
+      hero.boundingBox(),
+      commerce.boundingBox(),
+      brand.boundingBox(),
+      phone.boundingBox(),
+      brandLabel.boundingBox(),
+      scrollCue.boundingBox(),
+    ])
+    expect(heroBox).not.toBeNull()
+    expect(commerceBox).not.toBeNull()
+    expect(brandBox).not.toBeNull()
+    expect(phoneBox).not.toBeNull()
+    expect(brandLabelBox).not.toBeNull()
+    expect(scrollCueBox).not.toBeNull()
+    if (!heroBox || !commerceBox || !brandBox || !phoneBox || !brandLabelBox || !scrollCueBox) continue
+
+    expect(brandBox.y).toBeGreaterThanOrEqual(commerceBox.y + commerceBox.height + 16)
+    expect(commerceBox.y).toBeGreaterThanOrEqual(heroBox.y)
+    expect(commerceBox.y + commerceBox.height).toBeLessThanOrEqual(heroBox.y + heroBox.height)
+    expect(brandBox.y).toBeGreaterThanOrEqual(heroBox.y)
+    expect(brandBox.y + brandBox.height).toBeLessThanOrEqual(heroBox.y + heroBox.height)
+    expect(phoneBox.y + phoneBox.height).toBeLessThanOrEqual(heroBox.y + heroBox.height)
+    expect(brandBox.height).toBeGreaterThanOrEqual(viewport.height * .24)
+    expect(brandLabelBox.x + brandLabelBox.width).toBeLessThanOrEqual(phoneBox.x)
+    expect(Math.min(brandBox.y + brandBox.height, scrollCueBox.y + scrollCueBox.height)
+      - Math.max(brandBox.y, scrollCueBox.y)).toBeLessThanOrEqual(0)
+    expect(await page.locator('.design-approved-page').evaluate((root) => root.scrollWidth - root.clientWidth)).toBeLessThanOrEqual(0)
+  }
+
+  for (const route of [
+    '/design',
+    '/design#main',
+    '/design#design-motion',
+    '/design?mode=qa',
+    '/design?mode=qa#design-motion',
+  ]) {
+    await page.goto(route)
+    await expect(page.locator(characterSelector)).toHaveCount(0)
   }
 
   await page.setViewportSize({ width: 390, height: 844 })
