@@ -276,11 +276,12 @@ test('design route loads independently with ten chapters and preserved app contr
   await page.goto('/design')
   await expect(page.locator('html')).toHaveAttribute('data-page', 'design')
   await expect(page.getByRole('heading', { level: 1, name: /Создаю визуальные/ })).toBeVisible()
-  await expect(page.locator('.design-chapter')).toHaveCount(10)
-  await expect(page.locator('.design-rail')).toContainText('01')
-  await expect(page.locator('.design-rail')).toContainText('10')
-  await expect(page.locator('.design-hero-header')).toBeVisible()
-  await expect(page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', { name: 'Design' })).toHaveClass(/is-active/)
+  await expect(page.locator('.design-approved-page [data-chapter]')).toHaveCount(10)
+  await expect(page.locator('.design-approved-chapter-rail__current')).toHaveText('01')
+  await expect(page.locator('.design-approved-chapter-rail')).toContainText('10')
+  await expect(page.locator('.design-approved-hero-header')).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link', { name: 'Design' })).toHaveAttribute('aria-current', 'page')
+  await expect(page.locator('.design-approved-hero-resume')).toContainText('Резюме')
   await page.getByRole('button', { name: 'EN' }).click()
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.getByRole('heading', { level: 1, name: /I create visual systems/ })).toBeVisible()
@@ -296,18 +297,15 @@ test('design route supports direct hashes, rail navigation, browser back and no 
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/design#design-motion')
   await expect(page.locator('#design-motion')).toBeInViewport()
-  await expect(page.locator('.design-rail').locator('span').first()).toHaveText('08')
+  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('08')
   await page.getByRole('button', { name: /10: Contact|10: Контакт/ }).click()
-  await expect(page).toHaveURL(/\/design#design-contact$/)
-  await expect(page.locator('#design-contact')).toBeInViewport()
-  await page.goBack()
-  await expect(page).toHaveURL(/\/design#design-motion$/)
-  await expect(page.locator('#design-motion')).toBeInViewport()
+  await expect(page).toHaveURL(/\/design#design-tools$/)
+  await expect(page.locator('#design-tools')).toBeInViewport()
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/design#design-directions')
   await expect(page.locator('#design-directions')).toBeInViewport()
-  await expect(page.locator('.design-rail')).toBeHidden()
+  await expect(page.locator('.design-approved-chapter-rail')).toBeHidden()
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(0)
 })
@@ -316,18 +314,18 @@ test('design route honors reduced motion without videos or snap', async ({ page 
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/design')
-  await expect(page.locator('.design-page')).toHaveCSS('scroll-snap-type', 'none')
-  await expect(page.locator('.design-hero-media video')).toBeHidden()
+  await expect(page.locator('.design-approved-page')).toHaveCSS('scroll-snap-type', 'none')
+  await expect(page.locator('.design-approved-hero-media video')).toBeHidden()
 })
 
-test('approved design preview isolates the exact milestone A hero', async ({ page }) => {
+test('canonical design route isolates the exact approved hero', async ({ page }) => {
   const errors: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
   page.on('pageerror', (error) => errors.push(error.message))
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
 
-  await expect(page.locator('html')).toHaveAttribute('data-page', 'design-approved-preview')
+  await expect(page.locator('html')).toHaveAttribute('data-page', 'design')
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru')
   await expect(page.getByRole('heading', { level: 1, name: /Создаю визуальные/ })).toBeVisible()
   await expect(page.getByText('01 / 10')).toBeVisible()
@@ -377,12 +375,18 @@ test('approved design preview isolates the exact milestone A hero', async ({ pag
   expect(errors).toEqual([])
 })
 
-test('approved design preview has no horizontal overflow on mobile', async ({ page }) => {
+test('canonical design route has no horizontal overflow on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
   await expect(page.locator('.design-approved-chapter-rail')).toBeHidden()
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(0)
+})
+
+test('production build does not expose the approved preview route', async ({ page }) => {
+  await page.goto('/design-approved-preview')
+  await expect(page.getByRole('heading', { name: /Страница не найдена|Page not found/i })).toBeVisible()
+  await expect(page.locator('.design-approved-page')).toHaveCount(0)
 })
 
 test('mandatory scene snap is vertical on desktop and horizontal on mobile', async ({ page }) => {
@@ -651,6 +655,11 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
     await page.goto('/#directions')
     await expect(page.locator('.mobile-direction-tile')).toHaveCount(4)
     await expect(page.locator('.mobile-chapter-navigation')).toContainText('03 / 08')
+    await expect.poll(() => page.evaluate(() => {
+      const grid = document.querySelector<HTMLElement>('.mobile-directions-grid')!.getBoundingClientRect()
+      const slot = document.querySelector<HTMLElement>('.mobile-chapter-navigation-slot')!.getBoundingClientRect()
+      return grid.bottom <= slot.top
+    })).toBe(true)
     const metrics = await page.evaluate(() => {
       const chapter = document.querySelector<HTMLElement>('.mobile-directions-chapter')!
       const heading = document.querySelector<HTMLElement>('.mobile-directions-header')!.getBoundingClientRect()

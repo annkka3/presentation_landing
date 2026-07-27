@@ -105,7 +105,7 @@ test('approved Hero matches canonical screenshot and 1440 pixel spec', async ({ 
     localStorage.setItem('anna-theme', 'dark')
   })
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
   await stabiliseHero(page)
   expect(await page.evaluate(() => devicePixelRatio)).toBe(1)
   await page.screenshot({ path: react1746Path, animations: 'disabled' })

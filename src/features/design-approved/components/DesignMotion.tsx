@@ -7,8 +7,9 @@ export function DesignMotion({ locale }: { locale: DesignApprovedLocale }) {
   const text = UI_TEXT[locale]
   const videoRef = useRef<HTMLVideoElement>(null)
   const posterRef = useRef<HTMLDivElement>(null)
+  const posterWasVisibleRef = useRef(false)
   const [playing, setPlaying] = useState(false)
-  const [videoEnabled, setVideoEnabled] = useState(false)
+  const [videoEnabled, setVideoEnabled] = useState(() => location.hash === '#design-motion')
 
   const pause = () => {
     videoRef.current?.pause()
@@ -33,7 +34,8 @@ export function DesignMotion({ locale }: { locale: DesignApprovedLocale }) {
       if (entry.isIntersecting) setVideoEnabled(true)
     }, { root: scrollRoot, rootMargin: '100% 0px', threshold: .05 })
     const visibilityObserver = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) {
+      if (entry.isIntersecting) posterWasVisibleRef.current = true
+      else if (posterWasVisibleRef.current) {
         pause()
         setVideoEnabled(false)
       }
@@ -51,6 +53,19 @@ export function DesignMotion({ locale }: { locale: DesignApprovedLocale }) {
       visibilityObserver.disconnect()
       scrollRoot?.removeEventListener('scroll', pauseWhenOutsideRoot)
     }
+  }, [])
+
+  useEffect(() => {
+    const handleChapterFocus = (event: Event) => {
+      const id = (event as CustomEvent<{ id?: string }>).detail?.id
+      if (id === 'design-motion') setVideoEnabled(true)
+      else if (id) {
+        pause()
+        setVideoEnabled(false)
+      }
+    }
+    addEventListener('design-approved-chapter-focus', handleChapterFocus)
+    return () => removeEventListener('design-approved-chapter-focus', handleChapterFocus)
   }, [])
 
   return (

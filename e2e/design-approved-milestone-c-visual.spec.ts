@@ -12,7 +12,7 @@ async function prepare(page: Page, theme: 'dark' | 'light' = 'dark') {
     localStorage.setItem('anna-locale', 'ru')
     localStorage.setItem('anna-theme', selectedTheme)
   }, { selectedTheme: theme })
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
   await page.waitForLoadState('networkidle')
   await page.evaluate(() => document.fonts.ready)
   await page.addStyleTag({ content: `

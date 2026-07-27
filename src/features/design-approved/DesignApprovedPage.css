@@ -145,6 +145,10 @@
   backdrop-filter: blur(6px);
 }
 
+.design-approved-hero-resume__compact {
+  display: none;
+}
+
 .design-approved-hero-language {
   display: flex;
   align-items: center;
@@ -676,6 +680,7 @@
   border-radius: 50%;
   background: #d4aa5f;
   box-shadow: 0 0 0 3px rgba(212, 170, 95, .14);
+  pointer-events: none;
   transform: translate(-50%, -50%);
   transition: top 300ms ease;
 }
@@ -1220,7 +1225,19 @@
   }
 
   .design-approved-hero-resume {
+    display: inline-flex;
+    justify-content: center;
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+  }
+
+  .design-approved-hero-resume__full {
     display: none;
+  }
+
+  .design-approved-hero-resume__compact {
+    display: inline;
   }
 
   .design-approved-hero-scene {

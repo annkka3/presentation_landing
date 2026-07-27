@@ -46,7 +46,7 @@ test('capture milestone B matrix, comparison boards and geometry reports', async
   fs.mkdirSync(resultsRoot, { recursive: true })
 
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
   await page.evaluate(() => {
     localStorage.setItem('anna-locale', 'ru')
     localStorage.setItem('anna-theme', 'dark')

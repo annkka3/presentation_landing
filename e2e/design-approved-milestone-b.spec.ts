@@ -12,7 +12,7 @@ test('chapters 2–5 expose the approved structure and exact content', async ({ 
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
   page.on('pageerror', (error) => errors.push(error.message))
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
 
   await expect(page.getByText('01 / 10')).toBeVisible()
   await expect(page.locator('[data-chapter]')).toHaveCount(10)
@@ -33,7 +33,7 @@ test('chapters 2–5 expose the approved structure and exact content', async ({ 
 
 test('design directions are semantic and support pointer plus keyboard state changes', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/design-approved-preview#design-directions')
+  await page.goto('/design#design-directions')
   const directions = page.locator('.design-approved-directions__list button')
 
   await expect(directions).toHaveCount(5)
@@ -68,7 +68,7 @@ test('design directions are semantic and support pointer plus keyboard state cha
 
 test('lookbook carousel loops, has no autoplay, and supports controls, dots, keyboard and swipe', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/design-approved-preview#design-fashion-system')
+  await page.goto('/design#design-fashion-system')
   const carousel = page.locator('.design-approved-carousel')
   const image = carousel.locator('> img')
 
@@ -96,7 +96,7 @@ test('lookbook carousel loops, has no autoplay, and supports controls, dots, key
 
 test('chapter geometry, routes, rail availability, hash navigation and theme are correct', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/design-approved-preview#design-fashion-pipeline')
+  await page.goto('/design#design-fashion-pipeline')
   await expect(page.locator('#design-fashion-pipeline')).toBeInViewport()
 
   const geometry = await page.evaluate(() => {
@@ -142,7 +142,7 @@ test('chapter geometry, routes, rail availability, hash navigation and theme are
 
 test('mobile chapters stack without horizontal overflow and reduced motion disables snap', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/design-approved-preview#design-directions')
+  await page.goto('/design#design-directions')
   await expect(page.locator('.design-approved-chapter-rail')).toBeHidden()
   await expect(page.locator('.design-approved-directions__grid')).toHaveCSS('grid-template-columns', '350px')
   await expect(page.locator('.design-approved-pipeline__grid')).toHaveCSS('grid-template-columns', '350px')
@@ -164,7 +164,7 @@ test('responsive matrix and page keyboard navigation do not trap or overflow', a
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport)
-    await page.goto('/design-approved-preview#design-directions')
+    await page.goto('/design#design-directions')
     await expect(page.locator('.design-approved-page')).toHaveCount(1)
     const overflow = await page.evaluate(() => {
       const main = document.querySelector<HTMLElement>('.design-approved-page')!
@@ -174,7 +174,7 @@ test('responsive matrix and page keyboard navigation do not trap or overflow', a
   }
 
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
   await page.locator('.design-approved-page').click({ position: { x: 700, y: 850 } })
   await page.keyboard.press('PageDown')
   await expect(page).toHaveURL(/#design-directions$/)

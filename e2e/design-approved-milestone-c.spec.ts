@@ -1,12 +1,12 @@
 import { expect, test, type Page } from '@playwright/test'
 
-async function openPreview(page: Page, hash = '') {
+async function openCanonicalDesign(page: Page, hash = '') {
   await page.addInitScript(() => {
     if (!localStorage.getItem('anna-locale')) localStorage.setItem('anna-locale', 'ru')
     if (!localStorage.getItem('anna-theme')) localStorage.setItem('anna-theme', 'dark')
   })
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto(`/design-approved-preview${hash}`)
+  await page.goto(`/design${hash}`)
   await expect(page.locator('.design-approved-page')).toBeVisible()
 }
 
@@ -14,13 +14,14 @@ test('chapters 6 and 7 preserve approved editorial structures and honest claims'
   const errors: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
   page.on('pageerror', (error) => errors.push(error.message))
-  await openPreview(page, '#design-visual-system')
+  await openCanonicalDesign(page, '#design-visual-system')
 
   await expect(page.locator('[data-chapter]')).toHaveCount(10)
   await expect(page.locator('#design-visual-system')).toBeInViewport()
   await expect(page.locator('.design-approved-production-rail article')).toHaveCount(4)
   await expect(page.locator('.design-approved-production-rail article').nth(0)).toContainText('01 SOURCE')
   await expect(page.locator('.design-approved-production-rail article').nth(3)).toContainText('04 SYSTEM')
+  await page.getByRole('button', { name: /6: Система/ }).click()
   await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('06')
 
   await page.getByRole('button', { name: /7: Коммерция/ }).click()
@@ -32,7 +33,7 @@ test('chapters 6 and 7 preserve approved editorial structures and honest claims'
 })
 
 test('motion video control is accessible, muted and pauses outside viewport', async ({ page }) => {
-  await openPreview(page, '#design-motion')
+  await openCanonicalDesign(page, '#design-motion')
   const poster = page.locator('.design-approved-motion-poster')
   const playButton = poster.locator('.design-approved-motion-poster__play')
   await expect(playButton).toBeVisible()
@@ -56,7 +57,7 @@ test('motion video control is accessible, muted and pauses outside viewport', as
 })
 
 test('principles and process remain independent semantic state systems', async ({ page }) => {
-  await openPreview(page, '#design-principles')
+  await openCanonicalDesign(page, '#design-principles')
   const principles = page.locator('.design-approved-principles__list button')
   const process = page.locator('.design-approved-process__list button')
   await expect(principles).toHaveCount(6)
@@ -79,7 +80,7 @@ test('principles and process remain independent semantic state systems', async (
 })
 
 test('chapter 10 contains tools, CTA and footer, and its actions work', async ({ page }) => {
-  await openPreview(page, '#design-tools')
+  await openCanonicalDesign(page, '#design-tools')
   await expect(page.locator('.design-approved-tools__outputs span')).toHaveCount(8)
   await expect(page.locator('.design-approved-tools__groups > div')).toHaveCount(4)
   await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('10')
@@ -93,12 +94,12 @@ test('chapter 10 contains tools, CTA and footer, and its actions work', async ({
   await expect(page).toHaveURL(/\/#contact$/)
   await expect(page.locator('#contact h2')).toBeFocused()
   await page.goBack()
-  await expect(page).toHaveURL(/design-approved-preview#design-tools$/)
+  await expect(page).toHaveURL(/\/design#design-tools$/)
   await page.locator('.design-approved-final-cta__actions a').nth(1).click()
   await expect(page).toHaveURL(/\/#featured$/)
   await expect(page.locator('#featured h2')).toBeFocused()
   await page.goBack()
-  await expect(page).toHaveURL(/design-approved-preview#design-tools$/)
+  await expect(page).toHaveURL(/\/design#design-tools$/)
 
   await page.locator('.design-approved-footer a').click()
   await expect(page).toHaveURL(/#design-approved-hero$/)
@@ -106,13 +107,13 @@ test('chapter 10 contains tools, CTA and footer, and its actions work', async ({
 })
 
 test('all hashes, rail navigation and page keys cover chapters 1–10', async ({ page }) => {
-  await openPreview(page, '#design-visual-system')
+  await openCanonicalDesign(page, '#design-visual-system')
   for (const id of ['design-visual-system', 'design-marketplace', 'design-motion', 'design-principles', 'design-tools']) {
-    await page.goto(`/design-approved-preview#${id}`)
+    await page.goto(`/design#${id}`)
     await expect(page.locator(`#${id}`)).toBeInViewport()
   }
 
-  await page.goto('/design-approved-preview')
+  await page.goto('/design')
   await page.locator('.design-approved-page').click({ position: { x: 700, y: 850 } })
   await page.keyboard.press('End')
   await expect(page).toHaveURL(/#design-tools$/)
@@ -125,7 +126,7 @@ test('all hashes, rail navigation and page keys cover chapters 1–10', async ({
 })
 
 test('theme, locale, reduced motion and responsive matrix remain safe', async ({ page }) => {
-  await openPreview(page)
+  await openCanonicalDesign(page)
   await page.getByRole('button', { name: 'Переключить тему' }).click()
   await page.getByRole('button', { name: 'EN' }).click()
   await page.getByRole('button', { name: /6: System Method/ }).click()
@@ -141,7 +142,7 @@ test('theme, locale, reduced motion and responsive matrix remain safe', async ({
     { width: 1024, height: 768 }, { width: 390, height: 844 }, { width: 430, height: 932 },
   ]) {
     await page.setViewportSize(viewport)
-    await page.goto('/design-approved-preview#design-motion')
+    await page.goto('/design#design-motion')
     await expect(page.locator('.design-approved-page')).toBeVisible()
     const overflow = await page.locator('.design-approved-page').evaluate((element) => element.scrollWidth - element.clientWidth)
     expect(overflow).toBeLessThanOrEqual(0)
@@ -149,7 +150,7 @@ test('theme, locale, reduced motion and responsive matrix remain safe', async ({
 
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/design-approved-preview#design-motion')
+  await page.goto('/design#design-motion')
   await expect(page.locator('.design-approved-page')).toHaveCSS('scroll-snap-type', 'none')
   await expect(page.locator('.design-approved-motion-poster > img')).toBeVisible()
   await expect(page.locator('.design-approved-motion-poster video')).toBeHidden()

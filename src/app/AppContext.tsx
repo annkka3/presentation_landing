@@ -39,11 +39,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = locale
-    document.title = 'Anna Gromyko — AI Product Builder'
-    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]')
-    if (description) description.content = locale === 'ru'
-      ? 'Проектирование и запуск цифровых продуктов на стыке бизнес-логики, UX, AI, автоматизации и данных.'
-      : 'Designing and shipping digital products at the intersection of business logic, UX, AI, automation, and data.'
+    if (document.documentElement.dataset.page !== 'design') {
+      document.title = 'Anna Gromyko — AI Product Builder'
+      const description = document.querySelector<HTMLMetaElement>('meta[name="description"]')
+      if (description) description.content = locale === 'ru'
+        ? 'Проектирование и запуск цифровых продуктов на стыке бизнес-логики, UX, AI, автоматизации и данных.'
+        : 'Designing and shipping digital products at the intersection of business logic, UX, AI, automation, and data.'
+    }
   }, [locale])
 
   useEffect(() => {

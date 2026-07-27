@@ -53,11 +53,11 @@ export function DesignHero() {
           <button
             className="design-approved-hero-resume"
             type="button"
-            aria-disabled="true"
             aria-describedby="design-approved-resume-status"
             onClick={() => setResumeMessageVisible(true)}
           >
-            {text.resume}
+            <span className="design-approved-hero-resume__full">{text.resume}</span>
+            <span className="design-approved-hero-resume__compact" aria-hidden="true">CV</span>
           </button>
           <span id="design-approved-resume-status" className="design-approved-hero-resume-status" role="status" aria-live="polite">
             {resumeMessageVisible ? text.resumeUnavailable : ''}

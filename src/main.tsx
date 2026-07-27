@@ -7,6 +7,5 @@ import './styles/tokens.css'
 import './styles/globals.css'
 import './styles/components.css'
 import './styles/responsive.css'
-import './styles/design.css'
 
 createRoot(document.getElementById('root')!).render(<StrictMode><AppProvider><RouterProvider router={router} /></AppProvider></StrictMode>)
