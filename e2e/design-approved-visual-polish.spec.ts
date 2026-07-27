@@ -394,7 +394,7 @@ test('hero 02, 03 and 04 use full-resolution graded assets without tonal CSS pro
   })
   expect(assets.mobile).toMatchObject({
     naturalWidth: 941,
-    naturalHeight: 1672,
+    naturalHeight: 1670,
     filter: 'none',
     mixBlendMode: 'normal',
     parentMixBlendMode: 'normal',

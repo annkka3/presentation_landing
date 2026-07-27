@@ -463,7 +463,7 @@
   top: calc(6% + 50px);
   right: -140px;
   width: 382px;
-  aspect-ratio: 941 / 1672;
+  aspect-ratio: 941 / 1670;
   filter: drop-shadow(0 14px 34px rgba(0, 0, 0, .38));
   animation: design-approved-hero-panel-in 900ms cubic-bezier(.22, 1, .36, 1) 60ms both;
 }
