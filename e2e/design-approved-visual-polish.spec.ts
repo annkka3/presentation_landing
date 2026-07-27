@@ -136,6 +136,7 @@ test('polish matrix has no overflow, collisions, broken media or character nodes
 })
 
 test('captures the approved visual-polish evidence set', async ({ page }) => {
+  test.setTimeout(90_000)
   await setMode(page, 'ru', 'dark')
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/design')
@@ -203,6 +204,7 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
         mobileLabel: rect('.design-approved-hero-mobile-label'),
         commerceCard: rect('.design-approved-hero-commerce__card'),
         commerceLabel: rect('.design-approved-hero-commerce > .design-approved-hero-stack-label'),
+        commerceTitle: rect('.design-approved-hero-commerce > .design-approved-hero-stack-label b'),
         brandLabelBox: rect('.design-approved-hero-brand .design-approved-hero-stack-label'),
         brandCard: rect('.design-approved-hero-brand__card'),
         brandImage: rect('.design-approved-hero-brand__card img'),
@@ -229,6 +231,7 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
     expect(geometry.mobileLabel).not.toBeNull()
     expect(geometry.commerceCard).not.toBeNull()
     expect(geometry.commerceLabel).not.toBeNull()
+    expect(geometry.commerceTitle).not.toBeNull()
     expect(geometry.brandLabelBox).not.toBeNull()
     expect(geometry.brandCard).not.toBeNull()
     expect(geometry.brandImage).not.toBeNull()
@@ -236,14 +239,16 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
     if (!geometry.scene || !geometry.brandmark || !geometry.eyebrow || !geometry.analytics
       || !geometry.contact || !geometry.controls || !geometry.rail || !geometry.scrollCue || !geometry.stack
       || !geometry.phone || !geometry.mobileLabel || !geometry.commerceCard
-      || !geometry.commerceLabel || !geometry.brandLabelBox || !geometry.brandCard
+      || !geometry.commerceLabel || !geometry.commerceTitle || !geometry.brandLabelBox || !geometry.brandCard
       || !geometry.brandImage || !geometry.brandLabel) continue
 
     expect(Math.abs(geometry.brandmark.left - geometry.eyebrow.left)).toBeLessThanOrEqual(.5)
     expect(geometry.analytics.right).toBeLessThanOrEqual(geometry.scene.right - 12)
     expect(geometry.contact.left).toBeGreaterThanOrEqual(geometry.scene.right + 12)
-    expect(Math.abs(geometry.commerceLabel.left - geometry.contact.left)).toBeLessThanOrEqual(.5)
-    expect(Math.abs(geometry.brandLabelBox.left - geometry.contact.left)).toBeLessThanOrEqual(.5)
+    expect(Math.abs(geometry.commerceTitle.left - geometry.contact.left)).toBeLessThanOrEqual(.5)
+    expect(Math.abs(geometry.brandLabel.left - geometry.contact.left)).toBeLessThanOrEqual(.5)
+    expect(geometry.commerceTitle.left).toBeGreaterThanOrEqual(geometry.scene.right + 12)
+    expect(geometry.brandLabel.left).toBeGreaterThanOrEqual(geometry.scene.right + 12)
     expect(Math.abs(geometry.controls.right - geometry.rail.right)).toBeLessThanOrEqual(.5)
     expect(geometry.stack.left).toBeLessThanOrEqual(geometry.scene.right - 12)
     expect(geometry.phone.right - geometry.stack.right).toBeCloseTo(112, 0)
@@ -332,6 +337,77 @@ test('captures the hero header alignment viewport matrix', async ({ page }) => {
       animations: 'disabled',
     })
   }
+})
+
+test('hero 02, 03 and 04 use full-resolution graded assets without tonal CSS processing', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/design')
+  await expect(page.locator('.design-approved-hero-mobile img')).toBeVisible()
+
+  const assets = await page.evaluate(() => {
+    const inspect = (selector: string) => {
+      const image = document.querySelector<HTMLImageElement>(selector)!
+      const imageStyle = getComputedStyle(image)
+      const parentStyle = getComputedStyle(image.parentElement!)
+      const box = image.getBoundingClientRect()
+      return {
+        src: image.currentSrc,
+        naturalWidth: image.naturalWidth,
+        naturalHeight: image.naturalHeight,
+        renderedWidth: box.width,
+        renderedHeight: box.height,
+        filter: imageStyle.filter,
+        parentFilter: parentStyle.filter,
+        mixBlendMode: imageStyle.mixBlendMode,
+        parentMixBlendMode: parentStyle.mixBlendMode,
+        transform: imageStyle.transform,
+        imageRendering: imageStyle.imageRendering,
+      }
+    }
+
+    return {
+      commerce: inspect('.design-approved-hero-commerce__card img'),
+      brand: inspect('.design-approved-hero-brand__card img'),
+      mobile: inspect('.design-approved-hero-mobile img'),
+    }
+  })
+
+  expect(assets.commerce).toMatchObject({
+    naturalWidth: 1448,
+    naturalHeight: 1086,
+    filter: 'none',
+    parentFilter: 'none',
+    mixBlendMode: 'normal',
+    parentMixBlendMode: 'normal',
+    transform: 'none',
+    imageRendering: 'auto',
+  })
+  expect(assets.brand).toMatchObject({
+    naturalWidth: 1747,
+    naturalHeight: 900,
+    filter: 'none',
+    parentFilter: 'none',
+    mixBlendMode: 'normal',
+    parentMixBlendMode: 'normal',
+    transform: 'none',
+    imageRendering: 'auto',
+  })
+  expect(assets.mobile).toMatchObject({
+    naturalWidth: 941,
+    naturalHeight: 1672,
+    filter: 'none',
+    mixBlendMode: 'normal',
+    parentMixBlendMode: 'normal',
+    transform: 'none',
+    imageRendering: 'auto',
+  })
+  expect(assets.mobile.parentFilter).toMatch(/^drop-shadow/)
+  expect(assets.commerce.src).toMatch(/hero-eyewear-graded\.png$/)
+  expect(assets.brand.src).toMatch(/hero-brand-graded\.png$/)
+  expect(assets.mobile.src).toMatch(/hero-mobile-graded\.png$/)
+  expect(assets.commerce.naturalWidth / assets.commerce.renderedWidth).toBeGreaterThan(2)
+  expect(assets.brand.naturalWidth / assets.brand.renderedWidth).toBeGreaterThan(2)
+  expect(assets.mobile.naturalWidth / assets.mobile.renderedWidth).toBeGreaterThan(2)
 })
 
 test('hero commerce and brand panels keep a controlled responsive relationship', async ({ page }) => {

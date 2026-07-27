@@ -180,6 +180,7 @@ html[data-page='design'] :is(
     --design-hero-panel-label-space: clamp(42px, 3.3vw, 48px);
     --design-hero-panel-gap: clamp(10px, .8vw, 14px);
     --design-hero-brand-bottom: clamp(30px, 4vh, 48px);
+    --design-hero-label-prefix: 102.28125px;
   }
 
   .design-approved-page .design-approved-hero-commerce {
@@ -189,7 +190,7 @@ html[data-page='design'] :is(
   .design-approved-page .design-approved-hero-commerce > .design-approved-hero-stack-label,
   .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
     position: relative;
-    left: calc(100% - 41vw + 103px);
+    left: calc(100% - 41vw + 103px - var(--design-hero-label-prefix));
     width: max-content;
   }
 
@@ -215,7 +216,7 @@ html[data-page='design'] :is(
     height: calc(100% - 28px);
     background:
       #111
-      url('/assets/design-approved/hero-brand.png')
+      url('/assets/design-approved/hero-brand-graded.png')
       0 center / cover
       no-repeat;
   }
@@ -235,11 +236,11 @@ html[data-page='design'] :is(
 
   .design-approved-page .design-approved-hero-commerce > .design-approved-hero-stack-label,
   .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
-    left: calc(100% - 41vw + 118px);
+    left: calc(100% - 41vw + 118px - var(--design-hero-label-prefix));
   }
 
   .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
-    left: calc(100% - 41vw + 116px);
+    left: calc(100% - 41vw + 116px - var(--design-hero-label-prefix));
   }
 }
 
@@ -288,7 +289,7 @@ html[data-page='design'] :is(
 
   .design-approved-page .design-approved-hero-commerce > .design-approved-hero-stack-label,
   .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
-    left: 31px;
+    left: calc(31px - var(--design-hero-label-prefix));
   }
 
   .design-approved-page .design-approved-hero-mobile {

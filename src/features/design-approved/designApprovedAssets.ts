@@ -22,10 +22,10 @@ export const DESIGN_APPROVED_ASSETS = {
   commercialCase3: asset('case7-3-cover.png'),
   design: asset('design.png'),
   designVideo: asset('design_v3.mp4'),
-  heroBrand: asset('hero-brand.png'),
-  heroCommerce: asset('hero-eyewear.png'),
+  heroBrand: asset('hero-brand-graded.png'),
+  heroCommerce: asset('hero-eyewear-graded.png'),
   heroFashion: asset('hero-fashion.png'),
-  heroMobile: asset('hero-mobile.png'),
+  heroMobile: asset('hero-mobile-graded.png'),
   lookbook1: asset('lookbook-1.png'),
   lookbook2: asset('lookbook-2.png'),
   lookbook3: asset('lookbook-3.png'),
@@ -60,4 +60,3 @@ export const DESIGN_APPROVED_ASSETS = {
   railProduction: asset('rail-03-production.png'),
   railSystem: asset('rail-04-system.png'),
 } as const
-
