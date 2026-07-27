@@ -186,6 +186,13 @@ html[data-page='design'] :is(
     top: var(--design-hero-commerce-top);
   }
 
+  .design-approved-page .design-approved-hero-commerce > .design-approved-hero-stack-label,
+  .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
+    position: relative;
+    left: calc(100% - 41vw + 103px);
+    width: max-content;
+  }
+
   .design-approved-page .design-approved-hero-brand {
     top: calc(
       var(--design-hero-commerce-top)
@@ -225,6 +232,15 @@ html[data-page='design'] :is(
     left: 12px;
     right: calc(clamp(10px, 1.25vw, 24px) + 18px);
   }
+
+  .design-approved-page .design-approved-hero-commerce > .design-approved-hero-stack-label,
+  .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
+    left: calc(100% - 41vw + 118px);
+  }
+
+  .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
+    left: calc(100% - 41vw + 116px);
+  }
 }
 
 @media (max-width: 1023px) {
@@ -242,6 +258,8 @@ html[data-page='design'] :is(
   .design-approved-page .design-approved-hero-stack {
     width: min(44vw, clamp(475px, 58vh, 650px));
     height: calc(100% - 90px);
+    right: auto;
+    left: calc(59vw - 18px);
     box-sizing: border-box;
     display: grid;
     grid-template-rows: auto 28vh;
@@ -266,6 +284,11 @@ html[data-page='design'] :is(
 
   .design-approved-page .design-approved-hero-brand .design-approved-hero-stack-label--end {
     justify-content: flex-start;
+  }
+
+  .design-approved-page .design-approved-hero-commerce > .design-approved-hero-stack-label,
+  .design-approved-page .design-approved-hero-brand > .design-approved-hero-stack-label {
+    left: 31px;
   }
 
   .design-approved-page .design-approved-hero-mobile {

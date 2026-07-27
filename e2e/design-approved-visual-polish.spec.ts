@@ -202,6 +202,7 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
         phone: rect('.design-approved-hero-mobile'),
         mobileLabel: rect('.design-approved-hero-mobile-label'),
         commerceCard: rect('.design-approved-hero-commerce__card'),
+        commerceLabel: rect('.design-approved-hero-commerce > .design-approved-hero-stack-label'),
         brandLabelBox: rect('.design-approved-hero-brand .design-approved-hero-stack-label'),
         brandCard: rect('.design-approved-hero-brand__card'),
         brandImage: rect('.design-approved-hero-brand__card img'),
@@ -227,6 +228,7 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
     expect(geometry.phone).not.toBeNull()
     expect(geometry.mobileLabel).not.toBeNull()
     expect(geometry.commerceCard).not.toBeNull()
+    expect(geometry.commerceLabel).not.toBeNull()
     expect(geometry.brandLabelBox).not.toBeNull()
     expect(geometry.brandCard).not.toBeNull()
     expect(geometry.brandImage).not.toBeNull()
@@ -234,12 +236,16 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
     if (!geometry.scene || !geometry.brandmark || !geometry.eyebrow || !geometry.analytics
       || !geometry.contact || !geometry.controls || !geometry.rail || !geometry.scrollCue || !geometry.stack
       || !geometry.phone || !geometry.mobileLabel || !geometry.commerceCard
-      || !geometry.brandLabelBox || !geometry.brandCard || !geometry.brandImage || !geometry.brandLabel) continue
+      || !geometry.commerceLabel || !geometry.brandLabelBox || !geometry.brandCard
+      || !geometry.brandImage || !geometry.brandLabel) continue
 
     expect(Math.abs(geometry.brandmark.left - geometry.eyebrow.left)).toBeLessThanOrEqual(.5)
     expect(geometry.analytics.right).toBeLessThanOrEqual(geometry.scene.right - 12)
     expect(geometry.contact.left).toBeGreaterThanOrEqual(geometry.scene.right + 12)
+    expect(Math.abs(geometry.commerceLabel.left - geometry.contact.left)).toBeLessThanOrEqual(.5)
+    expect(Math.abs(geometry.brandLabelBox.left - geometry.contact.left)).toBeLessThanOrEqual(.5)
     expect(Math.abs(geometry.controls.right - geometry.rail.right)).toBeLessThanOrEqual(.5)
+    expect(geometry.stack.left).toBeLessThanOrEqual(geometry.scene.right - 12)
     expect(geometry.phone.right - geometry.stack.right).toBeCloseTo(112, 0)
     expect(geometry.phone.top).toBeGreaterThan(geometry.stack.top + 100)
     expect(geometry.phone.top).toBeGreaterThanOrEqual(geometry.mobileLabel.bottom + 4)
