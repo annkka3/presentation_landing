@@ -184,14 +184,13 @@ test('hero commerce and brand panels keep a controlled responsive relationship',
       const phone = document.querySelector<HTMLElement>('.design-approved-hero-mobile')!.getBoundingClientRect()
       const root = document.querySelector<HTMLElement>('.design-approved-page')!
       return {
-        panelOverlap: commerce.bottom - brand.top,
+        panelGap: brand.top - commerce.bottom,
         phoneOverCommerce: phone.left < commerce.right && phone.right > commerce.left,
         overflow: root.scrollWidth - root.clientWidth,
       }
     })
 
-    expect(geometry.panelOverlap).toBeGreaterThanOrEqual(-14)
-    expect(geometry.panelOverlap).toBeLessThanOrEqual(14)
+    expect(geometry.panelGap).toBeGreaterThanOrEqual(16)
     expect(geometry.phoneOverCommerce).toBe(true)
     expect(geometry.overflow).toBeLessThanOrEqual(0)
   }

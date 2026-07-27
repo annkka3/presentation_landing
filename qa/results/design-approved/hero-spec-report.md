@@ -34,7 +34,7 @@
 | Right stack | right 90px; top 48px; 633.59375×810px | right 90px; top 48px; 633.59375×810px | PASS |
 | Mobile artifact | width 382px; top 98.59375px; right -140px inside stack | width 382px; top 98.59375px; right -140px | PASS |
 | Commerce block | polished top anchor inside stack | top 49.5px; box 633.59375×504.1875px | PASS |
-| Brand block | polished responsive anchor | bottom 49.5px; height 240.375px | PASS |
+| Brand block | polished responsive anchor | bottom 49.5px; height 214.453125px | PASS |
 | Scroll cue | right 82px; bottom 26px | right 82px; bottom 26px | PASS |
 
 ### Raw computed values
@@ -48,7 +48,7 @@
 - Right stack: left=716.40625, top=48, right=90, bottom=42, width=633.59375, height=810, maxWidth=none, fontSize=16px, lineHeight=normal, overflow=visible, background=rgba(0, 0, 0, 0), objectPosition=50% 50%
 - Mobile artifact: left=1108, top=146.59375, right=-50, bottom=74.65625, width=382, height=678.75, maxWidth=none, fontSize=16px, lineHeight=normal, overflow=visible, background=rgba(0, 0, 0, 0), objectPosition=50% 50%
 - Commerce block: left=716.40625, top=97.5, right=90, bottom=298.3125, width=633.59375, height=504.1875, maxWidth=none, fontSize=16px, lineHeight=normal, overflow=visible, background=rgba(0, 0, 0, 0), objectPosition=50% 50%
-- Brand block: left=716.40625, top=568.125, right=90, bottom=91.5, width=633.59375, height=240.375, maxWidth=none, fontSize=16px, lineHeight=normal, overflow=visible, background=rgba(0, 0, 0, 0), objectPosition=50% 50%
+- Brand block: left=716.40625, top=594.046875, right=90, bottom=91.5, width=633.59375, height=214.453125, maxWidth=none, fontSize=16px, lineHeight=normal, overflow=visible, background=rgba(0, 0, 0, 0), objectPosition=50% 50%
 - Scroll cue: left=1244.171875, top=832, right=82, bottom=26, width=113.828125, height=42, maxWidth=none, fontSize=16px, lineHeight=normal, overflow=visible, background=rgba(0, 0, 0, 0), objectPosition=50% 50%
 - Horizontal overflow: 0px
 - Floating character nodes: 0

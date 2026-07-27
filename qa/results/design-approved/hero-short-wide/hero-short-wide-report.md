@@ -73,10 +73,12 @@ The guard now explicitly checks `location.pathname === '/design' || location.pat
 
 ## Canonical baseline
 
-- 1746×1406 pre-short-wide vs post-short-wide Pixelmatch: **0.0000%**.
+- The original short-wide mode did not affect 1746×1406.
+- Follow-up correction removes the remaining standard-desktop overlap: the 1746×1406 gap changes from −6.99px to **23.01px**.
+- Intentional Pixelmatch change against commit `6cf422a`: **3.2033%**; the polished baseline was refreshed after geometry acceptance.
+- Current 1746×1406 regression against the refreshed baseline: **0.0000%**.
 - Device scale factor: 1.
 - Threshold: 0.25, anti-aliasing excluded.
-- The short-wide media query does not match 1746×1406.
 
 ## Raw Playwright screenshots
 
@@ -84,8 +86,8 @@ The guard now explicitly checks `location.pathname === '/design' || location.pat
 - `hero-short-wide-after-2048x1107.png` — 2048×1107 — 1,729,909 bytes.
 - `hero-short-wide-after-1920x1000.png` — 1920×1000 — 1,477,363 bytes.
 - `hero-short-wide-after-1728x930.png` — 1728×930 — 1,319,292 bytes.
-- `hero-1440x900-regression.png` — 1440×900 — 1,186,813 bytes.
-- `hero-1746x1406-regression.png` — 1746×1406 — 2,224,499 bytes.
+- `hero-1440x900-regression.png` — 1440×900 — 1,191,449 bytes.
+- `hero-1746x1406-regression.png` — 1746×1406 — 2,274,651 bytes.
 - `hero-1746x1406-pre-short-wide.png` — 1746×1406 — 2,232,061 bytes.
 
 ## Tests
