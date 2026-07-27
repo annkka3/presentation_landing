@@ -321,11 +321,11 @@ html[data-page='design'] :is(
   padding: 20px 0 18px;
 }
 
-.design-approved-page .design-approved-directions__list button > span {
+.design-approved-page .design-approved-directions__list button > .design-approved-direction-number {
   font-size: 12px;
 }
 
-.design-approved-page .design-approved-directions__list button.is-active > span {
+.design-approved-page .design-approved-directions__list button.is-active > .design-approved-direction-number {
   font-size: 14px;
 }
 
@@ -342,7 +342,7 @@ html[data-page='design'] :is(
   font-size: 10px;
 }
 
-.design-approved-page .design-approved-directions__preview > p:last-child {
+.design-approved-page .design-approved-direction-copy small {
   font-size: 13px;
   line-height: 1.52;
 }

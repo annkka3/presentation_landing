@@ -699,6 +699,10 @@
   color: var(--design-approved-text);
 }
 
+.design-approved-page > [tabindex='-1']:focus {
+  outline: none;
+}
+
 .design-approved-chapter h2,
 .design-approved-chapter h3,
 .design-approved-chapter p {
@@ -737,7 +741,7 @@
   width: 100%;
   padding: 18px 0;
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 24px;
   border: 0;
   border-top: 1px solid var(--design-approved-border-strong);
@@ -754,7 +758,7 @@
   opacity: 1;
 }
 
-.design-approved-directions__list button > span {
+.design-approved-directions__list button > .design-approved-direction-number {
   flex-shrink: 0;
   color: var(--design-approved-bronze);
   font-family: 'IBM Plex Mono', monospace;
@@ -762,8 +766,14 @@
   transition: font-size 400ms ease;
 }
 
-.design-approved-directions__list button.is-active > span {
+.design-approved-directions__list button.is-active > .design-approved-direction-number {
   font-size: 17px;
+}
+
+.design-approved-direction-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .design-approved-directions__list button strong {
@@ -772,6 +782,31 @@
   font-weight: 400;
   letter-spacing: -.02em;
   transition: font-size 400ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.design-approved-direction-copy small {
+  max-width: 480px;
+  max-height: 0;
+  overflow: hidden;
+  color: var(--design-approved-text-a72);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.55;
+  opacity: 0;
+  transition: max-height 400ms cubic-bezier(.22, 1, .36, 1),
+    margin-top 400ms cubic-bezier(.22, 1, .36, 1),
+    opacity 240ms ease;
+}
+
+.design-approved-directions__list button.is-active .design-approved-direction-copy small {
+  max-height: 5em;
+  margin-top: 9px;
+  opacity: 1;
+}
+
+.design-approved-directions__list button:focus-visible {
+  outline: none;
+  box-shadow: inset 2px 0 var(--design-approved-bronze);
 }
 
 .design-approved-directions__list button.is-active strong {
@@ -805,14 +840,6 @@
   font-size: 11px;
   letter-spacing: .1em;
   text-transform: uppercase;
-}
-
-.design-approved-directions__preview > p:last-child {
-  max-width: 460px;
-  margin-bottom: 0;
-  color: var(--design-approved-text-a72);
-  font-size: 14px;
-  line-height: 1.6;
 }
 
 .design-approved-marketplace__grid {

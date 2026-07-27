@@ -39,13 +39,27 @@ test('design directions are semantic and support pointer plus keyboard state cha
   await expect(directions).toHaveCount(5)
   await expect(directions.nth(0)).toHaveAttribute('aria-pressed', 'true')
   await expect(directions.nth(0)).toHaveAttribute('aria-selected', 'true')
+  await expect(directions.nth(0)).toHaveAttribute('aria-expanded', 'true')
   await expect(directions.nth(0)).toHaveAttribute('aria-controls', 'design-direction-preview')
+  await expect(directions.nth(0).locator('.design-approved-direction-copy small')).toHaveText(
+    'User flows, информационная архитектура, responsive UX, компоненты и состояния продукта.',
+  )
+  await expect(directions.nth(0).locator('.design-approved-direction-copy small')).toBeVisible()
+  await expect(page.locator('.design-approved-directions__preview')).not.toContainText(
+    'User flows, информационная архитектура',
+  )
   await expect(page.locator('.design-approved-directions__preview img')).toHaveAttribute('src', /case-anna-gromyko-portfolio/)
   await directions.nth(3).click()
   await expect(directions.nth(3)).toHaveAttribute('aria-pressed', 'true')
+  await expect(directions.nth(3)).toHaveAttribute('aria-expanded', 'true')
+  await expect(directions.nth(0)).toHaveAttribute('aria-expanded', 'false')
+  await expect(directions.nth(3).locator('.design-approved-direction-copy small')).toHaveText(
+    'Айдентика, типографика, цвет, кампании и визуальная система бренда для всех каналов.',
+  )
   await expect(page.locator('.design-approved-directions__preview img')).toHaveAttribute('src', /case-the-dao-way/)
   await expect(page.locator('.design-approved-outcome')).toHaveText('ОТ ИДЕИ К УЗНАВАЕМОМУ ЯЗЫКУ')
 
+  await page.mouse.move(0, 0)
   await directions.nth(3).press('ArrowDown')
   await expect(directions.nth(4)).toBeFocused()
   await expect(directions.nth(4)).toHaveAttribute('aria-pressed', 'true')
@@ -64,6 +78,7 @@ test('design directions are semantic and support pointer plus keyboard state cha
   expect(geometry.activeClass).toBe(true)
   await expect(directions.nth(0)).toHaveCSS('opacity', '1')
   await expect(directions.nth(0)).toHaveCSS('padding-top', '20px')
+  await expect(page.locator('#design-directions')).toHaveCSS('outline-style', 'none')
 })
 
 test('lookbook carousel loops, has no autoplay, and supports controls, dots, keyboard and swipe', async ({ page }) => {

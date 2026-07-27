@@ -33,6 +33,7 @@ export function DesignDirections({ locale }: { locale: DesignApprovedLocale }) {
                 className={index === activeIndex ? 'is-active' : ''}
                 aria-pressed={index === activeIndex}
                 aria-selected={index === activeIndex}
+                aria-expanded={index === activeIndex}
                 aria-controls="design-direction-preview"
                 onClick={() => setActiveIndex(index)}
                 onFocus={() => setActiveIndex(index)}
@@ -44,8 +45,11 @@ export function DesignDirections({ locale }: { locale: DesignApprovedLocale }) {
                   }
                 }}
               >
-                <span>{capability.num}</span>
-                <strong>{capability.title[locale]}</strong>
+                <span className="design-approved-direction-number">{capability.num}</span>
+                <span className="design-approved-direction-copy">
+                  <strong>{capability.title[locale]}</strong>
+                  <small>{capability.desc[locale]}</small>
+                </span>
               </button>
             ))}
           </div>
@@ -54,7 +58,6 @@ export function DesignDirections({ locale }: { locale: DesignApprovedLocale }) {
               <img key={active.sample} src={active.sample} alt={active.title[locale]} style={{ objectPosition: active.sampleObjectPosition }} loading="lazy" />
             </div>
             <p className="design-approved-outcome">{active.outcome[locale]}</p>
-            <p>{active.desc[locale]}</p>
           </div>
         </div>
       </div>

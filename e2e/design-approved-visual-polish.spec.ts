@@ -3,6 +3,7 @@ import path from 'node:path'
 
 const results = path.resolve('qa/results/design-approved/visual-polish')
 const heroHeaderResults = path.resolve('qa/results/design-approved/hero-header-alignment')
+const directionsResults = path.resolve('qa/results/design-approved/chapter-02-directions')
 
 const characterSelector = [
   '.floating-character',
@@ -160,6 +161,68 @@ test('captures the approved visual-polish evidence set', async ({ page }) => {
     ['#design-motion', 'mobile-390x844-08-motion.png'],
     ['.design-approved-final-cta', 'mobile-390x844-10-cta.png'],
   ] as const) await capture(page, selector, name)
+})
+
+test('chapter 02 descriptions and focus treatment remain correct across the viewport matrix', async ({ page }) => {
+  test.setTimeout(120_000)
+  await setMode(page, 'ru', 'dark')
+
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 1366, height: 768 },
+    { width: 1440, height: 900 },
+    { width: 1512, height: 982 },
+    { width: 1680, height: 1050 },
+    { width: 1728, height: 1117 },
+    { width: 1746, height: 1406 },
+    { width: 1920, height: 1080 },
+    { width: 1024, height: 768 },
+    { width: 768, height: 1024 },
+    { width: 320, height: 568 },
+    { width: 360, height: 740 },
+    { width: 390, height: 844 },
+    { width: 430, height: 932 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/design#design-directions')
+    const chapter = page.locator('#design-directions')
+    const active = chapter.locator('.design-approved-directions__list button.is-active')
+    await expect(chapter).toBeInViewport()
+    await expect(active.locator('.design-approved-direction-copy small')).toBeVisible()
+    await expect(chapter.locator('.design-approved-directions__preview')).not.toContainText(
+      'User flows, информационная архитектура',
+    )
+    await expect(chapter).toHaveCSS('outline-style', 'none')
+    expect(await page.locator('.design-approved-page').evaluate((root) => root.scrollWidth - root.clientWidth)).toBeLessThanOrEqual(0)
+
+    if (viewport.width > 900) {
+      const overlap = await page.evaluate(() => {
+        const list = document.querySelector<HTMLElement>('.design-approved-directions__list')!.getBoundingClientRect()
+        const preview = document.querySelector<HTMLElement>('.design-approved-directions__preview')!.getBoundingClientRect()
+        return Math.max(0, Math.min(list.right, preview.right) - Math.max(list.left, preview.left))
+      })
+      expect(overlap, `${viewport.width}×${viewport.height}: list overlaps preview`).toBe(0)
+    }
+
+    await prepareChapter(page, '#design-directions')
+    await page.screenshot({
+      path: path.join(directionsResults, `ru-dark-${viewport.width}x${viewport.height}.png`),
+      animations: 'disabled',
+    })
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/design#design-directions')
+  const directions = page.locator('.design-approved-directions__list button')
+  for (let index = 0; index < 5; index += 1) {
+    await directions.nth(index).click()
+    await expect(directions.nth(index)).toHaveAttribute('aria-expanded', 'true')
+    await expect(directions.nth(index).locator('.design-approved-direction-copy small')).toBeVisible()
+    await page.screenshot({
+      path: path.join(directionsResults, `ru-dark-1440x900-state${String(index + 1).padStart(2, '0')}.png`),
+      animations: 'disabled',
+    })
+  }
 })
 
 test('hero header and artifact anchors remain aligned across the viewport matrix', async ({ page }) => {
