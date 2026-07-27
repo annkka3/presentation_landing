@@ -177,9 +177,9 @@ html[data-page='design'] :is(
 
   .design-approved-page .design-approved-hero-stack {
     --design-hero-commerce-top: clamp(42px, 5.5vh, 50px);
-    --design-hero-panel-label-space: clamp(26px, 2.2vw, 30px);
-    --design-hero-panel-overlap: clamp(6px, .6vw, 10px);
-    --design-hero-brand-bottom: clamp(42px, 5.5vh, 60px);
+    --design-hero-panel-label-space: clamp(42px, 3.3vw, 48px);
+    --design-hero-panel-gap: clamp(10px, .8vw, 14px);
+    --design-hero-brand-bottom: clamp(30px, 4vh, 48px);
   }
 
   .design-approved-page .design-approved-hero-commerce {
@@ -191,7 +191,7 @@ html[data-page='design'] :is(
       var(--design-hero-commerce-top)
       + var(--design-hero-panel-label-space)
       + 33vw
-      - var(--design-hero-panel-overlap)
+      + var(--design-hero-panel-gap)
     );
     bottom: var(--design-hero-brand-bottom);
     height: auto;
@@ -203,9 +203,20 @@ html[data-page='design'] :is(
     justify-content: flex-start;
   }
 
+  .design-approved-page .design-approved-hero-brand__card {
+    min-height: 0;
+    height: calc(100% - 28px);
+    background:
+      #111
+      url('/assets/design-approved/hero-brand.png')
+      0 center / cover
+      no-repeat;
+  }
+
   .design-approved-page .design-approved-hero-mobile {
-    top: calc(6% + 66px);
+    top: calc(6% + 158px);
     right: -112px;
+    width: min(382px, 33vh);
   }
 }
 

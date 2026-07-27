@@ -117,7 +117,7 @@ export function DesignHero() {
         <div className="design-approved-hero-brand" style={{ opacity: artifactOpacity('brand') }}>
           <div className="design-approved-hero-stack-label design-approved-hero-stack-label--end"><span>03</span><i /><b>{text.heroLabelBrand}</b></div>
           <div className="design-approved-hero-brand__card">
-            <img src={A.heroBrand} alt={text.heroLabelBrand} width="1600" height="1000" decoding="async" />
+            <img src={A.heroBrand} alt={text.heroLabelBrand} width="1600" height="1000" loading="eager" fetchPriority="high" decoding="sync" />
           </div>
         </div>
       </div>

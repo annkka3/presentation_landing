@@ -162,7 +162,7 @@ test('captures the approved visual-polish evidence set', async ({ page }) => {
 })
 
 test('hero header and artifact anchors remain aligned across the viewport matrix', async ({ page }) => {
-  test.setTimeout(60_000)
+  test.setTimeout(120_000)
   await setMode(page, 'ru', 'dark')
 
   for (const viewport of [
@@ -180,13 +180,14 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
     await page.setViewportSize(viewport)
     await page.goto('/design')
     await expect(page.locator('.design-approved-hero-brand__card')).toBeVisible()
+    await page.evaluate(() => document.getAnimations().forEach((animation) => animation.finish()))
 
     const geometry = await page.evaluate(() => {
       const rect = (selector: string) => {
         const element = document.querySelector<HTMLElement>(selector)
         if (!element) return null
         const box = element.getBoundingClientRect()
-        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom }
+        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, height: box.height }
       }
       return {
         scene: rect('.design-approved-hero-scene'),
@@ -196,9 +197,19 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
         contact: rect('.design-approved-hero-nav__contact'),
         controls: rect('.design-approved-hero-controls'),
         rail: rect('.design-approved-chapter-rail'),
+        scrollCue: rect('.design-approved-hero-scroll-cue'),
         stack: rect('.design-approved-hero-stack'),
         phone: rect('.design-approved-hero-mobile'),
+        mobileLabel: rect('.design-approved-hero-mobile-label'),
+        commerceCard: rect('.design-approved-hero-commerce__card'),
+        brandLabelBox: rect('.design-approved-hero-brand .design-approved-hero-stack-label'),
+        brandCard: rect('.design-approved-hero-brand__card'),
+        brandImage: rect('.design-approved-hero-brand__card img'),
         brandLabel: rect('.design-approved-hero-brand .design-approved-hero-stack-label b'),
+        brandImageLoaded: Boolean(
+          document.querySelector<HTMLImageElement>('.design-approved-hero-brand__card img')?.complete
+          && document.querySelector<HTMLImageElement>('.design-approved-hero-brand__card img')?.naturalWidth,
+        ),
         resumeCount: document.querySelectorAll('.design-approved-hero-resume, #design-approved-resume-status').length,
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       }
@@ -211,12 +222,19 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
     expect(geometry.contact).not.toBeNull()
     expect(geometry.controls).not.toBeNull()
     expect(geometry.rail).not.toBeNull()
+    expect(geometry.scrollCue).not.toBeNull()
     expect(geometry.stack).not.toBeNull()
     expect(geometry.phone).not.toBeNull()
+    expect(geometry.mobileLabel).not.toBeNull()
+    expect(geometry.commerceCard).not.toBeNull()
+    expect(geometry.brandLabelBox).not.toBeNull()
+    expect(geometry.brandCard).not.toBeNull()
+    expect(geometry.brandImage).not.toBeNull()
     expect(geometry.brandLabel).not.toBeNull()
     if (!geometry.scene || !geometry.brandmark || !geometry.eyebrow || !geometry.analytics
-      || !geometry.contact || !geometry.controls || !geometry.rail || !geometry.stack
-      || !geometry.phone || !geometry.brandLabel) continue
+      || !geometry.contact || !geometry.controls || !geometry.rail || !geometry.scrollCue || !geometry.stack
+      || !geometry.phone || !geometry.mobileLabel || !geometry.commerceCard
+      || !geometry.brandLabelBox || !geometry.brandCard || !geometry.brandImage || !geometry.brandLabel) continue
 
     expect(Math.abs(geometry.brandmark.left - geometry.eyebrow.left)).toBeLessThanOrEqual(.5)
     expect(geometry.analytics.right).toBeLessThanOrEqual(geometry.scene.right - 12)
@@ -224,6 +242,19 @@ test('hero header and artifact anchors remain aligned across the viewport matrix
     expect(Math.abs(geometry.controls.right - geometry.rail.right)).toBeLessThanOrEqual(.5)
     expect(geometry.phone.right - geometry.stack.right).toBeCloseTo(112, 0)
     expect(geometry.phone.top).toBeGreaterThan(geometry.stack.top + 100)
+    expect(geometry.phone.top).toBeGreaterThanOrEqual(geometry.mobileLabel.bottom + 4)
+    expect(
+      geometry.phone.bottom <= geometry.scrollCue.top - 4
+      || geometry.phone.right <= geometry.scrollCue.left - 4,
+      `${viewport.width}×${viewport.height}: phone overlaps the scroll cue`,
+    ).toBe(true)
+    expect(geometry.brandLabelBox.top).toBeGreaterThanOrEqual(geometry.commerceCard.bottom + 8)
+    expect(geometry.brandCard.height).toBeGreaterThanOrEqual(80)
+    expect(
+      geometry.brandImage.height,
+      `${viewport.width}×${viewport.height}: Brand System image has no rendered height`,
+    ).toBeGreaterThanOrEqual(80)
+    expect(geometry.brandImageLoaded).toBe(true)
     expect(geometry.brandLabel.right).toBeLessThanOrEqual(geometry.phone.left)
     expect(geometry.resumeCount).toBe(0)
     expect(geometry.overflow).toBeLessThanOrEqual(0)
