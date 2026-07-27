@@ -94,19 +94,17 @@ test('contact and featured CTAs preserve Design history, mode and focus', async 
   await expect(page).toHaveURL(/\/design#design-tools$/)
 })
 
-test('approved Resume placeholder remains explicit and reachable on desktop and mobile', async ({ page }) => {
+test('Resume control stays hidden while the document is in development', async ({ page }) => {
   await setMode(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/design')
   const resume = page.locator('.design-approved-hero-resume')
-  await expect(resume).toBeVisible()
-  await resume.click()
-  await expect(page.locator('#design-approved-resume-status')).toHaveText('Резюме будет добавлено перед публикацией')
+  await expect(resume).toHaveCount(0)
+  await expect(page.locator('#design-approved-resume-status')).toHaveCount(0)
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.reload()
-  await expect(resume).toBeVisible()
-  await expect(resume.locator('.design-approved-hero-resume__compact')).toHaveText('CV')
+  await expect(resume).toHaveCount(0)
   await expect(page.locator('.design-approved-chapter-rail')).toBeHidden()
   expect(await page.locator('.design-approved-page').evaluate((root) => root.scrollWidth - root.clientWidth)).toBeLessThanOrEqual(0)
 })

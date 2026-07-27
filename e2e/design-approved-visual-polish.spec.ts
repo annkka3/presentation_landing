@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import path from 'node:path'
 
 const results = path.resolve('qa/results/design-approved/visual-polish')
+const heroHeaderResults = path.resolve('qa/results/design-approved/hero-header-alignment')
 
 const characterSelector = [
   '.floating-character',
@@ -158,6 +159,142 @@ test('captures the approved visual-polish evidence set', async ({ page }) => {
     ['#design-motion', 'mobile-390x844-08-motion.png'],
     ['.design-approved-final-cta', 'mobile-390x844-10-cta.png'],
   ] as const) await capture(page, selector, name)
+})
+
+test('hero header and artifact anchors remain aligned across the viewport matrix', async ({ page }) => {
+  test.setTimeout(60_000)
+  await setMode(page, 'ru', 'dark')
+
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 1440, height: 900 },
+    { width: 1512, height: 820 },
+    { width: 1512, height: 982 },
+    { width: 1680, height: 900 },
+    { width: 1728, height: 930 },
+    { width: 1728, height: 1117 },
+    { width: 1746, height: 1406 },
+    { width: 1920, height: 1000 },
+    { width: 2048, height: 1107 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/design')
+    await expect(page.locator('.design-approved-hero-brand__card')).toBeVisible()
+
+    const geometry = await page.evaluate(() => {
+      const rect = (selector: string) => {
+        const element = document.querySelector<HTMLElement>(selector)
+        if (!element) return null
+        const box = element.getBoundingClientRect()
+        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom }
+      }
+      return {
+        scene: rect('.design-approved-hero-scene'),
+        brandmark: rect('.design-approved-hero-brandmark'),
+        eyebrow: rect('.design-approved-hero-eyebrow'),
+        analytics: rect('.design-approved-hero-nav__light a[href="/#analytics"]'),
+        contact: rect('.design-approved-hero-nav__contact'),
+        controls: rect('.design-approved-hero-controls'),
+        rail: rect('.design-approved-chapter-rail'),
+        stack: rect('.design-approved-hero-stack'),
+        phone: rect('.design-approved-hero-mobile'),
+        brandLabel: rect('.design-approved-hero-brand .design-approved-hero-stack-label b'),
+        resumeCount: document.querySelectorAll('.design-approved-hero-resume, #design-approved-resume-status').length,
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      }
+    })
+
+    expect(geometry.scene).not.toBeNull()
+    expect(geometry.brandmark).not.toBeNull()
+    expect(geometry.eyebrow).not.toBeNull()
+    expect(geometry.analytics).not.toBeNull()
+    expect(geometry.contact).not.toBeNull()
+    expect(geometry.controls).not.toBeNull()
+    expect(geometry.rail).not.toBeNull()
+    expect(geometry.stack).not.toBeNull()
+    expect(geometry.phone).not.toBeNull()
+    expect(geometry.brandLabel).not.toBeNull()
+    if (!geometry.scene || !geometry.brandmark || !geometry.eyebrow || !geometry.analytics
+      || !geometry.contact || !geometry.controls || !geometry.rail || !geometry.stack
+      || !geometry.phone || !geometry.brandLabel) continue
+
+    expect(Math.abs(geometry.brandmark.left - geometry.eyebrow.left)).toBeLessThanOrEqual(.5)
+    expect(geometry.analytics.right).toBeLessThanOrEqual(geometry.scene.right - 12)
+    expect(geometry.contact.left).toBeGreaterThanOrEqual(geometry.scene.right + 12)
+    expect(Math.abs(geometry.controls.right - geometry.rail.right)).toBeLessThanOrEqual(.5)
+    expect(geometry.phone.right - geometry.stack.right).toBeCloseTo(112, 0)
+    expect(geometry.phone.top).toBeGreaterThan(geometry.stack.top + 100)
+    expect(geometry.brandLabel.right).toBeLessThanOrEqual(geometry.phone.left)
+    expect(geometry.resumeCount).toBe(0)
+    expect(geometry.overflow).toBeLessThanOrEqual(0)
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/design')
+  await expect(page.locator('.design-approved-hero-brandmark')).toBeVisible()
+  await expect(page.locator('.design-approved-hero-eyebrow')).toBeVisible()
+  const mobileAlignment = await page.evaluate(() => {
+    const brandmark = document.querySelector<HTMLElement>('.design-approved-hero-brandmark')!.getBoundingClientRect()
+    const eyebrow = document.querySelector<HTMLElement>('.design-approved-hero-eyebrow')!.getBoundingClientRect()
+    return {
+      delta: Math.abs(brandmark.left - eyebrow.left),
+      resumeCount: document.querySelectorAll('.design-approved-hero-resume, #design-approved-resume-status').length,
+    }
+  })
+  expect(mobileAlignment.delta).toBeLessThanOrEqual(.5)
+  expect(mobileAlignment.resumeCount).toBe(0)
+})
+
+test('captures the hero header alignment viewport matrix', async ({ page }) => {
+  test.setTimeout(90_000)
+  await setMode(page, 'ru', 'dark')
+
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 1440, height: 900 },
+    { width: 1512, height: 820 },
+    { width: 1512, height: 982 },
+    { width: 1680, height: 900 },
+    { width: 1728, height: 930 },
+    { width: 1728, height: 1117 },
+    { width: 1746, height: 1406 },
+    { width: 1920, height: 1000 },
+    { width: 2048, height: 1107 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/design')
+    await expect(page.locator('.design-approved-hero-brandmark')).toBeVisible()
+    await prepareChapter(page, '#design-approved-hero')
+    await page.screenshot({
+      path: path.join(heroHeaderResults, `ru-dark-${viewport.width}x${viewport.height}.png`),
+      animations: 'disabled',
+    })
+  }
+
+  for (const variant of [
+    { locale: 'en', theme: 'dark', width: 1440, height: 900 },
+    { locale: 'en', theme: 'light', width: 1746, height: 1406 },
+    { locale: 'en', theme: 'light', width: 390, height: 844 },
+  ] as const) {
+    await page.setViewportSize({ width: variant.width, height: variant.height })
+    await page.goto('/design')
+    await page.evaluate(({ locale, theme }) => {
+      localStorage.setItem('anna-locale', locale)
+      localStorage.setItem('anna-theme', theme)
+    }, variant)
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('lang', variant.locale)
+    await expect(page.locator('html')).toHaveAttribute('data-theme', variant.theme)
+    await prepareChapter(page, '#design-approved-hero')
+    await page.screenshot({
+      path: path.join(
+        heroHeaderResults,
+        `${variant.locale}-${variant.theme}-${variant.width}x${variant.height}.png`,
+      ),
+      animations: 'disabled',
+    })
+  }
 })
 
 test('hero commerce and brand panels keep a controlled responsive relationship', async ({ page }) => {

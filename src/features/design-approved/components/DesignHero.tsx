@@ -9,7 +9,6 @@ export function DesignHero() {
   const text = UI_TEXT[locale]
   const videoRef = useRef<HTMLVideoElement>(null)
   const [activeDirection, setActiveDirection] = useState<number | null>(null)
-  const [resumeMessageVisible, setResumeMessageVisible] = useState(false)
   const firstBreak = text.heroH1.indexOf(' ')
   const firstWord = text.heroH1.slice(0, firstBreak)
   const rest = text.heroH1.slice(firstBreak)
@@ -36,10 +35,12 @@ export function DesignHero() {
           <small>AI PRODUCT BUILDER</small>
         </Link>
         <nav className="design-approved-hero-nav" aria-label={locale === 'ru' ? 'Основная навигация' : 'Primary navigation'}>
-          <Link to="/#product">{text.navProduct}</Link>
-          <a className="design-approved-hero-nav__active" href="#main" aria-current="page">{text.navDesign}</a>
-          <Link to="/#automation">{text.navAutomation}</Link>
-          <Link to="/#analytics">{text.navAnalytics}</Link>
+          <div className="design-approved-hero-nav__light">
+            <Link to="/#product">{text.navProduct}</Link>
+            <a className="design-approved-hero-nav__active" href="#main" aria-current="page">{text.navDesign}</a>
+            <Link to="/#automation">{text.navAutomation}</Link>
+            <Link to="/#analytics">{text.navAnalytics}</Link>
+          </div>
           <Link className="design-approved-hero-nav__contact" to="/#contact">{text.navContact}</Link>
         </nav>
         <div className="design-approved-hero-controls">
@@ -50,18 +51,6 @@ export function DesignHero() {
           <button className="design-approved-hero-theme" type="button" onClick={toggleTheme} aria-label={text.themeToggle}>
             <span aria-hidden="true">{theme === 'light' ? '☽' : '☀'}</span>
           </button>
-          <button
-            className="design-approved-hero-resume"
-            type="button"
-            aria-describedby="design-approved-resume-status"
-            onClick={() => setResumeMessageVisible(true)}
-          >
-            <span className="design-approved-hero-resume__full">{text.resume}</span>
-            <span className="design-approved-hero-resume__compact" aria-hidden="true">CV</span>
-          </button>
-          <span id="design-approved-resume-status" className="design-approved-hero-resume-status" role="status" aria-live="polite">
-            {resumeMessageVisible ? text.resumeUnavailable : ''}
-          </span>
         </div>
       </header>
 

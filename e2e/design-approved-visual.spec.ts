@@ -230,7 +230,7 @@ ${Object.entries(regionDiffs).map(([name, percent]) => `- ${name}: ${percent.toF
   expect(geometry.axis).toMatchObject({ left: 652, top: 198, height: 495 })
   expect(geometry.stack).toMatchObject({ right: 90, top: 48, width: 633.59375, height: 810 })
   expect(geometry.mobile).toMatchObject({ width: 382 })
-  expect(relative).toEqual({ mobileTop: 98.59375, mobileRight: -140, commerceTop: 49.5, brandBottom: 49.5 })
+  expect(relative).toEqual({ mobileTop: 114.59375, mobileRight: -112, commerceTop: 49.5, brandBottom: 49.5 })
   expect(geometry.brand).toMatchObject({ height: 214.453125 })
   expect(geometry.scrollCue).toMatchObject({ right: 82, bottom: 26 })
   expect(overall.percent).toBeLessThanOrEqual(1)
