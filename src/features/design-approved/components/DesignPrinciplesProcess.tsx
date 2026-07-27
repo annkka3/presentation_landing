@@ -27,7 +27,7 @@ export function DesignPrinciplesProcess({ locale }: { locale: DesignApprovedLoca
   }
 
   return (
-    <section id="design-principles" className="design-approved-chapter design-approved-principles" data-chapter="9" aria-label={locale === 'ru' ? 'Принципы и процесс' : 'Principles and process'}>
+    <section id="design-principles" className="design-approved-chapter design-approved-principles" data-chapter="11" aria-label={locale === 'ru' ? 'Принципы и процесс' : 'Principles and process'}>
       <div className="design-approved-principles__block">
         <h2>{text.principlesHeading}</h2>
         <div className="design-approved-principles__grid">

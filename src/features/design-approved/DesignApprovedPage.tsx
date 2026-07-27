@@ -182,8 +182,8 @@ export default function DesignApprovedPage() {
       const hashIndex = DESIGN_APPROVED_CHAPTERS.findIndex((chapter) => `#${chapter.id}` === location.hash)
       const currentIndex = hashIndex >= 0 ? hashIndex : activeChapter
       if (event.key === 'Home') navigateToChapter(0)
-      else if (event.key === 'End') navigateToChapter(9)
-      else navigateToChapter(Math.max(0, Math.min(9, currentIndex + (event.key === 'PageDown' ? 1 : -1))))
+      else if (event.key === 'End') navigateToChapter(DESIGN_APPROVED_CHAPTERS.length - 1)
+      else navigateToChapter(Math.max(0, Math.min(DESIGN_APPROVED_CHAPTERS.length - 1, currentIndex + (event.key === 'PageDown' ? 1 : -1))))
     }
     window.addEventListener('keydown', handleChapterKeys)
     return () => window.removeEventListener('keydown', handleChapterKeys)

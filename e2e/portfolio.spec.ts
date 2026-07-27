@@ -269,16 +269,16 @@ test('homepage owns seven stable editorial scenes and route-scoped state', async
   await expect(page.locator('html')).not.toHaveAttribute('data-page')
 })
 
-test('design route loads independently with ten chapters and preserved app controls', async ({ page }) => {
+test('design route loads independently with twelve chapters and preserved app controls', async ({ page }) => {
   const errors: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/design')
   await expect(page.locator('html')).toHaveAttribute('data-page', 'design')
   await expect(page.getByRole('heading', { level: 1, name: /Создаю визуальные/ })).toBeVisible()
-  await expect(page.locator('.design-approved-page [data-chapter]')).toHaveCount(10)
+  await expect(page.locator('.design-approved-page [data-chapter]')).toHaveCount(12)
   await expect(page.locator('.design-approved-chapter-rail__current')).toHaveText('01')
-  await expect(page.locator('.design-approved-chapter-rail')).toContainText('10')
+  await expect(page.locator('.design-approved-chapter-rail')).toContainText('12')
   await expect(page.locator('.design-approved-hero-header')).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link', { name: 'Design' })).toHaveAttribute('aria-current', 'page')
   await expect(page.locator('.design-approved-hero-resume')).toHaveCount(0)
@@ -297,8 +297,8 @@ test('design route supports direct hashes, rail navigation, browser back and no 
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/design#design-motion')
   await expect(page.locator('#design-motion')).toBeInViewport()
-  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('08')
-  await page.getByRole('button', { name: /10: Contact|10: Контакт/ }).click()
+  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('10')
+  await page.getByRole('button', { name: /12: Contact|12: Контакт/ }).click()
   await expect(page).toHaveURL(/\/design#design-tools$/)
   await expect(page.locator('#design-tools')).toBeInViewport()
 
@@ -328,10 +328,10 @@ test('canonical design route isolates the exact approved hero', async ({ page })
   await expect(page.locator('html')).toHaveAttribute('data-page', 'design')
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru')
   await expect(page.getByRole('heading', { level: 1, name: /Создаю визуальные/ })).toBeVisible()
-  await expect(page.getByText('01 / 10')).toBeVisible()
+  await expect(page.getByText('01 / 12')).toBeVisible()
   await expect(page.locator('.site-header, .floating-character, .glass-panel, [class*="character-wrapper"], [class*="character-badge"]')).toHaveCount(0)
   await expect(page.locator('.design-approved-hero-header')).toBeVisible()
-  await expect(page.locator('.design-approved-chapter-rail__track button')).toHaveCount(10)
+  await expect(page.locator('.design-approved-chapter-rail__track button')).toHaveCount(12)
 
   const geometry = await page.evaluate(() => {
     const rect = (selector: string) => {

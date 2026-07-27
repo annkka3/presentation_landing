@@ -4,7 +4,7 @@ import type { DesignApprovedLocale } from '../designApprovedTypes'
 export function DesignVisualSystemRail({ locale }: { locale: DesignApprovedLocale }) {
   const text = UI_TEXT[locale]
   return (
-    <section id="design-visual-system" className="design-approved-chapter design-approved-visual-system" data-chapter="6" aria-labelledby="design-visual-system-title">
+    <section id="design-visual-system" className="design-approved-chapter design-approved-visual-system" data-chapter="8" aria-labelledby="design-visual-system-title">
       <h2 id="design-visual-system-title">{text.railHeading}</h2>
       <p className="design-approved-visual-system__lede">{text.railSub}</p>
       <p className="design-approved-visual-system__label">{text.railProjectLabel}</p>

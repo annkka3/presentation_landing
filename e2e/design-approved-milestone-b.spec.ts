@@ -14,8 +14,8 @@ test('chapters 2–5 expose the approved structure and exact content', async ({ 
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/design')
 
-  await expect(page.getByText('01 / 10')).toBeVisible()
-  await expect(page.locator('[data-chapter]')).toHaveCount(10)
+  await expect(page.getByText('01 / 12')).toBeVisible()
+  await expect(page.locator('[data-chapter]')).toHaveCount(12)
   for (const id of ['design-directions', 'design-fashion-system', 'design-fashion-pipeline', 'design-brand-systems']) {
     await expect(page.locator(`#${id}`)).toHaveCount(1)
   }
@@ -25,8 +25,9 @@ test('chapters 2–5 expose the approved structure and exact content', async ({ 
   await expect(page.locator('#design-fashion-pipeline')).toContainText('Период теста — 14 дней')
   await expect(page.locator('#design-fashion-pipeline')).not.toContainText(/CTR|conversion|побед|uplift/i)
   await expect(page.locator('#design-brand-systems')).toContainText('Eufashion Glasses — Luxury E-commerce System')
-  await expect(page.locator('#design-brand-systems')).toContainText('Maison Noiree')
-  await expect(page.locator('#design-brand-systems')).toContainText('Anna Gromyko Portfolio')
+  await expect(page.locator('#design-brand-systems')).not.toContainText('Maison Noiree')
+  await expect(page.locator('#design-maison-noiree')).toContainText('Maison Noiree')
+  await expect(page.locator('#design-portfolio')).toContainText('Anna Gromyko Portfolio')
   await expect(page.locator('.floating-character, .glass-panel, [class*="character-wrapper"], [class*="character-badge"]')).toHaveCount(0)
   expect(errors).toEqual([])
 })
@@ -122,25 +123,29 @@ test('chapter geometry, routes, rail availability, hash navigation and theme are
     return {
       pipeline: ratio('.design-approved-pipeline__lead-media'),
       ab: ratio('.design-approved-pipeline__ab-media'),
+      pipelineTop: document.querySelector<HTMLElement>('.design-approved-pipeline__lead-media')!.getBoundingClientRect().top,
+      abTop: document.querySelector<HTMLElement>('.design-approved-pipeline__ab-media')!.getBoundingClientRect().top,
       eufashion: ratio('.design-approved-brand-systems__feature-media'),
       snap: getComputedStyle(document.querySelector('.design-approved-page')!).scrollSnapType,
     }
   })
   expect(geometry.pipeline).toBeCloseTo(1.5, 2)
   expect(geometry.ab).toBeCloseTo(1, 2)
+  expect(Math.abs(geometry.pipelineTop - geometry.abTop)).toBeLessThanOrEqual(0.5)
   expect(geometry.eufashion).toBeCloseTo(1000 / 588, 2)
   expect(geometry.snap).toBe('y mandatory')
 
   const railButtons = page.locator('.design-approved-chapter-rail__track button')
-  await expect(railButtons).toHaveCount(10)
-  for (let index = 0; index < 10; index += 1) await expect(railButtons.nth(index)).toBeEnabled()
+  await expect(railButtons).toHaveCount(12)
+  for (let index = 0; index < 12; index += 1) await expect(railButtons.nth(index)).toBeEnabled()
   await railButtons.nth(4).click()
   await expect(page).toHaveURL(/#design-brand-systems$/)
   await expect(page.locator('#design-brand-systems')).toBeInViewport()
   await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('05')
 
   await expect(page.locator('.design-approved-brand-systems__feature')).toHaveAttribute('href', '/projects/eufashion-glasses')
-  await expect(page.locator('.design-approved-brand-systems__grid a').nth(0)).toHaveAttribute('href', '/cases/the-dao-way')
+  await expect(page.locator('#design-maison-noiree > a')).toHaveAttribute('href', '/cases/the-dao-way')
+  await expect(page.locator('#design-portfolio > a')).toHaveAttribute('href', '/')
 
   await railButtons.nth(0).click()
   await expect.poll(() => page.locator('.design-approved-page').evaluate((element) => Math.round(element.scrollTop))).toBe(0)
@@ -161,7 +166,7 @@ test('mobile chapters stack without horizontal overflow and reduced motion disab
   await expect(page.locator('.design-approved-chapter-rail')).toBeHidden()
   await expect(page.locator('.design-approved-directions__grid')).toHaveCSS('grid-template-columns', '354px')
   await expect(page.locator('.design-approved-pipeline__grid')).toHaveCSS('grid-template-columns', '354px')
-  await expect(page.locator('.design-approved-brand-systems__grid')).toHaveCSS('grid-template-columns', '354px')
+  await expect(page.locator('.design-approved-brand-case').first().locator('> a')).toHaveCSS('grid-template-columns', '354px')
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(0)
 

@@ -8,6 +8,8 @@ interface DesignChapterRailProps {
 }
 
 export function DesignChapterRail({ locale, activeChapter, onNavigate }: DesignChapterRailProps) {
+  const lastChapterIndex = DESIGN_APPROVED_CHAPTERS.length - 1
+
   return (
     <nav className="design-approved-chapter-rail" data-on-hero={activeChapter === 0} data-active-chapter={activeChapter + 1} aria-label={locale === 'ru' ? 'Навигация Design Page' : 'Design page navigation'}>
       <span className="design-approved-chapter-rail__current">{String(activeChapter + 1).padStart(2, '0')}</span>
@@ -18,13 +20,13 @@ export function DesignChapterRail({ locale, activeChapter, onNavigate }: DesignC
             type="button"
             aria-label={`${locale === 'ru' ? 'Перейти к разделу' : 'Go to chapter'} ${index + 1}: ${chapter.label[locale]}`}
             aria-current={index === activeChapter ? 'step' : undefined}
-            style={{ top: `${index / 9 * 100}%` }}
+            style={{ top: `${index / lastChapterIndex * 100}%` }}
             onClick={() => onNavigate(index)}
           />
         ))}
-        <i aria-hidden="true" style={{ top: `${activeChapter / 9 * 100}%` }} />
+        <i aria-hidden="true" style={{ top: `${activeChapter / lastChapterIndex * 100}%` }} />
       </div>
-      <span>10</span>
+      <span>{DESIGN_APPROVED_CHAPTERS.length}</span>
     </nav>
   )
 }

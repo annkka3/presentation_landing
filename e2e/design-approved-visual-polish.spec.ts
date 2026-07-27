@@ -126,7 +126,7 @@ test('polish matrix has no overflow, collisions, broken media or character nodes
 
   await page.goto('/design#design-motion')
   await expect(page.locator('#design-motion')).toBeInViewport()
-  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('08')
+  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('10')
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.reload()
   await expect(page.locator('.design-approved-page')).toHaveCSS('scroll-snap-type', 'none')

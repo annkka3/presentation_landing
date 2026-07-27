@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../../app/AppContext'
 import { DESIGN_APPROVED_ASSETS as A } from '../designApprovedAssets'
-import { HERO_DIRECTIONS, PROOF_POINTS, UI_TEXT } from '../designApprovedContent'
+import { DESIGN_APPROVED_CHAPTERS, HERO_DIRECTIONS, PROOF_POINTS, UI_TEXT } from '../designApprovedContent'
 
 export function DesignHero() {
   const { locale, setLocale, theme, toggleTheme } = useApp()
@@ -123,7 +123,7 @@ export function DesignHero() {
       </div>
 
       <div className="design-approved-hero-scroll-cue">
-        <span>01 / 10</span>
+        <span>01 / {DESIGN_APPROVED_CHAPTERS.length}</span>
         <b>{text.scrollHint} ↓</b>
       </div>
     </section>

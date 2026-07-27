@@ -13,7 +13,7 @@ describe('DesignApprovedPage milestone A', () => {
     render(<MemoryRouter><AppProvider><DesignApprovedPage /></AppProvider></MemoryRouter>)
 
     expect(screen.getByRole('heading', { level: 1, name: /Создаю визуальные/ })).toBeInTheDocument()
-    expect(screen.getByText('01 / 10')).toBeInTheDocument()
+    expect(screen.getByText('01 / 12')).toBeInTheDocument()
     expect(document.querySelector('.floating-character')).not.toBeInTheDocument()
     expect(document.querySelector('.glass-panel')).not.toBeInTheDocument()
 

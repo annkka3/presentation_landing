@@ -10,21 +10,21 @@ async function openCanonicalDesign(page: Page, hash = '') {
   await expect(page.locator('.design-approved-page')).toBeVisible()
 }
 
-test('chapters 6 and 7 preserve approved editorial structures and honest claims', async ({ page }) => {
+test('chapters 8 and 9 preserve approved editorial structures and honest claims', async ({ page }) => {
   const errors: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) })
   page.on('pageerror', (error) => errors.push(error.message))
   await openCanonicalDesign(page, '#design-visual-system')
 
-  await expect(page.locator('[data-chapter]')).toHaveCount(10)
+  await expect(page.locator('[data-chapter]')).toHaveCount(12)
   await expect(page.locator('#design-visual-system')).toBeInViewport()
   await expect(page.locator('.design-approved-production-rail article')).toHaveCount(4)
   await expect(page.locator('.design-approved-production-rail article').nth(0)).toContainText('01 SOURCE')
   await expect(page.locator('.design-approved-production-rail article').nth(3)).toContainText('04 SYSTEM')
-  await page.getByRole('button', { name: /6: Система/ }).click()
-  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('06')
+  await page.getByRole('button', { name: /8: Система/ }).click()
+  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('08')
 
-  await page.getByRole('button', { name: /7: Коммерция/ }).click()
+  await page.getByRole('button', { name: /9: Коммерция/ }).click()
   await expect(page.locator('#design-marketplace')).toBeInViewport()
   await expect(page.locator('.design-approved-commercial__grid > a')).toHaveCount(3)
   await expect(page.locator('.design-approved-commercial__grid')).not.toContainText(/CTR|conversion rate|sales uplift|рост продаж|победивший/i)
@@ -46,7 +46,7 @@ test('motion video control is accessible, muted and pauses outside viewport', as
   await playButton.press('Enter')
   await expect(playButton).toHaveAttribute('aria-pressed', 'true')
   expect(await poster.locator('video').evaluate((video: HTMLVideoElement) => video.paused)).toBe(false)
-  await page.getByRole('button', { name: /10: Контакт/ }).click()
+  await page.getByRole('button', { name: /12: Контакт/ }).click()
   await expect(poster).not.toBeInViewport()
   await expect(poster.locator('video')).toHaveCount(0)
 
@@ -79,11 +79,11 @@ test('principles and process remain independent semantic state systems', async (
   await expect(process.nth(0)).toBeFocused()
 })
 
-test('chapter 10 contains tools, CTA and footer, and its actions work', async ({ page }) => {
+test('chapter 12 contains tools, CTA and footer, and its actions work', async ({ page }) => {
   await openCanonicalDesign(page, '#design-tools')
   await expect(page.locator('.design-approved-tools__outputs span')).toHaveCount(8)
   await expect(page.locator('.design-approved-tools__groups > div')).toHaveCount(4)
-  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('10')
+  await expect.poll(() => page.locator('.design-approved-chapter-rail__current').textContent()).toBe('12')
 
   const primaryHref = await page.locator('.design-approved-final-cta__actions a').nth(0).getAttribute('href')
   const secondaryHref = await page.locator('.design-approved-final-cta__actions a').nth(1).getAttribute('href')
@@ -106,7 +106,7 @@ test('chapter 10 contains tools, CTA and footer, and its actions work', async ({
   await expect.poll(() => page.locator('.design-approved-page').evaluate((element) => Math.round(element.scrollTop))).toBe(0)
 })
 
-test('all hashes, rail navigation and page keys cover chapters 1–10', async ({ page }) => {
+test('all hashes, rail navigation and page keys cover chapters 1–12', async ({ page }) => {
   await openCanonicalDesign(page, '#design-visual-system')
   for (const id of ['design-visual-system', 'design-marketplace', 'design-motion', 'design-principles', 'design-tools']) {
     await page.goto(`/design#${id}`)
@@ -129,7 +129,7 @@ test('theme, locale, reduced motion and responsive matrix remain safe', async ({
   await openCanonicalDesign(page)
   await page.getByRole('button', { name: 'Переключить тему' }).click()
   await page.getByRole('button', { name: 'EN' }).click()
-  await page.getByRole('button', { name: /6: System Method/ }).click()
+  await page.getByRole('button', { name: /8: System Method/ }).click()
   await expect(page.locator('#design-visual-system h2')).toHaveText('How a visual becomes a system')
   await expect(page.locator('#design-visual-system')).toHaveCSS('background-color', 'rgb(17, 17, 15)')
   await page.reload()

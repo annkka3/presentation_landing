@@ -69,7 +69,7 @@ export function DesignMotion({ locale }: { locale: DesignApprovedLocale }) {
   }, [])
 
   return (
-    <section id="design-motion" className="design-approved-chapter design-approved-motion" data-chapter="8" aria-labelledby="design-motion-title">
+    <section id="design-motion" className="design-approved-chapter design-approved-motion" data-chapter="10" aria-labelledby="design-motion-title">
       <span className="design-approved-motion__thesis">{text.motionThesis}</span>
       <h2 id="design-motion-title">{text.motionHeading}</h2>
       <p className="design-approved-chapter-lede">{text.motionSub}</p>

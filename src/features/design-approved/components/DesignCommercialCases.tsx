@@ -4,7 +4,7 @@ import type { DesignApprovedLocale } from '../designApprovedTypes'
 export function DesignCommercialCases({ locale }: { locale: DesignApprovedLocale }) {
   const text = UI_TEXT[locale]
   return (
-    <section id="design-marketplace" className="design-approved-chapter design-approved-commercial" data-chapter="7" aria-labelledby="design-commercial-title">
+    <section id="design-marketplace" className="design-approved-chapter design-approved-commercial" data-chapter="9" aria-labelledby="design-commercial-title">
       <h2 id="design-commercial-title">{text.commercialHeading}</h2>
       <p className="design-approved-chapter-lede">{text.commercialSub}</p>
       <div className="design-approved-commercial__grid">

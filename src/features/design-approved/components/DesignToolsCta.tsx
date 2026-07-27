@@ -19,7 +19,7 @@ export function DesignToolsCta({ locale }: { locale: DesignApprovedLocale }) {
     requestAnimationFrame(focusWhenReady)
   }
   return (
-    <section id="design-tools" className="design-approved-chapter design-approved-tools" data-chapter="10" aria-labelledby="design-tools-title">
+    <section id="design-tools" className="design-approved-chapter design-approved-tools" data-chapter="12" aria-labelledby="design-tools-title">
       <div className="design-approved-tools__content">
         <h2 id="design-tools-title">{text.toolsHeading}</h2>
         <div className="design-approved-tools__grid">
