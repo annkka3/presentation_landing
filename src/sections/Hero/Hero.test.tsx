@@ -83,6 +83,7 @@ describe('Hero video playback', () => {
 
   it('renders the approved video and poster mapping', () => {
     renderHero()
+    expect(document.querySelector('.hero-system-pulse')).not.toBeInTheDocument()
     const videos = [...document.querySelectorAll<HTMLVideoElement>('.hero-panel video')]
     expect(videos).toHaveLength(4)
     videos.forEach((video, index) => {

@@ -162,7 +162,6 @@ export function Hero() {
             </span>
           </a>
         })}
-          <span className="hero-system-pulse" aria-hidden="true" />
         </div>
       </div>
     </Container>

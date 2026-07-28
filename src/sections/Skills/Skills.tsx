@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext'
 import { Container } from '../../components/layout/Container'
@@ -12,36 +12,40 @@ function SystemDiagram({ system }: { system: BuildSystem }) {
     <span className="build-diagram-coordinate">{system.coordinate}</span>
     <svg viewBox="0 0 360 300" focusable="false">
       {system.key === 'product' && <g className="build-diagram-product">
-        <rect x="48" y="62" width="86" height="58" rx="3" />
-        <rect x="226" y="54" width="84" height="66" rx="3" />
-        <rect x="136" y="190" width="90" height="58" rx="3" />
-        <path d="M134 91H226M91 120l90 70m87-70-87 70" />
-        <circle cx="181" cy="154" r="15" />
-        <circle className="build-diagram-signal" cx="181" cy="154" r="4" />
+        <rect className="diagram-node diagram-step-1" x="48" y="62" width="86" height="58" rx="3" />
+        <rect className="diagram-node diagram-step-2" x="226" y="54" width="84" height="66" rx="3" />
+        <circle className="diagram-product-core diagram-step-3" cx="181" cy="154" r="15" />
+        <path className="diagram-path diagram-step-4" pathLength="1" d="M134 91H226M91 120l90 70m87-70-87 70" />
+        <rect className="diagram-node diagram-product-result diagram-step-5" x="136" y="190" width="90" height="58" rx="3" />
+        <circle className="build-diagram-signal diagram-step-6" cx="181" cy="154" r="4" />
       </g>}
       {system.key === 'visual' && <g className="build-diagram-visual">
-        <rect x="62" y="50" width="202" height="148" rx="4" />
-        <rect x="96" y="84" width="202" height="148" rx="4" />
-        <path d="M118 122h98M118 146h152M118 170h78" />
-        <path className="build-diagram-accent" d="M56 246c70-54 139-12 246-90" />
+        <rect className="diagram-visual-layer diagram-step-1" x="62" y="50" width="202" height="148" rx="4" />
+        <rect className="diagram-visual-layer diagram-step-2" x="96" y="84" width="202" height="148" rx="4" />
+        <path className="diagram-visual-line diagram-step-3" pathLength="1" d="M118 122h98" />
+        <path className="diagram-visual-line diagram-step-4" pathLength="1" d="M118 146h152" />
+        <path className="diagram-visual-line diagram-step-5" pathLength="1" d="M118 170h78" />
+        <path className="build-diagram-accent diagram-path diagram-step-6" pathLength="1" d="M56 246c70-54 139-12 246-90" />
+        <circle className="build-diagram-signal diagram-step-7" cx="302" cy="156" r="4" />
       </g>}
       {system.key === 'automation' && <g className="build-diagram-automation">
-        <circle cx="62" cy="150" r="20" />
-        <circle cx="180" cy="150" r="29" />
-        <circle cx="298" cy="150" r="20" />
-        <path d="M82 150h69M209 150h69" />
-        <path d="m132 136 19 14-19 14M259 136l19 14-19 14" />
-        <circle className="build-diagram-signal" cx="112" cy="150" r="5" />
-        <path className="build-diagram-accent" d="M180 121V72h88" />
+        <circle className="diagram-node diagram-step-1" cx="62" cy="150" r="20" />
+        <circle className="diagram-node diagram-step-2" cx="180" cy="150" r="29" />
+        <circle className="diagram-node diagram-step-3" cx="298" cy="150" r="20" />
+        <path className="diagram-path diagram-step-2" pathLength="1" d="M82 150h69" />
+        <path className="diagram-path diagram-step-3" pathLength="1" d="M209 150h69" />
+        <path className="diagram-path diagram-step-3" pathLength="1" d="m132 136 19 14-19 14M259 136l19 14-19 14" />
+        <path className="build-diagram-accent diagram-path diagram-step-4" pathLength="1" d="M180 121V72h88" />
+        <circle className="build-diagram-signal diagram-automation-impulse diagram-step-5" cx="82" cy="150" r="5" />
       </g>}
       {system.key === 'analytics' && <g className="build-diagram-analytics">
-        <path d="M52 238V62M52 238h260" />
-        <rect x="86" y="174" width="28" height="64" />
-        <rect x="142" y="138" width="28" height="100" />
-        <rect x="198" y="158" width="28" height="80" />
-        <rect x="254" y="90" width="28" height="148" />
-        <path className="build-diagram-accent" d="m74 192 82-70 56 24 70-82" />
-        <circle className="build-diagram-signal" cx="282" cy="64" r="8" />
+        <path className="diagram-path diagram-analytics-axis diagram-step-1" pathLength="1" d="M52 238V62M52 238h260" />
+        <rect className="diagram-analytics-bar diagram-step-2" x="86" y="174" width="28" height="64" />
+        <rect className="diagram-analytics-bar diagram-step-3" x="142" y="138" width="28" height="100" />
+        <rect className="diagram-analytics-bar diagram-step-4" x="198" y="158" width="28" height="80" />
+        <rect className="diagram-analytics-bar diagram-step-5" x="254" y="90" width="28" height="148" />
+        <path className="build-diagram-accent diagram-path diagram-step-6" pathLength="1" d="m74 192 82-70 56 24 70-82" />
+        <circle className="build-diagram-signal diagram-step-7" cx="282" cy="64" r="8" />
       </g>}
     </svg>
     <div className="build-diagram-legend"><span>INPUT</span><i /><span>OUTCOME</span></div>
@@ -51,8 +55,33 @@ function SystemDiagram({ system }: { system: BuildSystem }) {
 export function WhatIBuild() {
   const { locale, t } = useApp()
   const [active, setActive] = useState(0)
+  const [selected, setSelected] = useState(0)
+  const [transitionPhase, setTransitionPhase] = useState<'idle' | 'out' | 'in'>('in')
+  const swapTimer = useRef<number | undefined>(undefined)
+  const settleTimer = useRef<number | undefined>(undefined)
   const [ref, visible] = useIntersectionReveal<HTMLElement>()
   const system = buildSystems[active]
+
+  useEffect(() => {
+    settleTimer.current = window.setTimeout(() => setTransitionPhase('idle'), 490)
+    return () => {
+      clearTimeout(swapTimer.current)
+      clearTimeout(settleTimer.current)
+    }
+  }, [])
+
+  const selectSystem = (index: number) => {
+    if (index === selected) return
+    clearTimeout(swapTimer.current)
+    clearTimeout(settleTimer.current)
+    setSelected(index)
+    setTransitionPhase('out')
+    swapTimer.current = window.setTimeout(() => {
+      setActive(index)
+      setTransitionPhase('in')
+      settleTimer.current = window.setTimeout(() => setTransitionPhase('idle'), 490)
+    }, 160)
+  }
 
   return <section className={`section what-i-build-section ${visible ? 'is-visible' : ''}`} ref={ref}>
     <Container>
@@ -60,22 +89,23 @@ export function WhatIBuild() {
         <div><span className="section-eyebrow">{t.whatIBuildEyebrow}</span><h2>{t.expertise}</h2></div>
         <p>{t.whatIBuildIntro}</p>
       </header>
-      <div className="what-i-build-layout" style={{ '--build-accent': system.accent } as React.CSSProperties}>
-        <div className="build-system-index" role="list" aria-label={t.expertise}>
+      <div className={`what-i-build-layout build-transition-${transitionPhase}`} style={{ '--build-accent': system.accent } as React.CSSProperties}>
+        <div className="build-system-index" role="tablist" aria-label={t.expertise}>
           {buildSystems.map((item, index) => <button
             key={item.key}
+            id={`build-system-tab-${item.key}`}
             type="button"
-            className={active === index ? 'is-active' : ''}
-            onMouseEnter={() => setActive(index)}
-            onFocus={() => setActive(index)}
-            onClick={() => setActive(index)}
-            aria-pressed={active === index}
+            role="tab"
+            className={selected === index ? 'is-active' : ''}
+            onClick={() => selectSystem(index)}
+            aria-selected={selected === index}
             aria-controls="active-build-system"
+            style={{ '--tab-accent': item.accent } as React.CSSProperties}
           >
             <span>{item.num}</span><strong>{item.title[locale]}</strong><i aria-hidden="true">↗</i>
           </button>)}
         </div>
-        <article className="build-system-content" id="active-build-system" aria-live="polite">
+        <article className="build-system-content" id="active-build-system" role="tabpanel" aria-labelledby={`build-system-tab-${system.key}`} aria-live="polite" aria-busy={transitionPhase !== 'idle'}>
           <span className="build-system-kicker">{system.coordinate}</span>
           <h3>{system.title[locale]}</h3>
           <div className="build-output-list">

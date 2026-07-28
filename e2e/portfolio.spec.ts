@@ -234,9 +234,20 @@ test('What I Build reorganizes two concrete outputs and Featured keeps DAO SYSTE
   await expect(page.getByRole('heading', { level: 2, name: 'Что я создаю' })).toBeVisible()
   await expect(page.locator('.build-system-index button')).toHaveCount(4)
   await expect(page.locator('#active-build-system .build-output-list > div')).toHaveCount(2)
-  await page.getByRole('button', { name: '02 ВИЗУАЛЬНЫЕ СИСТЕМЫ' }).click()
+  const productTab = page.getByRole('tab', { name: '01 ПРОДУКТОВЫЕ СИСТЕМЫ' })
+  const visualTab = page.getByRole('tab', { name: '02 ВИЗУАЛЬНЫЕ СИСТЕМЫ' })
+  const diagramBefore = await page.locator('.build-diagram').boundingBox()
+  await visualTab.hover()
+  await expect(productTab).toHaveAttribute('aria-selected', 'true')
+  await visualTab.click()
+  await expect(visualTab).toHaveAttribute('aria-selected', 'true')
+  await expect(visualTab).toHaveAttribute('aria-controls', 'active-build-system')
   await expect(page.locator('#active-build-system')).toContainText('Лендинги, воронки и commerce')
   await expect(page.locator('.build-diagram')).toHaveClass(/build-diagram--visual/)
+  const diagramAfter = await page.locator('.build-diagram').boundingBox()
+  expect(diagramAfter).toEqual(diagramBefore)
+  const diagramAnimationCounts = await page.locator('.build-diagram g > *').evaluateAll((items) => items.map((item) => getComputedStyle(item).animationIterationCount))
+  expect(diagramAnimationCounts).not.toContain('infinite')
 
   await page.goto('/#featured')
   await expect(page.locator('.featured-archive .project-card')).toHaveCount(4)
@@ -250,6 +261,32 @@ test('What I Build reorganizes two concrete outputs and Featured keeps DAO SYSTE
   expect(hierarchy).toBeGreaterThan(.55)
   expect(hierarchy).toBeLessThan(.66)
   await expect(page.locator('.featured-archive>.is-lead-case')).toContainText('DAO SYSTEM')
+})
+
+test('homepage motion polish removes ambient particles and respects reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#skills')
+  await expect(page.locator('.hero-system-pulse, .mobile-hero-system-pulse')).toHaveCount(0)
+  const heroMotion = await page.locator('.hero-panel').evaluateAll((panels) => panels.map((panel) => {
+    const style = getComputedStyle(panel)
+    return { animation: style.animationName, transform: style.transform }
+  }))
+  expect(heroMotion.every((item) => item.animation === 'hero-panel-fade')).toBe(true)
+  expect(heroMotion.every((item) => item.transform === 'none')).toBe(true)
+
+  await page.getByRole('tab', { name: '03 СИСТЕМЫ АВТОМАТИЗАЦИИ' }).click()
+  await expect(page.locator('#active-build-system')).toContainText('AI-автоматизация и агенты')
+  const reducedDiagram = await page.locator('.build-diagram').evaluate((diagram) => {
+    const paths = [...diagram.querySelectorAll<SVGElement>('.diagram-path')]
+    const impulse = diagram.querySelector<SVGElement>('.diagram-automation-impulse')
+    return {
+      pathsVisible: paths.every((path) => getComputedStyle(path).strokeDashoffset === '0px'),
+      impulseOpacity: impulse ? getComputedStyle(impulse).opacity : null,
+    }
+  })
+  expect(reducedDiagram.pathsVisible).toBe(true)
+  expect(reducedDiagram.impulseOpacity).toBe('0')
 })
 
 test('homepage owns seven stable editorial scenes and route-scoped state', async ({ page }) => {

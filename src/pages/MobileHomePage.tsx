@@ -50,7 +50,6 @@ function MobileHero({ onExplore, onWork }: { onExplore: () => void; onWork: () =
       </div>
       <button className="mobile-hero-state-arrow is-prev" type="button" onClick={() => selectAdjacent(-1)} aria-label={locale === 'ru' ? 'Предыдущее направление' : 'Previous direction'}>←</button>
       <button className="mobile-hero-state-arrow is-next" type="button" onClick={() => selectAdjacent(1)} aria-label={locale === 'ru' ? 'Следующее направление' : 'Next direction'}>→</button>
-      <span className="mobile-hero-system-pulse" aria-hidden="true" />
     </div>
     <div className="mobile-hero-system-tabs" role="tablist" aria-label={t.heroGroup}>
       {heroModes.map((item, index) => <button key={item.key} type="button" role="tab" aria-selected={active === index} onClick={() => setActive(index)}><span>{item.num}</span>{item.title[locale]}</button>)}

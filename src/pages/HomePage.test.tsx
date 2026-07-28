@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AppProvider } from '../app/AppContext'
@@ -37,6 +37,18 @@ describe('homepage editorial chapters', () => {
     expect(document.querySelector('.scene-footer')).toHaveTextContent('ПРОКРУТИТЕ ДАЛЬШЕ')
   })
 
+  it('keeps Chapter 02 selection click-driven and semantically exposed', async () => {
+    render(<MemoryRouter><AppProvider><HomePage /></AppProvider></MemoryRouter>)
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>('.build-system-index [role="tab"]')]
+    expect(tabs).toHaveLength(4)
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    fireEvent.mouseEnter(tabs[1])
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    fireEvent.click(tabs[1])
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
+    await waitFor(() => expect(document.querySelector('#active-build-system')).toHaveTextContent('ВИЗУАЛЬНЫЕ СИСТЕМЫ'))
+  })
+
   it('renders the purpose-built mobile chapter track and compact controls', () => {
     const originalMatchMedia = window.matchMedia
     Object.defineProperty(window, 'matchMedia', {
@@ -57,6 +69,7 @@ describe('homepage editorial chapters', () => {
     expect(document.querySelectorAll('.mobile-chapter-track > .mobile-chapter')).toHaveLength(8)
     expect(document.querySelectorAll('.mobile-direction-tile')).toHaveLength(4)
     expect(document.querySelectorAll('.mobile-hero-system img')).toHaveLength(1)
+    expect(document.querySelector('.mobile-hero-system-pulse')).not.toBeInTheDocument()
     expect(document.querySelector('.mobile-hero-data-layer')).not.toBeInTheDocument()
     expect(document.querySelector('.mobile-hero-interface-layer')).not.toBeInTheDocument()
     expect(document.querySelectorAll('.mobile-hero-system-tabs [role="tab"]')).toHaveLength(4)

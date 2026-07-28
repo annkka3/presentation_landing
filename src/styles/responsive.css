@@ -396,7 +396,6 @@
   .mobile-hero-state-arrow{position:absolute;z-index:5;top:10px;width:44px;height:44px;padding:0;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(3,6,7,.34);color:#fff;font-size:13px}
   .mobile-hero-state-arrow.is-prev{left:10px}
   .mobile-hero-state-arrow.is-next{right:10px}
-  .mobile-hero-system-pulse{position:absolute;z-index:3;top:44%;left:5%;width:7px;height:7px;border-radius:50%;background:var(--mode-accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--mode-accent) 14%,transparent);animation:mobile-system-pulse 6.8s var(--ease-premium) infinite}
   .mobile-hero-system-tabs{height:44px;margin-top:6px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
   .mobile-hero-system-tabs button{position:relative;min-width:0;min-height:44px;padding:0 3px;border:0;border-right:1px solid var(--border);background:transparent;color:var(--text-muted);font:500 clamp(6.8px,1.9vw,8px)/1 var(--font-mono);letter-spacing:.04em;overflow:hidden;text-overflow:clip;white-space:nowrap}
   .mobile-hero-system-tabs button:last-child{border-right:0}
@@ -408,7 +407,6 @@
   .mobile-hero-actions button.is-primary{border-color:color-mix(in srgb,var(--gold) 72%,var(--border));background:color-mix(in srgb,var(--gold) 10%,transparent)}
   .mobile-hero-actions button span{font-size:13px}
   @keyframes mobile-system-image-in{from{opacity:.5;transform:scale(1.035)}to{opacity:1;transform:scale(1.01)}}
-  @keyframes mobile-system-pulse{0%,10%{left:5%;opacity:0}20%{opacity:1}84%{opacity:.75}94%,100%{left:94%;opacity:0}}
 
   #skills .mobile-chapter-content{padding-top:18px}
   #skills .mobile-chapter-navigation-slot{padding-top:8px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
@@ -450,7 +448,7 @@
 }
 
 @media (prefers-reduced-motion:reduce) and (max-width:767px){
-  .mobile-hero-system>img,.mobile-hero-system-pulse{animation:none!important;transform:none!important}
+  .mobile-hero-system>img{animation:none!important;transform:none!important}
 }
 
 /* Correction pass mobile safe areas */
