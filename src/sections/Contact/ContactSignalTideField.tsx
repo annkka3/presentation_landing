@@ -10,6 +10,7 @@ type TideParticle = {
   id: number
   anchorX: number
   anchorY: number
+  fade: number
   x: number
   y: number
   velocityX: number
@@ -30,50 +31,54 @@ const hash = (value: number) => {
 }
 
 function getParticleCount(viewportWidth: number, mobile: boolean) {
-  if (mobile || viewportWidth <= 767) return 28
-  if (viewportWidth <= 1279) return 58
-  if (viewportWidth >= 1680) return 110
-  return 108
+  if (mobile || viewportWidth <= 767) return 220
+  if (viewportWidth <= 1279) return 1300
+  if (viewportWidth >= 1680) return 3200
+  return 2800
 }
 
 function getShape(index: number): Shape {
   const slot = (index * 37) % 100
-  if (slot < 40) return 'dot'
-  if (slot < 65) return 'square'
-  if (slot < 87) return 'dash'
-  if (slot < 95) return 'diamond'
+  if (slot < 48) return 'dot'
+  if (slot < 72) return 'square'
+  if (slot < 88) return 'dash'
+  if (slot < 96) return 'diamond'
   return 'plus'
 }
 
 function createTide(width: number, height: number, viewportWidth: number, mobile: boolean) {
   const count = getParticleCount(viewportWidth, mobile)
-  const rowCount = mobile ? 4 : viewportWidth <= 1279 ? 6 : 7
+  const rowCount = mobile ? 12 : viewportWidth <= 1279 ? 22 : 34
   const columnCount = Math.ceil(count / rowCount)
   return Array.from({ length: count }, (_, index): TideParticle => {
     const row = index % rowCount
     const column = Math.floor(index / rowCount)
-    const distribution = (column + .18 + hash(index + 11) * .64) / columnCount
-    const normalizedX = .018 + Math.pow(distribution, .88) * .964
-    const centerRise = Math.exp(-Math.pow((normalizedX - .52) / .18, 2)) * .16
-    const rightRise = Math.exp(-Math.pow((normalizedX - .82) / .17, 2)) * .31
-    const rightFall = Math.exp(-Math.pow((normalizedX - 1) / .075, 2)) * .13
-    const topContour = Math.max(.045, .37 - centerRise - rightRise + rightFall)
+    const distribution = (column + .08 + hash(index + 11) * .84) / columnCount
+    const normalizedX = .004 + Math.pow(distribution, .92) * .992
+    const centerRise = Math.exp(-Math.pow((normalizedX - .54) / .2, 2)) * .13
+    const rightRise = Math.exp(-Math.pow((normalizedX - .83) / .18, 2)) * .28
+    const rightFall = Math.exp(-Math.pow((normalizedX - 1) / .08, 2)) * .12
+    const topContour = Math.max(.06, .46 - centerRise - rightRise + rightFall)
     const depthSample = hash(index + 29)
-    const depth: Depth = depthSample < .5 ? 'background' : depthSample < .88 ? 'middle' : 'foreground'
-    const vertical = (row + .18 + hash(index + 47) * .56) / rowCount
-    const rowWave = Math.sin(normalizedX * Math.PI * 2.2 + row * .58) * .022
+    const depth: Depth = depthSample < .58 ? 'background' : depthSample < .92 ? 'middle' : 'foreground'
+    const vertical = (row + .12 + hash(index + 47) * .7) / rowCount
+    const perspective = Math.pow(vertical, 1.34)
+    const rowWave = Math.sin(normalizedX * Math.PI * 2.35 + row * .38) * .014
     const anchorX = normalizedX * width
-    const anchorY = Math.min(.99, topContour + vertical * (.985 - topContour) + rowWave) * height
-    const size = depth === 'background' ? .76 + hash(index + 61) * .46
-      : depth === 'middle' ? 1.02 + hash(index + 67) * .68
-        : 1.58 + hash(index + 71) * .9
-    const opacity = depth === 'background' ? .24 + hash(index + 79) * .14
-      : depth === 'middle' ? .46 + hash(index + 83) * .22
-        : .78 + hash(index + 89) * .16
+    const anchorY = Math.min(.995, topContour + perspective * (.992 - topContour) + rowWave) * height
+    const topFade = Math.min(1, Math.max(0, (anchorY / height - topContour + .02) / .2))
+    const lowerWeight = .54 + Math.pow(vertical, .95) * .58
+    const size = (depth === 'background' ? .5 + hash(index + 61) * .44
+      : depth === 'middle' ? .82 + hash(index + 67) * .68
+        : 1.22 + hash(index + 71) * .98) * lowerWeight
+    const opacity = (depth === 'background' ? .3 + hash(index + 79) * .2
+      : depth === 'middle' ? .54 + hash(index + 83) * .28
+        : .78 + hash(index + 89) * .18) * (.2 + topFade * .8)
     return {
       id: index,
       anchorX,
       anchorY,
+      fade: topFade,
       x: anchorX,
       y: anchorY,
       velocityX: 0,
@@ -148,16 +153,16 @@ export function ContactSignalTideField({ activeField, signalState, mobile }: { a
     }
 
     const drawGlow = () => {
-      const center = context.createRadialGradient(width * .54, height * .76, 0, width * .54, height * .76, Math.min(380, width * .25))
-      center.addColorStop(0, 'rgba(212,179,110,.052)')
-      center.addColorStop(.48, 'rgba(155,121,66,.018)')
+      const center = context.createRadialGradient(width * .52, height * .82, 0, width * .52, height * .82, Math.min(420, width * .28))
+      center.addColorStop(0, 'rgba(212,179,110,.12)')
+      center.addColorStop(.48, 'rgba(155,121,66,.042)')
       center.addColorStop(1, 'rgba(155,121,66,0)')
       context.fillStyle = center
       context.fillRect(0, 0, width, height)
 
-      const outcome = context.createRadialGradient(width * .82, height * .6, 0, width * .82, height * .6, Math.min(450, width * .3))
-      outcome.addColorStop(0, 'rgba(212,179,110,.082)')
-      outcome.addColorStop(.46, 'rgba(155,121,66,.026)')
+      const outcome = context.createRadialGradient(width * .82, height * .68, 0, width * .82, height * .68, Math.min(520, width * .34))
+      outcome.addColorStop(0, 'rgba(226,171,74,.22)')
+      outcome.addColorStop(.44, 'rgba(171,120,44,.072)')
       outcome.addColorStop(1, 'rgba(155,121,66,0)')
       context.fillStyle = outcome
       context.fillRect(0, 0, width, height)
@@ -171,8 +176,9 @@ export function ContactSignalTideField({ activeField, signalState, mobile }: { a
       const pointerDistance = pointer.active ? Math.hypot(particle.x - pointer.x, particle.y - pointer.y) : Infinity
       const localWake = Math.max(0, 1 - pointerDistance / 170)
       const breath = reducedMotion ? 0 : Math.sin(time * .00072 * particle.speed + particle.phase) * .025
-      const alpha = Math.min(1, particle.opacity + breath + (ctaBoost ? .1 : 0) + (successBoost ? .08 : 0) + localWake * .035)
-      const color = particle.depth === 'foreground' ? '231,216,181' : particle.depth === 'middle' ? '212,179,110' : '155,121,66'
+      const edgeFade = Math.min(1, Math.max(0, (particle.y / height - .12) / .25))
+      const alpha = Math.min(1, (particle.opacity + breath + (ctaBoost ? .1 : 0) + (successBoost ? .08 : 0) + localWake * .035) * edgeFade)
+      const color = particle.depth === 'foreground' ? '241,215,158' : particle.depth === 'middle' ? '219,166,78' : '172,126,58'
       context.save()
       context.translate(particle.x, particle.y)
       context.rotate(particle.rotation)
@@ -181,20 +187,22 @@ export function ContactSignalTideField({ activeField, signalState, mobile }: { a
       context.strokeStyle = `rgb(${color})`
       context.lineWidth = particle.depth === 'foreground' ? .9 : .65
       if (particle.depth === 'foreground') {
-        context.shadowColor = 'rgba(212,179,110,.34)'
-        context.shadowBlur = 6
+        context.shadowColor = 'rgba(212,179,110,.42)'
+        context.shadowBlur = 7
       }
       if (particle.shape === 'dot') {
         context.beginPath()
         context.arc(0, 0, particle.size, 0, Math.PI * 2)
         context.fill()
       } else if (particle.shape === 'square') {
-        context.fillRect(-particle.size, -particle.size, particle.size * 2, particle.size * 2)
+        const side = particle.size * 1.72
+        context.fillRect(-side * .5, -side * .5, side, side)
       } else if (particle.shape === 'dash') {
-        context.fillRect(-particle.size * 2.3, -particle.size * .42, particle.size * 4.6, particle.size * .84)
+        context.fillRect(-particle.size * 2.6, -particle.size * .34, particle.size * 5.2, particle.size * .68)
       } else if (particle.shape === 'diamond') {
         context.rotate(Math.PI * .25)
-        context.strokeRect(-particle.size, -particle.size, particle.size * 2, particle.size * 2)
+        const side = particle.size * 1.84
+        context.strokeRect(-side * .5, -side * .5, side, side)
       } else {
         context.beginPath()
         context.moveTo(-particle.size * 1.8, 0)

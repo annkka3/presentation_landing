@@ -318,8 +318,8 @@ test('Contact kinetic signal tide stays below content, responds to pointer and p
   await expect(canvas).toBeVisible()
   await expect(field).toHaveAttribute('data-renderer', 'kinetic-signal-tide')
   await expect(canvas).toHaveAttribute('data-motion', 'physics')
-  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeGreaterThanOrEqual(80)
-  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeLessThanOrEqual(110)
+  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeGreaterThanOrEqual(2700)
+  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeLessThanOrEqual(2900)
   expect(await canvas.getAttribute('data-shapes')).toContain('dot:')
   expect(await canvas.getAttribute('data-shapes')).toContain('plus:')
   expect(await canvas.getAttribute('data-depths')).toContain('foreground:')
@@ -330,7 +330,7 @@ test('Contact kinetic signal tide stays below content, responds to pointer and p
     return {
       left: fieldBounds.left <= gridBounds.left,
       right: fieldBounds.right >= gridBounds.right,
-      lowerBand: fieldBounds.top > gridBounds.top + gridBounds.height * .55,
+      lowerBand: fieldBounds.top > gridBounds.top + gridBounds.height * .42,
       bottom: fieldBounds.bottom >= gridBounds.bottom - 50,
       height: fieldBounds.height,
       pointerEvents: getComputedStyle(element.querySelector<HTMLElement>('.contact-signal-field')!).pointerEvents,
@@ -340,8 +340,8 @@ test('Contact kinetic signal tide stays below content, responds to pointer and p
   expect(coverage.right).toBe(true)
   expect(coverage.lowerBand).toBe(true)
   expect(coverage.bottom).toBe(true)
-  expect(coverage.height).toBeGreaterThanOrEqual(170)
-  expect(coverage.height).toBeLessThanOrEqual(220)
+  expect(coverage.height).toBeGreaterThanOrEqual(230)
+  expect(coverage.height).toBeLessThanOrEqual(330)
   expect(coverage.pointerEvents).toBe('none')
   const bounds = await field.boundingBox()
   expect(bounds).not.toBeNull()
@@ -371,9 +371,9 @@ test('Contact kinetic signal tide uses a simplified mobile composition and does 
   const grid = page.locator('.mobile-contact-chapter .contact-grid')
   const canvas = grid.locator('.contact-tide-canvas')
   await expect(canvas).toBeVisible()
-  await expect(canvas).toHaveAttribute('data-particle-count', '28')
-  expect(Number(await canvas.getAttribute('data-field-height'))).toBeGreaterThanOrEqual(90)
-  expect(Number(await canvas.getAttribute('data-field-height'))).toBeLessThanOrEqual(130)
+  await expect(canvas).toHaveAttribute('data-particle-count', '220')
+  expect(Number(await canvas.getAttribute('data-field-height'))).toBeGreaterThanOrEqual(130)
+  expect(Number(await canvas.getAttribute('data-field-height'))).toBeLessThanOrEqual(170)
   await expect(canvas).toHaveAttribute('data-pointer-active', 'false')
   await expect(grid.locator('.contact-signal-field')).toHaveCSS('pointer-events', 'none')
   const contact = form.getByLabel('Email или Telegram')
