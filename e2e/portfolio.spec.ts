@@ -289,8 +289,8 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   })
   expect(reducedDiagram.pathsVisible).toBe(true)
   expect(reducedDiagram.impulseOpacity).toBe('0')
-  const reducedContactMotion = await page.locator('#contact .contact-form').evaluate((form) => {
-    const canvas = form.querySelector<HTMLCanvasElement>('.contact-signal-canvas')!
+  const reducedContactMotion = await page.locator('#contact .contact-grid').evaluate((grid) => {
+    const canvas = grid.querySelector<HTMLCanvasElement>('.contact-signal-canvas')!
     const underlay = document.querySelector<SVGElement>('.build-diagram-underlay')!
     return {
       particleMotion: canvas.dataset.motion,
@@ -301,7 +301,7 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   expect(reducedContactMotion).toEqual({ particleMotion: 'static', pointerActive: 'false', underlayAnimation: 'none' })
 })
 
-test('Contact constellation covers the form, responds to pointer and preserves accessible interaction', async ({ page }) => {
+test('Contact editorial field spans both columns, responds to pointer and preserves accessible interaction', async ({ page }) => {
   const consoleErrors: string[] = []
   const requestFailures: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
@@ -312,30 +312,32 @@ test('Contact constellation covers the form, responds to pointer and preserves a
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/#contact')
   const form = page.locator('#contact .contact-form')
-  const canvas = form.locator('.contact-signal-canvas')
-  const field = form.locator('.contact-signal-field')
+  const grid = page.locator('#contact .contact-grid')
+  const canvas = grid.locator('.contact-signal-canvas')
+  const field = grid.locator('.contact-signal-field')
   await expect(canvas).toBeVisible()
-  await expect(field).toHaveAttribute('data-renderer', 'constellation-canvas')
+  await expect(field).toHaveAttribute('data-renderer', 'editorial-bilateral-canvas')
   await expect(canvas).toHaveAttribute('data-motion', 'physics')
-  expect(Number(await canvas.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(28)
+  expect(Number(await canvas.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(38)
   expect(Number(await canvas.getAttribute('data-node-count'))).toBeLessThanOrEqual(44)
-  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeGreaterThanOrEqual(22)
-  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeLessThanOrEqual(34)
-  await expect(canvas).toHaveAttribute('data-cluster-count', '3')
-  expect(await canvas.getAttribute('data-node-types')).toContain('accent:')
-  const coverage = await form.evaluate((element) => {
+  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeGreaterThanOrEqual(6)
+  await expect(canvas).toHaveAttribute('data-cluster-count', '5')
+  expect(await canvas.getAttribute('data-node-types')).toContain('anchor:')
+  await expect(canvas).toHaveAttribute('data-balance', '15:27')
+  expect(Number(await canvas.getAttribute('data-safe-zones'))).toBeGreaterThan(10)
+  const coverage = await grid.evaluate((element) => {
     const fieldBounds = element.querySelector<HTMLElement>('.contact-signal-field')!.getBoundingClientRect()
-    const formBounds = element.getBoundingClientRect()
+    const gridBounds = element.getBoundingClientRect()
     return {
-      left: fieldBounds.left <= formBounds.left,
-      right: fieldBounds.right >= formBounds.right,
-      top: fieldBounds.top <= formBounds.top,
-      bottom: fieldBounds.bottom >= formBounds.bottom,
+      left: fieldBounds.left <= gridBounds.left,
+      right: fieldBounds.right >= gridBounds.right,
+      top: fieldBounds.top <= gridBounds.top,
+      bottom: fieldBounds.bottom >= gridBounds.bottom,
       pointerEvents: getComputedStyle(element.querySelector<HTMLElement>('.contact-signal-field')!).pointerEvents,
     }
   })
   expect(coverage).toEqual({ left: true, right: true, top: true, bottom: true, pointerEvents: 'none' })
-  const bounds = await form.boundingBox()
+  const bounds = await grid.boundingBox()
   expect(bounds).not.toBeNull()
   await page.mouse.move(bounds!.x + bounds!.width * .18, bounds!.y + bounds!.height * .28)
   await page.mouse.move(bounds!.x + bounds!.width * .58, bounds!.y + bounds!.height * .56, { steps: 12 })
@@ -356,16 +358,17 @@ test('Contact constellation covers the form, responds to pointer and preserves a
   expect(requestFailures).toEqual([])
 })
 
-test('Contact constellation uses lightweight mobile density and does not intercept the form', async ({ page }) => {
+test('Contact editorial field uses lightweight mobile density and does not intercept the form', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#contact')
   const form = page.locator('.mobile-contact-chapter .contact-form')
-  const canvas = form.locator('.contact-signal-canvas')
+  const grid = page.locator('.mobile-contact-chapter .contact-grid')
+  const canvas = grid.locator('.contact-signal-canvas')
   await expect(canvas).toBeVisible()
   expect(Number(await canvas.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(10)
   expect(Number(await canvas.getAttribute('data-node-count'))).toBeLessThanOrEqual(16)
   expect(Number(await canvas.getAttribute('data-edge-count'))).toBeLessThan(16)
-  await expect(form.locator('.contact-signal-field')).toHaveCSS('pointer-events', 'none')
+  await expect(grid.locator('.contact-signal-field')).toHaveCSS('pointer-events', 'none')
   const contact = form.getByLabel('Email или Telegram')
   await contact.click()
   await contact.fill('@anna')

@@ -38,13 +38,13 @@ export function Contact({ mobile = false }: { mobile?: boolean }) {
   }
   const copyEmail = () => navigator.clipboard?.writeText('annagromyko88@gmail.com')
   return <section className={`section contact-section ${mobile ? 'is-mobile-contact' : ''}`}><div className="contact-content"><Container className="contact-grid">
+    <ContactConstellationField activeField={activeField} signalState={signalState} mobile={mobile} />
     <div className="contact-copy"><span className="contact-eyebrow">{mobile ? t.mobileContactEyebrow : t.contactEyebrow}</span><h2 className="contact-display-heading">{t.contactHeading}</h2><p>{mobile ? t.mobileContactIntro : t.contactIntro}</p><p className="contact-availability">{t.availability}</p><div className="contact-links">
       {mobile ? <button type="button" onClick={copyEmail} aria-label={t.copyEmail}><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">⧉</i></button> : <a href="mailto:annagromyko88@gmail.com"><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">↗</i></a>}
       <a href="https://t.me/AnnaGromyko" target="_blank" rel="noopener noreferrer"><span className="contact-link-copy"><span>TELEGRAM</span><strong>@AnnaGromyko</strong></span><i aria-hidden="true">↗</i></a>
       <a href="https://github.com/annkka3" target="_blank" rel="noopener noreferrer"><span className="contact-link-copy"><span>GITHUB</span><strong>github.com/annkka3</strong></span><i aria-hidden="true">↗</i></a>
     </div></div>
     <form className="contact-form" data-signal-state={signalState} data-active-field={activeField ?? undefined} onSubmit={submit} noValidate aria-labelledby="contact-form-heading">
-      <ContactConstellationField activeField={activeField} signalState={signalState} mobile={mobile} />
       {mobile && <span className="contact-form-helper">{locale === 'ru' ? 'ОПИШИТЕ ЗАДАЧУ' : 'DESCRIBE THE BRIEF'}</span>}
       <h3 className="contact-display-heading" id="contact-form-heading">{t.formHeading}</h3><p>{t.formDescription}</p>
       {!mobile && <div className="form-field"><label htmlFor="name">{t.name}</label><input id="name" value={normalizeContactValue(values.name)} onFocus={() => setActiveField('name')} onBlur={() => setActiveField(null)} onChange={(event) => update('name', event.target.value)} placeholder={t.namePlaceholder} maxLength={101} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'name-error' : undefined}/>{errors.name && <small id="name-error">{errors.name}</small>}</div>}
