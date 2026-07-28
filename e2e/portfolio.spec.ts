@@ -301,6 +301,22 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   expect(reducedContactMotion).toEqual({ particleAnimation: 'none', particleTransform: 'none', underlayAnimation: 'none' })
 })
 
+test('Contact signal field remains intentionally visible across interaction states', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#contact')
+  const form = page.locator('#contact .contact-form')
+  const particle = form.locator('.signal-particle').first()
+  await expect(form.locator('.signal-particle')).toHaveCount(22)
+  expect(Number(await particle.evaluate((element) => getComputedStyle(element).opacity))).toBeGreaterThanOrEqual(.45)
+  await page.getByLabel('Имя').focus()
+  await expect(form).toHaveAttribute('data-signal-state', 'focus')
+  await expect.poll(() => particle.evaluate((element) => Number(getComputedStyle(element).opacity))).toBeGreaterThanOrEqual(.68)
+  await page.getByRole('button', { name: 'Отправить сообщение →' }).hover()
+  await page.getByLabel('Имя').blur()
+  await expect(form).toHaveAttribute('data-signal-state', 'submit-hover')
+  await expect.poll(() => particle.evaluate((element) => Number(getComputedStyle(element).opacity))).toBeGreaterThanOrEqual(.78)
+})
+
 test('homepage owns seven stable editorial scenes and route-scoped state', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')

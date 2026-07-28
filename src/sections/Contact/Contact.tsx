@@ -55,8 +55,8 @@ export function Contact({ mobile = false }: { mobile?: boolean }) {
         const y = Number(particle.dataset.y)
         const distance = Math.hypot(pointerX - x, pointerY - y)
         const influence = Math.max(0, 1 - distance / 38)
-        particle.style.setProperty('--react-x', `${((pointerX - x) / 18) * influence}px`)
-        particle.style.setProperty('--react-y', `${((pointerY - y) / 18) * influence}px`)
+        particle.style.setProperty('--react-x', `${((pointerX - x) / 8) * influence}px`)
+        particle.style.setProperty('--react-y', `${((pointerY - y) / 8) * influence}px`)
       })
     })
   }
