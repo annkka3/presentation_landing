@@ -1,79 +1,147 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 export type ContactField = 'name' | 'contact' | 'message'
 export type SignalState = 'idle' | 'focus' | 'submit-hover' | 'loading' | 'success' | 'error' | 'config'
 
-type Side = 'left' | 'right'
-type ClusterId = 'left-atmosphere' | 'left-links' | 'right-crown' | 'right-orbit' | 'right-cta'
-type ElementType = 'anchor' | 'dot' | 'diamond' | 'dash' | 'ring'
-type Depth = 0 | 1 | 2
-
-type EditorialNode = {
-  id: number
-  side: Side
-  cluster: ClusterId
-  anchorX: number
-  anchorY: number
-  x: number
-  y: number
-  velocityX: number
-  velocityY: number
-  phase: number
-  speed: number
-  size: number
-  rotation: number
-  depth: Depth
-  type: ElementType
-  maxDisplacement: number
-}
-
-type EditorialEdge = {
-  from: number
-  to: number
-  depth: Depth
-  curve: number
-}
-
+type Point = { x: number, y: number }
+type DynamicPoint = Point & { originX: number, originY: number, velocityX: number, velocityY: number }
+type RouteId = 'a' | 'b' | 'c' | 'd'
+type NodeKind = 'ring' | 'diamond' | 'dot' | 'outcome'
+type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 type ExclusionZone = { x: number, y: number, width: number, height: number }
-type ClusterRecipe = {
-  id: ClusterId
-  side: Side
-  centerX: number
-  centerY: number
-  radiusX: number
-  radiusY: number
-  count: number
+
+type RouteSpec = {
+  id: RouteId
+  label: string
+  points: Point[]
+  nodes: Array<{ id: string, x: number, y: number, kind: NodeKind }>
 }
 
-const hash = (value: number) => {
-  const result = Math.sin(value * 93.731 + 18.417) * 43758.5453
-  return result - Math.floor(result)
+const VIEWBOX_WIDTH = 1000
+const VIEWBOX_HEIGHT = 620
+
+const desktopRoutes: RouteSpec[] = [
+  {
+    id: 'a',
+    label: 'Identity route',
+    points: [
+      { x: 8, y: 72 }, { x: 86, y: 16 }, { x: 250, y: 22 }, { x: 352, y: 78 },
+      { x: 424, y: 126 }, { x: 348, y: 246 }, { x: 407, y: 333 },
+      { x: 438, y: 382 }, { x: 354, y: 447 }, { x: 394, y: 528 },
+    ],
+    nodes: [
+      { id: 'a-1', x: 52, y: 49, kind: 'ring' },
+      { id: 'a-2', x: 352, y: 78, kind: 'dot' },
+      { id: 'a-3', x: 407, y: 333, kind: 'diamond' },
+      { id: 'a-4', x: 394, y: 528, kind: 'dot' },
+    ],
+  },
+  {
+    id: 'b',
+    label: 'Connection route',
+    points: [
+      { x: 174, y: 516 }, { x: 326, y: 564 }, { x: 430, y: 430 }, { x: 512, y: 318 },
+      { x: 566, y: 250 }, { x: 635, y: 268 }, { x: 704, y: 314 },
+      { x: 778, y: 363 }, { x: 831, y: 414 }, { x: 894, y: 456 },
+    ],
+    nodes: [
+      { id: 'b-1', x: 174, y: 516, kind: 'dot' },
+      { id: 'b-2', x: 388, y: 486, kind: 'ring' },
+      { id: 'b-3', x: 512, y: 318, kind: 'diamond' },
+      { id: 'b-4', x: 704, y: 314, kind: 'ring' },
+      { id: 'b-5', x: 894, y: 456, kind: 'dot' },
+    ],
+  },
+  {
+    id: 'c',
+    label: 'Outcome route',
+    points: [
+      { x: 635, y: 78 }, { x: 788, y: 28 }, { x: 954, y: 68 }, { x: 970, y: 184 },
+      { x: 983, y: 287 }, { x: 898, y: 318 }, { x: 928, y: 411 },
+      { x: 960, y: 506 }, { x: 842, y: 574 }, { x: 688, y: 535 },
+    ],
+    nodes: [
+      { id: 'c-1', x: 635, y: 78, kind: 'ring' },
+      { id: 'c-2', x: 970, y: 184, kind: 'dot' },
+      { id: 'c-3', x: 913, y: 328, kind: 'diamond' },
+      { id: 'c-4', x: 928, y: 411, kind: 'dot' },
+      { id: 'c-5', x: 842, y: 558, kind: 'ring' },
+      { id: 'c-6', x: 688, y: 535, kind: 'outcome' },
+    ],
+  },
+  {
+    id: 'd',
+    label: 'Accent route',
+    points: [
+      { x: 677, y: 28 }, { x: 762, y: -2 }, { x: 867, y: 8 }, { x: 944, y: 72 },
+    ],
+    nodes: [
+      { id: 'd-1', x: 677, y: 28, kind: 'diamond' },
+      { id: 'd-2', x: 944, y: 72, kind: 'dot' },
+    ],
+  },
+]
+
+const tabletRoutes: RouteSpec[] = desktopRoutes.filter((route) => route.id !== 'd').map((route) => ({
+  ...route,
+  nodes: route.id === 'a' ? route.nodes.slice(0, 3) : route.id === 'b' ? route.nodes.slice(0, 4) : route.nodes.slice(0, 5),
+}))
+
+const mobileRoutes: RouteSpec[] = [
+  {
+    id: 'a',
+    label: 'Identity route',
+    points: [
+      { x: 22, y: 72 }, { x: 168, y: 12 }, { x: 348, y: 32 }, { x: 438, y: 118 },
+    ],
+    nodes: [
+      { id: 'a-1', x: 58, y: 54, kind: 'ring' },
+      { id: 'a-2', x: 438, y: 118, kind: 'dot' },
+    ],
+  },
+  {
+    id: 'c',
+    label: 'Outcome route',
+    points: [
+      { x: 672, y: 286 }, { x: 946, y: 254 }, { x: 970, y: 382 }, { x: 922, y: 456 },
+      { x: 874, y: 528 }, { x: 696, y: 598 }, { x: 512, y: 550 },
+    ],
+    nodes: [
+      { id: 'c-1', x: 672, y: 286, kind: 'ring' },
+      { id: 'c-2', x: 922, y: 456, kind: 'diamond' },
+      { id: 'c-3', x: 820, y: 554, kind: 'dot' },
+      { id: 'c-4', x: 696, y: 598, kind: 'ring' },
+      { id: 'c-5', x: 512, y: 550, kind: 'outcome' },
+    ],
+  },
+]
+
+const microElements = [
+  { x: 106, y: 112, type: 'dot' }, { x: 278, y: 52, type: 'diamond' }, { x: 374, y: 290, type: 'dash' },
+  { x: 286, y: 542, type: 'dot' }, { x: 470, y: 446, type: 'dash' }, { x: 596, y: 352, type: 'dot' },
+  { x: 772, y: 315, type: 'diamond' }, { x: 944, y: 260, type: 'dot' }, { x: 887, y: 514, type: 'dash' },
+  { x: 760, y: 565, type: 'dot' },
+]
+
+const pathFromPoints = (points: Point[]) => {
+  if (points.length < 4) return ''
+  let path = `M ${points[0].x} ${points[0].y}`
+  for (let index = 1; index + 2 < points.length; index += 3) {
+    path += ` C ${points[index].x} ${points[index].y}, ${points[index + 1].x} ${points[index + 1].y}, ${points[index + 2].x} ${points[index + 2].y}`
+  }
+  return path
 }
 
-function getRecipes(viewportWidth: number, mobile: boolean): ClusterRecipe[] {
-  if (mobile || viewportWidth <= 767) return [
-    { id: 'left-atmosphere', side: 'left', centerX: .13, centerY: .19, radiusX: .1, radiusY: .12, count: 3 },
-    { id: 'right-orbit', side: 'right', centerX: .88, centerY: .63, radiusX: .12, radiusY: .2, count: 7 },
-    { id: 'right-cta', side: 'right', centerX: .72, centerY: .91, radiusX: .22, radiusY: .07, count: 6 },
-  ]
-  if (viewportWidth <= 1199) return [
-    { id: 'left-atmosphere', side: 'left', centerX: .13, centerY: .22, radiusX: .11, radiusY: .16, count: 5 },
-    { id: 'left-links', side: 'left', centerX: .32, centerY: .72, radiusX: .14, radiusY: .2, count: 5 },
-    { id: 'right-crown', side: 'right', centerX: .73, centerY: .14, radiusX: .2, radiusY: .1, count: 5 },
-    { id: 'right-orbit', side: 'right', centerX: .9, centerY: .49, radiusX: .1, radiusY: .28, count: 7 },
-    { id: 'right-cta', side: 'right', centerX: .7, centerY: .85, radiusX: .24, radiusY: .1, count: 6 },
-  ]
-  return [
-    { id: 'left-atmosphere', side: 'left', centerX: .12, centerY: .2, radiusX: .11, radiusY: .16, count: 7 },
-    { id: 'left-links', side: 'left', centerX: .33, centerY: .69, radiusX: .15, radiusY: .23, count: 8 },
-    { id: 'right-crown', side: 'right', centerX: .72, centerY: .13, radiusX: .24, radiusY: .11, count: 8 },
-    { id: 'right-orbit', side: 'right', centerX: .91, centerY: .47, radiusX: .1, radiusY: .29, count: 10 },
-    { id: 'right-cta', side: 'right', centerX: .7, centerY: .84, radiusX: .26, radiusY: .11, count: 9 },
-  ]
+const getBreakpoint = (mobile: boolean): Breakpoint => {
+  if (mobile || window.innerWidth <= 767) return 'mobile'
+  if (window.innerWidth <= 1279) return 'tablet'
+  return 'desktop'
 }
 
-function createExclusionZones(root: HTMLElement, coordinateElement: HTMLElement) {
-  const hostBounds = coordinateElement.getBoundingClientRect()
+const routesForBreakpoint = (breakpoint: Breakpoint) => breakpoint === 'mobile' ? mobileRoutes : breakpoint === 'tablet' ? tabletRoutes : desktopRoutes
+
+function getSafeZones(root: HTMLElement, field: HTMLElement): ExclusionZone[] {
+  const fieldBounds = field.getBoundingClientRect()
   const selectors = [
     '.contact-copy h2',
     '.contact-copy > p',
@@ -89,411 +157,166 @@ function createExclusionZones(root: HTMLElement, coordinateElement: HTMLElement)
   ]
   return selectors.flatMap((selector) => [...root.querySelectorAll<HTMLElement>(selector)]).map((element) => {
     const bounds = element.getBoundingClientRect()
-    const padding = element.matches('h2, .submit-button') ? 18 : 11
+    const padding = element.matches('h2, .submit-button') ? 16 : 9
     return {
-      x: bounds.left - hostBounds.left - padding,
-      y: bounds.top - hostBounds.top - padding,
-      width: bounds.width + padding * 2,
-      height: bounds.height + padding * 2,
+      x: (bounds.left - fieldBounds.left - padding) / fieldBounds.width * VIEWBOX_WIDTH,
+      y: (bounds.top - fieldBounds.top - padding) / fieldBounds.height * VIEWBOX_HEIGHT,
+      width: (bounds.width + padding * 2) / fieldBounds.width * VIEWBOX_WIDTH,
+      height: (bounds.height + padding * 2) / fieldBounds.height * VIEWBOX_HEIGHT,
     }
   })
 }
 
-function isInsideZone(x: number, y: number, zone: ExclusionZone, padding = 0) {
-  return x >= zone.x - padding && x <= zone.x + zone.width + padding
-    && y >= zone.y - padding && y <= zone.y + zone.height + padding
-}
-
-function visibilityAt(x: number, y: number, zones: ExclusionZone[]) {
-  if (zones.some((zone) => isInsideZone(x, y, zone))) return .035
-  if (zones.some((zone) => isInsideZone(x, y, zone, 12))) return .22
-  if (zones.some((zone) => isInsideZone(x, y, zone, 28))) return .58
-  return 1
-}
-
-function edgeCrossesZone(from: EditorialNode, to: EditorialNode, zones: ExclusionZone[]) {
-  return Array.from({ length: 11 }, (_, index) => (index + 1) / 12).some((step) => {
-    const x = from.anchorX + (to.anchorX - from.anchorX) * step
-    const y = from.anchorY + (to.anchorY - from.anchorY) * step
-    return zones.some((zone) => isInsideZone(x, y, zone, 5))
-  })
-}
-
-function createComposition(width: number, height: number, viewportWidth: number, mobile: boolean, zones: ExclusionZone[]) {
-  const recipes = getRecipes(viewportWidth, mobile)
-  const nodes: EditorialNode[] = []
-  const typeCycle: ElementType[] = ['dot', 'diamond', 'dot', 'dash', 'ring', 'dot', 'anchor', 'dot', 'diamond', 'dash']
-  let globalIndex = 0
-
-  recipes.forEach((recipe, recipeIndex) => {
-    for (let index = 0; index < recipe.count; index += 1) {
-      const progress = recipe.count === 1 ? 0 : index / (recipe.count - 1)
-      const angle = progress * Math.PI * (1.45 + recipeIndex * .09) + recipeIndex * .72
-      const radiusScale = .5 + progress * .5
-      const anchorX = (recipe.centerX + Math.cos(angle) * recipe.radiusX * radiusScale + (hash(globalIndex + 8) - .5) * .018) * width
-      const anchorY = (recipe.centerY + Math.sin(angle) * recipe.radiusY * radiusScale + (hash(globalIndex + 17) - .5) * .025) * height
-      const anchorSlots = mobile ? [8, 13] : [3, 12, 19, 29, 37]
-      const isAnchor = anchorSlots.includes(globalIndex)
-      const type = isAnchor ? 'anchor' : typeCycle[(globalIndex + recipeIndex) % typeCycle.length]
-      const depth: Depth = isAnchor ? 2 : globalIndex % 5 < 2 ? 0 : globalIndex % 5 < 4 ? 1 : 2
-      const baseSize = type === 'anchor' ? 3.4 : type === 'dot' ? .85 : type === 'dash' ? 3.2 : 2.2
-      nodes.push({
-        id: globalIndex,
-        side: recipe.side,
-        cluster: recipe.id,
-        anchorX,
-        anchorY,
-        x: anchorX,
-        y: anchorY,
-        velocityX: 0,
-        velocityY: 0,
-        phase: hash(globalIndex + 31) * Math.PI * 2,
-        speed: .65 + hash(globalIndex + 41) * .55,
-        size: baseSize + hash(globalIndex + 53) * (type === 'anchor' ? 1.2 : .7),
-        rotation: hash(globalIndex + 67) * Math.PI,
-        depth,
-        type,
-        maxDisplacement: recipe.side === 'right' ? 21 + depth * 6 : 12 + depth * 4,
-      })
-      globalIndex += 1
-    }
-  })
-
-  const edges: EditorialEdge[] = []
-  recipes.forEach((recipe, recipeIndex) => {
-    const clusterNodes = nodes.filter((node) => node.cluster === recipe.id)
-    for (let index = 0; index < clusterNodes.length - 1; index += 1) {
-      if ((index + recipeIndex) % 4 === 2) continue
-      const from = clusterNodes[index]
-      const to = clusterNodes[index + 1]
-      if (!edgeCrossesZone(from, to, zones)) {
-        edges.push({ from: from.id, to: to.id, depth: Math.min(from.depth, to.depth) as Depth, curve: (index % 2 ? 1 : -1) * (4 + recipeIndex * 1.5) })
-      }
-    }
-    if (clusterNodes.length > 6) {
-      const from = clusterNodes[1]
-      const to = clusterNodes[clusterNodes.length - 2]
-      if (!edgeCrossesZone(from, to, zones)) edges.push({ from: from.id, to: to.id, depth: 0, curve: recipe.side === 'right' ? 16 : -10 })
-    }
-  })
-
-  return { nodes, edges, recipes }
-}
-
-function summarizeTypes(nodes: EditorialNode[]) {
-  const counts: Record<ElementType, number> = { anchor: 0, dot: 0, diamond: 0, dash: 0, ring: 0 }
-  nodes.forEach((node) => { counts[node.type] += 1 })
-  return Object.entries(counts).map(([type, count]) => `${type}:${count}`).join(',')
+function nodeShape(kind: NodeKind) {
+  if (kind === 'diamond') return <><rect className="signal-node-shape signal-node-diamond" x="-4" y="-4" width="8" height="8" rx=".8" /><circle className="signal-node-core" r="1.25" /></>
+  if (kind === 'dot') return <circle className="signal-node-dot" r="2.4" />
+  if (kind === 'outcome') return <><circle className="signal-node-halo" r="18" /><circle className="signal-node-outer" r="10" /><circle className="signal-node-inner" r="5.6" /><circle className="signal-node-core" r="2" /></>
+  return <><circle className="signal-node-halo" r="14" /><circle className="signal-node-outer" r="7" /><circle className="signal-node-core" r="1.8" /></>
 }
 
 export function ContactConstellationField({ activeField, signalState, mobile }: { activeField: ContactField | null, signalState: SignalState, mobile: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const stateRef = useRef({ activeField, signalState })
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>(() => getBreakpoint(mobile))
+  const [zones, setZones] = useState<ExclusionZone[]>([])
+  const routes = useMemo(() => routesForBreakpoint(breakpoint), [breakpoint])
+  const focusY = activeField === 'name' ? 226 : activeField === 'contact' ? 330 : activeField === 'message' ? 440 : 0
 
   useEffect(() => {
-    stateRef.current = { activeField, signalState }
-    canvasRef.current?.dispatchEvent(new Event('editorialfieldstatechange'))
-  }, [activeField, signalState])
+    const update = () => setBreakpoint(getBreakpoint(mobile))
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [mobile])
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    const host = canvas?.parentElement
-    const interactionRoot = host?.parentElement
-    const context = canvas?.getContext?.('2d')
-    if (!canvas || !host || !interactionRoot || !context) return
+    const svg = svgRef.current
+    const field = svg?.parentElement
+    const root = field?.parentElement
+    if (!svg || !field || !root) return
 
-    const motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)')
-    const finePointerQuery = window.matchMedia?.('(pointer: fine)')
-    let reducedMotion = motionQuery?.matches ?? false
-    let finePointer = finePointerQuery?.matches ?? true
-    let width = 1
-    let height = 1
-    let pixelRatio = 1
-    let nodes: EditorialNode[] = []
-    let edges: EditorialEdge[] = []
-    let zones: ExclusionZone[] = []
+    const updateZones = () => setZones(getSafeZones(root, field))
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateZones)
+    observer?.observe(root)
+    updateZones()
+    return () => observer?.disconnect()
+  }, [breakpoint])
+
+  useEffect(() => {
+    const svg = svgRef.current
+    const field = svg?.parentElement
+    const root = field?.parentElement
+    if (!svg || !field || !root) return
+
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const finePointerQuery = window.matchMedia('(pointer: fine)')
+    let reducedMotion = motionQuery.matches
+    let finePointer = finePointerQuery.matches
+    let visible = typeof IntersectionObserver !== 'undefined'
     let frame = 0
-    let frameIndex = 0
     let previousTime = performance.now()
-    let sectionVisible = true
-    let pageVisible = document.visibilityState !== 'hidden'
-    const pointer = { x: 0, y: 0, previousX: 0, previousY: 0, velocityX: 0, velocityY: 0, active: false }
+    const pointer = { x: 0, y: 0, active: false }
+    const routePoints = new Map<RouteId, DynamicPoint[]>()
+    const nodePoints = new Map<string, DynamicPoint>()
 
-    const setDatasets = () => {
-      const leftCount = nodes.filter((node) => node.side === 'left').length
-      const rightCount = nodes.length - leftCount
-      canvas.dataset.motion = reducedMotion ? 'static' : 'physics'
-      canvas.dataset.pointerActive = String(pointer.active && !reducedMotion)
-      canvas.dataset.nodeCount = String(nodes.length)
-      canvas.dataset.particleCount = String(nodes.length)
-      canvas.dataset.edgeCount = String(edges.length)
-      canvas.dataset.clusterCount = String(new Set(nodes.map((node) => node.cluster)).size)
-      canvas.dataset.nodeTypes = summarizeTypes(nodes)
-      canvas.dataset.balance = `${leftCount}:${rightCount}`
-      canvas.dataset.safeZones = String(zones.length)
+    routes.forEach((route) => {
+      routePoints.set(route.id, route.points.map((point) => ({
+        ...point,
+        originX: point.x,
+        originY: point.y,
+        velocityX: 0,
+        velocityY: 0,
+      })))
+      route.nodes.forEach((node) => nodePoints.set(node.id, {
+        x: node.x,
+        y: node.y,
+        originX: node.x,
+        originY: node.y,
+        velocityX: 0,
+        velocityY: 0,
+      }))
+    })
+
+    const setDatasets = (maxDisplacement = 0) => {
+      svg.dataset.motion = reducedMotion ? 'static' : 'physics'
+      svg.dataset.pointerActive = String(pointer.active && !reducedMotion)
+      svg.dataset.routeCount = String(routes.length)
+      svg.dataset.nodeCount = String(nodePoints.size)
+      svg.dataset.microCount = String(breakpoint === 'mobile' ? 4 : microElements.length)
+      svg.dataset.safeZones = String(zones.length)
+      svg.dataset.maxDisplacement = maxDisplacement.toFixed(1)
+      svg.dataset.breakpoint = breakpoint
+      svg.dataset.signalState = signalState
     }
 
-    const drawAmbientLayer = (time: number) => {
-      const parallaxX = pointer.active ? (pointer.x / width - .5) * 5 : 0
-      const parallaxY = pointer.active ? (pointer.y / height - .5) * 4 : 0
-      const breath = reducedMotion ? 1 : .94 + Math.sin(time * .00022) * .06
-      const glows = [
-        { x: width * .12, y: height * .27, radius: width * .17, alpha: .046 },
-        { x: width * .82, y: height * .44, radius: width * .28, alpha: .078 },
-        { x: width * .69, y: height * .85, radius: width * .2, alpha: stateRef.current.signalState === 'submit-hover' ? .11 : .066 },
-      ]
-      glows.forEach((glow, index) => {
-        const gradient = context.createRadialGradient(glow.x + parallaxX * (index + 1), glow.y + parallaxY, 0, glow.x, glow.y, glow.radius)
-        gradient.addColorStop(0, `rgba(211,174,105,${glow.alpha * breath})`)
-        gradient.addColorStop(.46, `rgba(185,149,82,${glow.alpha * .42})`)
-        gradient.addColorStop(1, 'rgba(185,149,82,0)')
-        context.fillStyle = gradient
-        context.fillRect(0, 0, width, height)
-      })
-
-      const arcs = mobile
-        ? [
-            [.85, .66, .19, .23, -.24, .2, 1.42],
-            [.72, .93, .26, .1, .08, 1.05, 1.91],
-          ]
-        : [
-            [.12, .23, .13, .18, -.22, .12, 1.2],
-            [.34, .71, .18, .25, .35, .64, 1.38],
-            [.75, .14, .27, .13, -.08, .08, 1.16],
-            [.91, .5, .13, .34, .18, .34, 1.52],
-            [.69, .86, .3, .14, -.12, .86, 1.68],
-          ]
-      context.save()
-      context.lineWidth = .6
-      arcs.forEach((arc, index) => {
-        const [x, y, radiusX, radiusY, rotation, start, length] = arc
-        const sideStrength = index < 2 ? .42 : 1
-        context.strokeStyle = `rgba(211,174,105,${(.072 + index * .011) * sideStrength})`
-        context.beginPath()
-        context.ellipse(
-          width * x + parallaxX * (index % 2 ? -.55 : .7),
-          height * y + parallaxY * (index % 2 ? .45 : -.6),
-          width * radiusX,
-          height * radiusY,
-          rotation,
-          Math.PI * start,
-          Math.PI * (start + length),
-        )
-        context.stroke()
-      })
-      context.restore()
-    }
-
-    const drawEdge = (edge: EditorialEdge) => {
-      const from = nodes[edge.from]
-      const to = nodes[edge.to]
-      const midpointX = (from.x + to.x) * .5
-      const midpointY = (from.y + to.y) * .5
-      const distanceToPointer = pointer.active ? Math.hypot(midpointX - pointer.x, midpointY - pointer.y) : Infinity
-      const radius = from.side === 'right' ? 188 : 132
-      const pressure = Math.max(0, 1 - distanceToPointer / radius)
-      const dx = to.x - from.x
-      const dy = to.y - from.y
-      const length = Math.max(1, Math.hypot(dx, dy))
-      const bend = edge.curve + pressure * (from.side === 'right' ? 13 : 7)
-      const controlX = midpointX - dy / length * bend
-      const controlY = midpointY + dx / length * bend
-      const mask = Math.min(visibilityAt(from.x, from.y, zones), visibilityAt(to.x, to.y, zones), visibilityAt(midpointX, midpointY, zones))
-      const alpha = (edge.depth === 0 ? .075 : edge.depth === 1 ? .13 : .19) * mask * (1 + pressure * .2)
-      if (alpha < .01) return
-      context.save()
-      context.strokeStyle = `rgba(203,164,94,${Math.min(.22, alpha)})`
-      context.lineWidth = edge.depth === 0 ? .45 : edge.depth === 1 ? .6 : .72
-      context.beginPath()
-      context.moveTo(from.x, from.y)
-      context.quadraticCurveTo(controlX, controlY, to.x, to.y)
-      context.stroke()
-      context.restore()
-    }
-
-    const drawNode = (node: EditorialNode, time: number) => {
-      const mask = visibilityAt(node.x, node.y, zones)
-      const distanceToPointer = pointer.active ? Math.hypot(node.x - pointer.x, node.y - pointer.y) : Infinity
-      const interactionRadius = node.side === 'right' ? 190 : 132
-      const proximity = Math.max(0, 1 - distanceToPointer / interactionRadius)
-      const baseAlpha = node.depth === 0 ? .4 : node.depth === 1 ? .64 : .86
-      const breath = !reducedMotion && node.type === 'anchor' ? Math.sin(time * .00072 + node.phase) * .07 : 0
-      const stateBoost = stateRef.current.signalState === 'success' && node.cluster === 'right-cta' ? .12 : 0
-      const alpha = Math.min(.94, (baseAlpha + breath + proximity * .14 + stateBoost) * mask)
-      if (alpha < .012) return
-      const warm = node.type === 'anchor' ? '232,215,177' : node.depth === 2 ? '218,184,119' : '190,151,83'
-
-      context.save()
-      context.translate(node.x, node.y)
-      context.rotate(node.rotation)
-      context.globalAlpha = alpha
-      context.strokeStyle = `rgb(${warm})`
-      context.fillStyle = `rgb(${warm})`
-      context.lineWidth = node.depth === 0 ? .55 : .82
-      if (node.type === 'anchor') {
-        context.shadowColor = `rgba(211,174,105,${.32 + proximity * .22})`
-        context.shadowBlur = 9 + proximity * 7
-        context.beginPath()
-        context.arc(0, 0, node.size, 0, Math.PI * 2)
-        context.fill()
-        context.shadowBlur = 0
-        context.globalAlpha = alpha * .68
-        context.beginPath()
-        context.arc(0, 0, node.size + 3.2, 0, Math.PI * 2)
-        context.stroke()
-      } else if (node.type === 'dot') {
-        context.beginPath()
-        context.arc(0, 0, node.size, 0, Math.PI * 2)
-        context.fill()
-      } else if (node.type === 'diamond') {
-        context.beginPath()
-        context.rect(-node.size, -node.size, node.size * 2, node.size * 2)
-        if (node.depth === 2) {
-          context.globalAlpha = alpha * .28
-          context.fill()
-          context.globalAlpha = alpha
+    const applyPhysics = (point: DynamicPoint, delta: number, strength: number, maxDisplacement: number) => {
+      let targetX = point.originX
+      let targetY = point.originY
+      if (pointer.active && !reducedMotion) {
+        const dx = point.x - pointer.x
+        const dy = point.y - pointer.y
+        const distance = Math.max(1, Math.hypot(dx, dy))
+        const fieldWidth = field.getBoundingClientRect().width
+        const radius = Math.min(220, Math.max(150, fieldWidth * .145)) / fieldWidth * VIEWBOX_WIDTH
+        if (distance < radius) {
+          const influence = 1 - distance / radius
+          targetX += dx / distance * influence * influence * maxDisplacement * strength
+          targetY += dy / distance * influence * influence * maxDisplacement * strength
+          point.velocityX += dx / distance * influence * influence * .82 * strength * delta
+          point.velocityY += dy / distance * influence * influence * .82 * strength * delta
         }
-        context.stroke()
-      } else if (node.type === 'dash') {
-        context.beginPath()
-        context.moveTo(-node.size * 1.7, 0)
-        context.lineTo(node.size * 1.7, 0)
-        context.stroke()
-      } else {
-        context.beginPath()
-        context.arc(0, 0, node.size, 0, Math.PI * 2)
-        context.stroke()
-        context.globalAlpha = alpha * .5
-        context.beginPath()
-        context.arc(0, 0, .65, 0, Math.PI * 2)
-        context.fill()
       }
-      context.restore()
+      point.velocityX += (targetX - point.x) * .038 * delta
+      point.velocityY += (targetY - point.y) * .038 * delta
+      const damping = Math.pow(.84, delta)
+      point.velocityX *= damping
+      point.velocityY *= damping
+      point.x += point.velocityX * delta
+      point.y += point.velocityY * delta
+      const displacement = Math.hypot(point.x - point.originX, point.y - point.originY)
+      if (displacement > maxDisplacement) {
+        const angle = Math.atan2(point.y - point.originY, point.x - point.originX)
+        point.x = point.originX + Math.cos(angle) * maxDisplacement
+        point.y = point.originY + Math.sin(angle) * maxDisplacement
+      }
+      return displacement
     }
 
-    const render = (time: number, delta = 1) => {
-      context.clearRect(0, 0, width, height)
-      drawAmbientLayer(time)
-      const state = stateRef.current
-      const form = interactionRoot.querySelector<HTMLElement>('.contact-form')
-      const hostBounds = host.getBoundingClientRect()
-      const formBounds = form?.getBoundingClientRect()
-      const focusY = formBounds
-        ? formBounds.top - hostBounds.top + (
-            state.activeField === 'name' ? formBounds.height * .34
-              : state.activeField === 'contact' ? formBounds.height * .5
-                : state.activeField === 'message' ? formBounds.height * .68 : -1000
-          )
-        : -1000
+    const render = (time: number, delta: number) => {
       let maxDisplacement = 0
-
-      nodes.forEach((node) => {
-        if (!reducedMotion) {
-          const depthMotion = node.depth === 0 ? .48 : node.depth === 1 ? .82 : 1.16
-          let targetX = node.anchorX + Math.sin(time * .00018 * node.speed + node.phase) * depthMotion
-          let targetY = node.anchorY + Math.cos(time * .00015 * node.speed + node.phase * .74) * depthMotion
-          const focusAffected = node.side === 'right' && state.activeField !== null && Math.abs(node.anchorY - focusY) < height * .13
-          if (focusAffected) {
-            targetX += node.cluster === 'right-orbit' ? -2.6 : 1.4
-            targetY += (node.id % 3 - 1) * 1.5
-          }
-          if ((state.signalState === 'submit-hover' || state.signalState === 'loading') && node.cluster === 'right-cta') {
-            targetX += (width * .68 - node.anchorX) * (state.signalState === 'loading' ? .09 : .035)
-            targetY += (height * .85 - node.anchorY) * (state.signalState === 'loading' ? .09 : .035)
-          }
-          const spring = focusAffected ? .022 : .0155
-          node.velocityX += (targetX - node.x) * spring * delta
-          node.velocityY += (targetY - node.y) * spring * delta
-
-          if (pointer.active) {
-            const dx = node.x - pointer.x
-            const dy = node.y - pointer.y
-            const distance = Math.max(1, Math.hypot(dx, dy))
-            const radius = node.side === 'right' ? 190 : 132
-            if (distance < radius) {
-              const influence = 1 - distance / radius
-              const sideForce = node.side === 'right' ? 1.32 : .64
-              const depthForce = node.depth === 0 ? .62 : node.depth === 1 ? .88 : 1.12
-              const force = influence * influence * 3.1 * sideForce * depthForce * delta
-              node.velocityX += dx / distance * force + pointer.velocityX * influence * .018 * depthForce
-              node.velocityY += dy / distance * force + pointer.velocityY * influence * .018 * depthForce
-            }
-          }
-
-          const damping = Math.pow(.89, delta)
-          node.velocityX *= damping
-          node.velocityY *= damping
-          const nextX = node.x + node.velocityX * delta
-          const nextY = node.y + node.velocityY * delta
-          const nextDisplacement = Math.hypot(nextX - node.anchorX, nextY - node.anchorY)
-          if (nextDisplacement > node.maxDisplacement) {
-            const angle = Math.atan2(nextY - node.anchorY, nextX - node.anchorX)
-            node.x = node.anchorX + Math.cos(angle) * node.maxDisplacement
-            node.y = node.anchorY + Math.sin(angle) * node.maxDisplacement
-            node.velocityX *= .32
-            node.velocityY *= .32
-          } else {
-            node.x = nextX
-            node.y = nextY
-          }
-          maxDisplacement = Math.max(maxDisplacement, Math.hypot(node.x - node.anchorX, node.y - node.anchorY))
-        }
+      routes.forEach((route) => {
+        const points = routePoints.get(route.id)!
+        points.forEach((point, index) => {
+          const isControl = index % 3 !== 0
+          maxDisplacement = Math.max(maxDisplacement, applyPhysics(point, delta, route.id === 'c' ? 1 : route.id === 'a' ? .7 : .88, isControl ? 30 : 22))
+        })
+        const path = pathFromPoints(points)
+        svg.querySelectorAll<SVGPathElement>(`[data-route="${route.id}"]`).forEach((element) => element.setAttribute('d', path))
       })
-
-      edges.forEach(drawEdge)
-      nodes.forEach((node) => drawNode(node, time))
-      if (frameIndex++ % 5 === 0) canvas.dataset.maxDisplacement = maxDisplacement.toFixed(1)
-      pointer.velocityX *= .76
-      pointer.velocityY *= .76
+      nodePoints.forEach((point, id) => {
+        const kind = routes.flatMap((route) => route.nodes).find((node) => node.id === id)?.kind
+        maxDisplacement = Math.max(maxDisplacement, applyPhysics(point, delta, id.startsWith('c') ? 1 : .68, kind === 'outcome' || kind === 'ring' ? 38 : 24))
+        svg.querySelector<SVGGElement>(`[data-node="${id}"]`)?.setAttribute('transform', `translate(${point.x} ${point.y})`)
+      })
+      setDatasets(maxDisplacement)
+      previousTime = time
     }
 
     const tick = (time: number) => {
       const delta = Math.min(1.7, Math.max(.35, (time - previousTime) / 16.667))
-      previousTime = time
       render(time, delta)
-      frame = sectionVisible && pageVisible && !reducedMotion ? requestAnimationFrame(tick) : 0
+      frame = visible && !reducedMotion ? requestAnimationFrame(tick) : 0
     }
 
     const start = () => {
-      if (!sectionVisible || !pageVisible || reducedMotion || frame) return
+      if (!visible || reducedMotion || frame) return
       previousTime = performance.now()
       frame = requestAnimationFrame(tick)
     }
 
-    const resize = () => {
-      const bounds = host.getBoundingClientRect()
-      width = Math.max(1, bounds.width)
-      height = Math.max(1, bounds.height)
-      pixelRatio = Math.min(2, window.devicePixelRatio || 1)
-      canvas.width = Math.round(width * pixelRatio)
-      canvas.height = Math.round(height * pixelRatio)
-      canvas.style.width = `${width}px`
-      canvas.style.height = `${height}px`
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
-      zones = createExclusionZones(interactionRoot, host)
-      const composition = createComposition(width, height, window.innerWidth, mobile, zones)
-      nodes = composition.nodes
-      edges = composition.edges
-      setDatasets()
-      render(performance.now())
-      start()
-    }
-
     const movePointer = (event: PointerEvent) => {
-      if (reducedMotion || (!finePointer && mobile)) return
-      const bounds = host.getBoundingClientRect()
-      const nextX = event.clientX - bounds.left
-      const nextY = event.clientY - bounds.top
-      if (!pointer.active) {
-        pointer.previousX = nextX
-        pointer.previousY = nextY
-      }
-      pointer.velocityX = nextX - pointer.previousX
-      pointer.velocityY = nextY - pointer.previousY
-      pointer.x = nextX
-      pointer.y = nextY
-      pointer.previousX = nextX
-      pointer.previousY = nextY
+      if (reducedMotion || !finePointer || breakpoint === 'mobile') return
+      const bounds = field.getBoundingClientRect()
+      pointer.x = (event.clientX - bounds.left) / bounds.width * VIEWBOX_WIDTH
+      pointer.y = (event.clientY - bounds.top) / bounds.height * VIEWBOX_HEIGHT
       pointer.active = true
       setDatasets()
       start()
@@ -505,66 +328,118 @@ export function ContactConstellationField({ activeField, signalState, mobile }: 
       start()
     }
 
-    const updateMotionPreference = () => {
-      reducedMotion = motionQuery?.matches ?? false
-      finePointer = finePointerQuery?.matches ?? true
+    const updateMotion = () => {
+      reducedMotion = motionQuery.matches
+      finePointer = finePointerQuery.matches
+      pointer.active = false
       if (frame) cancelAnimationFrame(frame)
       frame = 0
-      pointer.active = false
-      nodes.forEach((node) => {
-        node.x = node.anchorX
-        node.y = node.anchorY
-        node.velocityX = 0
-        node.velocityY = 0
+      routePoints.forEach((points) => points.forEach((point) => {
+        point.x = point.originX
+        point.y = point.originY
+        point.velocityX = 0
+        point.velocityY = 0
+      }))
+      nodePoints.forEach((point) => {
+        point.x = point.originX
+        point.y = point.originY
+        point.velocityX = 0
+        point.velocityY = 0
       })
-      setDatasets()
-      render(performance.now())
+      render(performance.now(), 1)
       start()
     }
 
-    const updateVisibility = () => {
-      pageVisible = document.visibilityState !== 'hidden'
-      if (!pageVisible && frame) cancelAnimationFrame(frame)
-      frame = 0
-      start()
-    }
-
-    const renderStateChange = () => {
-      if (reducedMotion) render(performance.now())
-    }
-
-    const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize)
     const intersectionObserver = typeof IntersectionObserver === 'undefined' ? null : new IntersectionObserver(([entry]) => {
-      sectionVisible = entry.isIntersecting
-      if (!sectionVisible && frame) cancelAnimationFrame(frame)
+      visible = entry.isIntersecting
+      if (!visible && frame) cancelAnimationFrame(frame)
       frame = 0
       start()
-    }, { rootMargin: '120px' })
+    }, { rootMargin: '100px' })
 
-    interactionRoot.addEventListener('pointermove', movePointer)
-    interactionRoot.addEventListener('pointerleave', leavePointer)
-    canvas.addEventListener('editorialfieldstatechange', renderStateChange)
-    document.addEventListener('visibilitychange', updateVisibility)
-    motionQuery?.addEventListener?.('change', updateMotionPreference)
-    finePointerQuery?.addEventListener?.('change', updateMotionPreference)
-    resizeObserver?.observe(host)
-    intersectionObserver?.observe(host)
-    resize()
+    root.addEventListener('pointermove', movePointer)
+    root.addEventListener('pointerleave', leavePointer)
+    motionQuery.addEventListener('change', updateMotion)
+    finePointerQuery.addEventListener('change', updateMotion)
+    intersectionObserver?.observe(root)
+    setDatasets()
+    render(performance.now(), 1)
+    start()
 
     return () => {
       if (frame) cancelAnimationFrame(frame)
-      interactionRoot.removeEventListener('pointermove', movePointer)
-      interactionRoot.removeEventListener('pointerleave', leavePointer)
-      canvas.removeEventListener('editorialfieldstatechange', renderStateChange)
-      document.removeEventListener('visibilitychange', updateVisibility)
-      motionQuery?.removeEventListener?.('change', updateMotionPreference)
-      finePointerQuery?.removeEventListener?.('change', updateMotionPreference)
-      resizeObserver?.disconnect()
+      root.removeEventListener('pointermove', movePointer)
+      root.removeEventListener('pointerleave', leavePointer)
+      motionQuery.removeEventListener('change', updateMotion)
+      finePointerQuery.removeEventListener('change', updateMotion)
       intersectionObserver?.disconnect()
     }
-  }, [mobile])
+  }, [breakpoint, routes, signalState, zones])
 
-  return <div className="contact-signal-field contact-editorial-field" data-renderer="editorial-bilateral-canvas" aria-hidden="true">
-    <canvas className="contact-signal-canvas" ref={canvasRef} />
+  const maskId = `contact-signal-mask-${breakpoint}`
+  const activeMicroElements = breakpoint === 'mobile' ? microElements.slice(6, 10) : microElements
+
+  return <div className="contact-signal-field contact-editorial-ribbons" data-renderer="editorial-signal-ribbons" data-signal-state={signalState} data-entered="true" aria-hidden="true">
+    <svg ref={svgRef} className="contact-signal-svg" viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} preserveAspectRatio="none">
+      <defs>
+        <filter id="contact-signal-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="5.5" />
+        </filter>
+        <filter id="contact-signal-soft-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="13" />
+        </filter>
+        <radialGradient id="contact-glow-left"><stop offset="0" stopColor="#d7b66f" stopOpacity=".052" /><stop offset="1" stopColor="#d7b66f" stopOpacity="0" /></radialGradient>
+        <radialGradient id="contact-glow-center"><stop offset="0" stopColor="#d7b66f" stopOpacity=".068" /><stop offset="1" stopColor="#d7b66f" stopOpacity="0" /></radialGradient>
+        <radialGradient id="contact-glow-right"><stop offset="0" stopColor="#e8d9b8" stopOpacity=".09" /><stop offset="1" stopColor="#d7b66f" stopOpacity="0" /></radialGradient>
+        <mask id={maskId}>
+          <rect width={VIEWBOX_WIDTH} height={VIEWBOX_HEIGHT} fill="white" />
+          {zones.map((zone, index) => <rect key={index} x={zone.x} y={zone.y} width={zone.width} height={zone.height} rx="9" fill="black" />)}
+        </mask>
+      </defs>
+
+      <g className="signal-ambient-layer">
+        <ellipse cx="74" cy="84" rx="210" ry="158" fill="url(#contact-glow-left)" />
+        {breakpoint !== 'mobile' && <ellipse cx="510" cy="390" rx="260" ry="190" fill="url(#contact-glow-center)" />}
+        <ellipse cx="785" cy="492" rx="280" ry="205" fill="url(#contact-glow-right)" />
+      </g>
+
+      <g className="signal-route-layer" mask={`url(#${maskId})`}>
+        {routes.map((route) => {
+          const path = pathFromPoints(route.points)
+          return <g className={`signal-route signal-route-${route.id}`} key={route.id}>
+            <path data-route={route.id} className="signal-route-glow" d={path} />
+            <path data-route={route.id} className="signal-route-main" pathLength="1" d={path} />
+            <path data-route={route.id} className="signal-route-accent" pathLength="1" d={path} />
+          </g>
+        })}
+      </g>
+
+      <g className="signal-micro-layer" mask={`url(#${maskId})`}>
+        {activeMicroElements.map((item, index) => <g key={index} className={`signal-micro signal-micro-${item.type}`} transform={`translate(${item.x} ${item.y})`}>
+          {item.type === 'diamond' ? <rect x="-2.3" y="-2.3" width="4.6" height="4.6" /> : item.type === 'dash' ? <line x1="-4" x2="4" /> : <circle r="1.35" />}
+        </g>)}
+      </g>
+
+      <g className="signal-node-layer">
+        {routes.flatMap((route) => route.nodes.map((node, index) => <g
+          key={node.id}
+          data-node={node.id}
+          data-route-node={route.id}
+          className={`signal-node signal-node-${node.kind}`}
+          style={{ '--node-delay': `${130 + index * 85 + routes.indexOf(route) * 120}ms` } as React.CSSProperties}
+          transform={`translate(${node.x} ${node.y})`}
+        >{nodeShape(node.kind)}</g>))}
+      </g>
+
+      {breakpoint !== 'mobile' && <circle className="signal-traveller signal-traveller-idle" r="2.6">
+        <animateMotion dur="9s" begin="1.25s" repeatCount="indefinite" path={pathFromPoints(desktopRoutes[1].points)} />
+        <animate attributeName="opacity" values="0;0;.9;.9;0;0" keyTimes="0;.08;.12;.25;.31;1" dur="9s" begin="1.25s" repeatCount="indefinite" />
+      </circle>}
+
+      {activeField && <line className="signal-focus-sweep" x1="586" x2="925" y1={focusY} y2={focusY} />}
+      {(signalState === 'submit-hover' || signalState === 'loading') && <circle className="signal-traveller signal-traveller-cta" r="3">
+        <animateMotion dur={signalState === 'loading' ? '1.2s' : '1.8s'} repeatCount={signalState === 'loading' ? '2' : '1'} path={pathFromPoints(routes.find((route) => route.id === 'c')?.points ?? [])} />
+      </circle>}
+    </svg>
   </div>
 }

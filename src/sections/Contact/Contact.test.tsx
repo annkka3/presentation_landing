@@ -45,8 +45,8 @@ describe('Contact', () => {
 
     expect(name).toHaveValue('')
     expect(screen.queryByDisplayValue('null')).not.toBeInTheDocument()
-    expect(document.querySelector('.contact-signal-field')).toHaveAttribute('data-renderer', 'editorial-bilateral-canvas')
-    expect(document.querySelector('.contact-signal-canvas')).toBeInTheDocument()
+    expect(document.querySelector('.contact-signal-field')).toHaveAttribute('data-renderer', 'editorial-signal-ribbons')
+    expect(document.querySelector('.contact-signal-svg')).toBeInTheDocument()
     await user.click(name)
     expect(form).toHaveAttribute('data-signal-state', 'focus')
     expect(form).toHaveAttribute('data-active-field', 'name')

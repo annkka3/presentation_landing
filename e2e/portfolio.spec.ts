@@ -290,18 +290,18 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   expect(reducedDiagram.pathsVisible).toBe(true)
   expect(reducedDiagram.impulseOpacity).toBe('0')
   const reducedContactMotion = await page.locator('#contact .contact-grid').evaluate((grid) => {
-    const canvas = grid.querySelector<HTMLCanvasElement>('.contact-signal-canvas')!
+    const svg = grid.querySelector<SVGSVGElement>('.contact-signal-svg')!
     const underlay = document.querySelector<SVGElement>('.build-diagram-underlay')!
     return {
-      particleMotion: canvas.dataset.motion,
-      pointerActive: canvas.dataset.pointerActive,
+      particleMotion: svg.dataset.motion,
+      pointerActive: svg.dataset.pointerActive,
       underlayAnimation: getComputedStyle(underlay).animationName,
     }
   })
   expect(reducedContactMotion).toEqual({ particleMotion: 'static', pointerActive: 'false', underlayAnimation: 'none' })
 })
 
-test('Contact editorial field spans both columns, responds to pointer and preserves accessible interaction', async ({ page }) => {
+test('Contact editorial signal ribbons span both columns, respond to pointer and preserve accessible interaction', async ({ page }) => {
   const consoleErrors: string[] = []
   const requestFailures: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
@@ -313,18 +313,18 @@ test('Contact editorial field spans both columns, responds to pointer and preser
   await page.goto('/#contact')
   const form = page.locator('#contact .contact-form')
   const grid = page.locator('#contact .contact-grid')
-  const canvas = grid.locator('.contact-signal-canvas')
+  const svg = grid.locator('.contact-signal-svg')
   const field = grid.locator('.contact-signal-field')
-  await expect(canvas).toBeVisible()
-  await expect(field).toHaveAttribute('data-renderer', 'editorial-bilateral-canvas')
-  await expect(canvas).toHaveAttribute('data-motion', 'physics')
-  expect(Number(await canvas.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(38)
-  expect(Number(await canvas.getAttribute('data-node-count'))).toBeLessThanOrEqual(44)
-  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeGreaterThanOrEqual(6)
-  await expect(canvas).toHaveAttribute('data-cluster-count', '5')
-  expect(await canvas.getAttribute('data-node-types')).toContain('anchor:')
-  await expect(canvas).toHaveAttribute('data-balance', '15:27')
-  expect(Number(await canvas.getAttribute('data-safe-zones'))).toBeGreaterThan(10)
+  await expect(svg).toBeVisible()
+  await expect(field).toHaveAttribute('data-renderer', 'editorial-signal-ribbons')
+  await expect(svg).toHaveAttribute('data-motion', 'physics')
+  await expect(svg).toHaveAttribute('data-route-count', '4')
+  expect(Number(await svg.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(12)
+  expect(Number(await svg.getAttribute('data-node-count'))).toBeLessThanOrEqual(18)
+  await expect(svg).toHaveAttribute('data-micro-count', '10')
+  expect(Number(await svg.getAttribute('data-safe-zones'))).toBeGreaterThan(10)
+  await expect(grid.locator('.signal-route')).toHaveCount(4)
+  expect(await grid.locator('.signal-node-ring, .signal-node-outcome').count()).toBeGreaterThanOrEqual(4)
   const coverage = await grid.evaluate((element) => {
     const fieldBounds = element.querySelector<HTMLElement>('.contact-signal-field')!.getBoundingClientRect()
     const gridBounds = element.getBoundingClientRect()
@@ -341,12 +341,12 @@ test('Contact editorial field spans both columns, responds to pointer and preser
   expect(bounds).not.toBeNull()
   await page.mouse.move(bounds!.x + bounds!.width * .18, bounds!.y + bounds!.height * .28)
   await page.mouse.move(bounds!.x + bounds!.width * .58, bounds!.y + bounds!.height * .56, { steps: 12 })
-  await expect(canvas).toHaveAttribute('data-pointer-active', 'true')
-  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement'))).toBeGreaterThan(8)
-  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement'))).toBeLessThanOrEqual(34)
+  await expect(svg).toHaveAttribute('data-pointer-active', 'true')
+  await expect.poll(async () => Number(await svg.getAttribute('data-max-displacement'))).toBeGreaterThan(8)
+  await expect.poll(async () => Number(await svg.getAttribute('data-max-displacement'))).toBeLessThanOrEqual(38)
   await page.mouse.move(bounds!.x - 30, bounds!.y + bounds!.height * .5)
-  await expect(canvas).toHaveAttribute('data-pointer-active', 'false')
-  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement')), { timeout: 3000 }).toBeLessThan(4)
+  await expect(svg).toHaveAttribute('data-pointer-active', 'false')
+  await expect.poll(async () => Number(await svg.getAttribute('data-max-displacement')), { timeout: 3000 }).toBeLessThan(4)
   await page.getByLabel('Имя').click()
   await expect(form).toHaveAttribute('data-signal-state', 'focus')
   await page.keyboard.press('Tab')
@@ -358,16 +358,16 @@ test('Contact editorial field spans both columns, responds to pointer and preser
   expect(requestFailures).toEqual([])
 })
 
-test('Contact editorial field uses lightweight mobile density and does not intercept the form', async ({ page }) => {
+test('Contact editorial signal ribbons use a simplified mobile composition and do not intercept the form', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#contact')
   const form = page.locator('.mobile-contact-chapter .contact-form')
   const grid = page.locator('.mobile-contact-chapter .contact-grid')
-  const canvas = grid.locator('.contact-signal-canvas')
-  await expect(canvas).toBeVisible()
-  expect(Number(await canvas.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(10)
-  expect(Number(await canvas.getAttribute('data-node-count'))).toBeLessThanOrEqual(16)
-  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeLessThan(16)
+  const svg = grid.locator('.contact-signal-svg')
+  await expect(svg).toBeVisible()
+  await expect(svg).toHaveAttribute('data-route-count', '2')
+  await expect(svg).toHaveAttribute('data-node-count', '7')
+  await expect(svg).toHaveAttribute('data-micro-count', '4')
   await expect(grid.locator('.contact-signal-field')).toHaveCSS('pointer-events', 'none')
   const contact = form.getByLabel('Email или Telegram')
   await contact.click()
