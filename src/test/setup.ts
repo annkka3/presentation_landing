@@ -45,4 +45,5 @@ Object.defineProperty(window, 'IntersectionObserver', { configurable: true, writ
 Object.defineProperty(globalThis, 'IntersectionObserver', { configurable: true, writable: true, value: ImmediateIntersectionObserver })
 Object.defineProperty(HTMLMediaElement.prototype, 'play', { configurable: true, writable: true, value: () => Promise.resolve() })
 Object.defineProperty(HTMLMediaElement.prototype, 'pause', { configurable: true, writable: true, value: () => undefined })
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', { configurable: true, writable: true, value: () => null })
 Object.defineProperty(HTMLElement.prototype, 'scrollTo', { configurable: true, writable: true, value: () => undefined })

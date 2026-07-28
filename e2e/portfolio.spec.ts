@@ -290,31 +290,40 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   expect(reducedDiagram.pathsVisible).toBe(true)
   expect(reducedDiagram.impulseOpacity).toBe('0')
   const reducedContactMotion = await page.locator('#contact .contact-form').evaluate((form) => {
-    const particle = form.querySelector<HTMLElement>('.signal-particle')!
+    const canvas = form.querySelector<HTMLCanvasElement>('.contact-signal-canvas')!
     const underlay = document.querySelector<SVGElement>('.build-diagram-underlay')!
     return {
-      particleAnimation: getComputedStyle(particle).animationName,
-      particleTransform: getComputedStyle(particle).transform,
+      particleMotion: canvas.dataset.motion,
+      pointerActive: canvas.dataset.pointerActive,
       underlayAnimation: getComputedStyle(underlay).animationName,
     }
   })
-  expect(reducedContactMotion).toEqual({ particleAnimation: 'none', particleTransform: 'none', underlayAnimation: 'none' })
+  expect(reducedContactMotion).toEqual({ particleMotion: 'static', pointerActive: 'false', underlayAnimation: 'none' })
 })
 
-test('Contact signal field remains intentionally visible across interaction states', async ({ page }) => {
+test('Contact particle field responds across the form and preserves interaction states', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/#contact')
   const form = page.locator('#contact .contact-form')
-  const particle = form.locator('.signal-particle').first()
-  await expect(form.locator('.signal-particle')).toHaveCount(22)
-  expect(Number(await particle.evaluate((element) => getComputedStyle(element).opacity))).toBeGreaterThanOrEqual(.45)
+  const canvas = form.locator('.contact-signal-canvas')
+  await expect(canvas).toBeVisible()
+  await expect(form.locator('.contact-signal-field')).toHaveAttribute('data-renderer', 'canvas')
+  await expect(canvas).toHaveAttribute('data-motion', 'physics')
+  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeGreaterThanOrEqual(38)
+  const bounds = await form.boundingBox()
+  expect(bounds).not.toBeNull()
+  await page.mouse.move(bounds!.x + bounds!.width * .18, bounds!.y + bounds!.height * .28)
+  await page.mouse.move(bounds!.x + bounds!.width * .58, bounds!.y + bounds!.height * .56, { steps: 12 })
+  await expect(canvas).toHaveAttribute('data-pointer-active', 'true')
+  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement'))).toBeGreaterThan(8)
+  await page.mouse.move(bounds!.x - 30, bounds!.y + bounds!.height * .5)
+  await expect(canvas).toHaveAttribute('data-pointer-active', 'false')
+  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement')), { timeout: 3000 }).toBeLessThan(6)
   await page.getByLabel('Имя').focus()
   await expect(form).toHaveAttribute('data-signal-state', 'focus')
-  await expect.poll(() => particle.evaluate((element) => Number(getComputedStyle(element).opacity))).toBeGreaterThanOrEqual(.68)
   await page.getByRole('button', { name: 'Отправить сообщение →' }).hover()
   await page.getByLabel('Имя').blur()
   await expect(form).toHaveAttribute('data-signal-state', 'submit-hover')
-  await expect.poll(() => particle.evaluate((element) => Number(getComputedStyle(element).opacity))).toBeGreaterThanOrEqual(.78)
 })
 
 test('homepage owns seven stable editorial scenes and route-scoped state', async ({ page }) => {
