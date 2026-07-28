@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppContext'
 import { Container } from '../../components/layout/Container'
 import { sendContact, type ContactPayload } from '../../services/contact'
 import { validateContact, type ContactErrors } from '../../services/validation'
-import { ContactConstellationField, type ContactField, type SignalState } from './ContactConstellationField'
+import { ContactSignalTideField, type ContactField, type SignalState } from './ContactSignalTideField'
 
 const emptyValues = (): ContactPayload => ({ name: '', contact: '', message: '', website: '' })
 const normalizeContactValue = (value: unknown) => value == null || value === 'null' ? '' : String(value)
@@ -38,7 +38,7 @@ export function Contact({ mobile = false }: { mobile?: boolean }) {
   }
   const copyEmail = () => navigator.clipboard?.writeText('annagromyko88@gmail.com')
   return <section className={`section contact-section ${mobile ? 'is-mobile-contact' : ''}`}><div className="contact-content"><Container className="contact-grid">
-    <ContactConstellationField activeField={activeField} signalState={signalState} mobile={mobile} />
+    <ContactSignalTideField activeField={activeField} signalState={signalState} mobile={mobile} />
     <div className="contact-copy"><span className="contact-eyebrow">{mobile ? t.mobileContactEyebrow : t.contactEyebrow}</span><h2 className="contact-display-heading">{t.contactHeading}</h2><p>{mobile ? t.mobileContactIntro : t.contactIntro}</p><p className="contact-availability">{t.availability}</p><div className="contact-links">
       {mobile ? <button type="button" onClick={copyEmail} aria-label={t.copyEmail}><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">⧉</i></button> : <a href="mailto:annagromyko88@gmail.com"><span className="contact-link-copy"><span>EMAIL</span><strong>annagromyko88@gmail.com</strong></span><i aria-hidden="true">↗</i></a>}
       <a href="https://t.me/AnnaGromyko" target="_blank" rel="noopener noreferrer"><span className="contact-link-copy"><span>TELEGRAM</span><strong>@AnnaGromyko</strong></span><i aria-hidden="true">↗</i></a>

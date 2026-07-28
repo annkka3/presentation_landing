@@ -290,18 +290,18 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   expect(reducedDiagram.pathsVisible).toBe(true)
   expect(reducedDiagram.impulseOpacity).toBe('0')
   const reducedContactMotion = await page.locator('#contact .contact-grid').evaluate((grid) => {
-    const svg = grid.querySelector<SVGSVGElement>('.contact-signal-svg')!
+    const canvas = grid.querySelector<HTMLCanvasElement>('.contact-tide-canvas')!
     const underlay = document.querySelector<SVGElement>('.build-diagram-underlay')!
     return {
-      particleMotion: svg.dataset.motion,
-      pointerActive: svg.dataset.pointerActive,
+      particleMotion: canvas.dataset.motion,
+      pointerActive: canvas.dataset.pointerActive,
       underlayAnimation: getComputedStyle(underlay).animationName,
     }
   })
   expect(reducedContactMotion).toEqual({ particleMotion: 'static', pointerActive: 'false', underlayAnimation: 'none' })
 })
 
-test('Contact editorial signal ribbons span both columns, respond to pointer and preserve accessible interaction', async ({ page }) => {
+test('Contact kinetic signal tide stays below content, responds to pointer and preserves accessible interaction', async ({ page }) => {
   const consoleErrors: string[] = []
   const requestFailures: string[] = []
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
@@ -313,40 +313,46 @@ test('Contact editorial signal ribbons span both columns, respond to pointer and
   await page.goto('/#contact')
   const form = page.locator('#contact .contact-form')
   const grid = page.locator('#contact .contact-grid')
-  const svg = grid.locator('.contact-signal-svg')
+  const canvas = grid.locator('.contact-tide-canvas')
   const field = grid.locator('.contact-signal-field')
-  await expect(svg).toBeVisible()
-  await expect(field).toHaveAttribute('data-renderer', 'editorial-signal-ribbons')
-  await expect(svg).toHaveAttribute('data-motion', 'physics')
-  await expect(svg).toHaveAttribute('data-route-count', '4')
-  expect(Number(await svg.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(12)
-  expect(Number(await svg.getAttribute('data-node-count'))).toBeLessThanOrEqual(18)
-  await expect(svg).toHaveAttribute('data-micro-count', '10')
-  expect(Number(await svg.getAttribute('data-safe-zones'))).toBeGreaterThan(10)
-  await expect(grid.locator('.signal-route')).toHaveCount(4)
-  expect(await grid.locator('.signal-node-ring, .signal-node-outcome').count()).toBeGreaterThanOrEqual(4)
+  await expect(canvas).toBeVisible()
+  await expect(field).toHaveAttribute('data-renderer', 'kinetic-signal-tide')
+  await expect(canvas).toHaveAttribute('data-motion', 'physics')
+  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeGreaterThanOrEqual(80)
+  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeLessThanOrEqual(110)
+  expect(await canvas.getAttribute('data-shapes')).toContain('dot:')
+  expect(await canvas.getAttribute('data-shapes')).toContain('plus:')
+  expect(await canvas.getAttribute('data-depths')).toContain('foreground:')
+  await expect(grid.locator('.signal-route, .signal-node, .signal-traveller')).toHaveCount(0)
   const coverage = await grid.evaluate((element) => {
     const fieldBounds = element.querySelector<HTMLElement>('.contact-signal-field')!.getBoundingClientRect()
     const gridBounds = element.getBoundingClientRect()
     return {
       left: fieldBounds.left <= gridBounds.left,
       right: fieldBounds.right >= gridBounds.right,
-      top: fieldBounds.top <= gridBounds.top,
-      bottom: fieldBounds.bottom >= gridBounds.bottom,
+      lowerBand: fieldBounds.top > gridBounds.top + gridBounds.height * .55,
+      bottom: fieldBounds.bottom >= gridBounds.bottom - 50,
+      height: fieldBounds.height,
       pointerEvents: getComputedStyle(element.querySelector<HTMLElement>('.contact-signal-field')!).pointerEvents,
     }
   })
-  expect(coverage).toEqual({ left: true, right: true, top: true, bottom: true, pointerEvents: 'none' })
-  const bounds = await grid.boundingBox()
+  expect(coverage.left).toBe(true)
+  expect(coverage.right).toBe(true)
+  expect(coverage.lowerBand).toBe(true)
+  expect(coverage.bottom).toBe(true)
+  expect(coverage.height).toBeGreaterThanOrEqual(170)
+  expect(coverage.height).toBeLessThanOrEqual(220)
+  expect(coverage.pointerEvents).toBe('none')
+  const bounds = await field.boundingBox()
   expect(bounds).not.toBeNull()
-  await page.mouse.move(bounds!.x + bounds!.width * .18, bounds!.y + bounds!.height * .28)
+  await page.mouse.move(bounds!.x + bounds!.width * .18, bounds!.y + bounds!.height * .42)
   await page.mouse.move(bounds!.x + bounds!.width * .58, bounds!.y + bounds!.height * .56, { steps: 12 })
-  await expect(svg).toHaveAttribute('data-pointer-active', 'true')
-  await expect.poll(async () => Number(await svg.getAttribute('data-max-displacement'))).toBeGreaterThan(8)
-  await expect.poll(async () => Number(await svg.getAttribute('data-max-displacement'))).toBeLessThanOrEqual(38)
+  await expect(canvas).toHaveAttribute('data-pointer-active', 'true')
+  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement'))).toBeGreaterThan(8)
+  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement'))).toBeLessThanOrEqual(42)
   await page.mouse.move(bounds!.x - 30, bounds!.y + bounds!.height * .5)
-  await expect(svg).toHaveAttribute('data-pointer-active', 'false')
-  await expect.poll(async () => Number(await svg.getAttribute('data-max-displacement')), { timeout: 3000 }).toBeLessThan(4)
+  await expect(canvas).toHaveAttribute('data-pointer-active', 'false')
+  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement')), { timeout: 3000 }).toBeLessThan(4)
   await page.getByLabel('Имя').click()
   await expect(form).toHaveAttribute('data-signal-state', 'focus')
   await page.keyboard.press('Tab')
@@ -358,16 +364,17 @@ test('Contact editorial signal ribbons span both columns, respond to pointer and
   expect(requestFailures).toEqual([])
 })
 
-test('Contact editorial signal ribbons use a simplified mobile composition and do not intercept the form', async ({ page }) => {
+test('Contact kinetic signal tide uses a simplified mobile composition and does not intercept the form', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#contact')
   const form = page.locator('.mobile-contact-chapter .contact-form')
   const grid = page.locator('.mobile-contact-chapter .contact-grid')
-  const svg = grid.locator('.contact-signal-svg')
-  await expect(svg).toBeVisible()
-  await expect(svg).toHaveAttribute('data-route-count', '2')
-  await expect(svg).toHaveAttribute('data-node-count', '7')
-  await expect(svg).toHaveAttribute('data-micro-count', '4')
+  const canvas = grid.locator('.contact-tide-canvas')
+  await expect(canvas).toBeVisible()
+  await expect(canvas).toHaveAttribute('data-particle-count', '28')
+  expect(Number(await canvas.getAttribute('data-field-height'))).toBeGreaterThanOrEqual(90)
+  expect(Number(await canvas.getAttribute('data-field-height'))).toBeLessThanOrEqual(130)
+  await expect(canvas).toHaveAttribute('data-pointer-active', 'false')
   await expect(grid.locator('.contact-signal-field')).toHaveCSS('pointer-events', 'none')
   const contact = form.getByLabel('Email или Telegram')
   await contact.click()
