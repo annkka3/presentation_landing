@@ -367,6 +367,7 @@
 
 @media (min-width:768px) and (max-width:900px){
   .hero-actions{gap:5px}
+  .hero-actions,.scene-footer.is-hero{bottom:14px}
   .hero-action{min-height:40px;padding-inline:8px;gap:6px;font-size:7px;letter-spacing:.05em}
   .hero-action span{font-size:11px}
 }

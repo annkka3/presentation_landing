@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <script>
-      (() => { const saved = localStorage.getItem('anna-theme'); const theme = saved === 'light' || saved === 'dark' ? saved : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); document.documentElement.dataset.theme = theme; document.documentElement.style.colorScheme = theme; const lang = localStorage.getItem('anna-locale'); document.documentElement.lang = lang === 'en' ? 'en' : 'ru'; })();
+      (() => { const saved = localStorage.getItem('anna-theme'); const theme = saved === 'light' || saved === 'dark' ? saved : 'dark'; document.documentElement.dataset.theme = theme; document.documentElement.style.colorScheme = theme; const lang = localStorage.getItem('anna-locale'); document.documentElement.lang = lang === 'en' ? 'en' : 'ru'; })();
     </script>
     <title>Anna Gromyko — AI Product Builder</title>
   </head>
