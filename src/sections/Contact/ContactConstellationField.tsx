@@ -213,6 +213,8 @@ export function ContactConstellationField({ activeField, signalState, mobile }: 
     let visible = typeof IntersectionObserver !== 'undefined'
     let frame = 0
     let previousTime = performance.now()
+    const fieldWidth = Math.max(1, field.getBoundingClientRect().width)
+    const influenceRadius = Math.min(220, Math.max(150, fieldWidth * .145)) / fieldWidth * VIEWBOX_WIDTH
     const pointer = { x: 0, y: 0, active: false }
     const routePoints = new Map<RouteId, DynamicPoint[]>()
     const nodePoints = new Map<string, DynamicPoint>()
@@ -254,10 +256,8 @@ export function ContactConstellationField({ activeField, signalState, mobile }: 
         const dx = point.x - pointer.x
         const dy = point.y - pointer.y
         const distance = Math.max(1, Math.hypot(dx, dy))
-        const fieldWidth = field.getBoundingClientRect().width
-        const radius = Math.min(220, Math.max(150, fieldWidth * .145)) / fieldWidth * VIEWBOX_WIDTH
-        if (distance < radius) {
-          const influence = 1 - distance / radius
+        if (distance < influenceRadius) {
+          const influence = 1 - distance / influenceRadius
           targetX += dx / distance * influence * influence * maxDisplacement * strength
           targetY += dy / distance * influence * influence * maxDisplacement * strength
           point.velocityX += dx / distance * influence * influence * .82 * strength * delta
