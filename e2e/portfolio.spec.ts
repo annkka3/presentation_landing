@@ -301,29 +301,75 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   expect(reducedContactMotion).toEqual({ particleMotion: 'static', pointerActive: 'false', underlayAnimation: 'none' })
 })
 
-test('Contact particle field responds across the form and preserves interaction states', async ({ page }) => {
+test('Contact constellation covers the form, responds to pointer and preserves accessible interaction', async ({ page }) => {
+  const consoleErrors: string[] = []
+  const requestFailures: string[] = []
+  page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
+  page.on('pageerror', (error) => consoleErrors.push(error.message))
+  page.on('requestfailed', (request) => {
+    if (request.failure()?.errorText !== 'net::ERR_ABORTED') requestFailures.push(`${request.method()} ${request.url()}`)
+  })
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/#contact')
   const form = page.locator('#contact .contact-form')
   const canvas = form.locator('.contact-signal-canvas')
+  const field = form.locator('.contact-signal-field')
   await expect(canvas).toBeVisible()
-  await expect(form.locator('.contact-signal-field')).toHaveAttribute('data-renderer', 'canvas')
+  await expect(field).toHaveAttribute('data-renderer', 'constellation-canvas')
   await expect(canvas).toHaveAttribute('data-motion', 'physics')
-  expect(Number(await canvas.getAttribute('data-particle-count'))).toBeGreaterThanOrEqual(38)
+  expect(Number(await canvas.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(28)
+  expect(Number(await canvas.getAttribute('data-node-count'))).toBeLessThanOrEqual(44)
+  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeGreaterThanOrEqual(22)
+  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeLessThanOrEqual(34)
+  await expect(canvas).toHaveAttribute('data-cluster-count', '3')
+  expect(await canvas.getAttribute('data-node-types')).toContain('accent:')
+  const coverage = await form.evaluate((element) => {
+    const fieldBounds = element.querySelector<HTMLElement>('.contact-signal-field')!.getBoundingClientRect()
+    const formBounds = element.getBoundingClientRect()
+    return {
+      left: fieldBounds.left <= formBounds.left,
+      right: fieldBounds.right >= formBounds.right,
+      top: fieldBounds.top <= formBounds.top,
+      bottom: fieldBounds.bottom >= formBounds.bottom,
+      pointerEvents: getComputedStyle(element.querySelector<HTMLElement>('.contact-signal-field')!).pointerEvents,
+    }
+  })
+  expect(coverage).toEqual({ left: true, right: true, top: true, bottom: true, pointerEvents: 'none' })
   const bounds = await form.boundingBox()
   expect(bounds).not.toBeNull()
   await page.mouse.move(bounds!.x + bounds!.width * .18, bounds!.y + bounds!.height * .28)
   await page.mouse.move(bounds!.x + bounds!.width * .58, bounds!.y + bounds!.height * .56, { steps: 12 })
   await expect(canvas).toHaveAttribute('data-pointer-active', 'true')
   await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement'))).toBeGreaterThan(8)
+  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement'))).toBeLessThanOrEqual(34)
   await page.mouse.move(bounds!.x - 30, bounds!.y + bounds!.height * .5)
   await expect(canvas).toHaveAttribute('data-pointer-active', 'false')
-  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement')), { timeout: 3000 }).toBeLessThan(6)
-  await page.getByLabel('Имя').focus()
+  await expect.poll(async () => Number(await canvas.getAttribute('data-max-displacement')), { timeout: 3000 }).toBeLessThan(4)
+  await page.getByLabel('Имя').click()
   await expect(form).toHaveAttribute('data-signal-state', 'focus')
+  await page.keyboard.press('Tab')
+  await expect(page.getByLabel('Email или Telegram')).toBeFocused()
   await page.getByRole('button', { name: 'Отправить сообщение →' }).hover()
-  await page.getByLabel('Имя').blur()
+  await page.getByLabel('Email или Telegram').blur()
   await expect(form).toHaveAttribute('data-signal-state', 'submit-hover')
+  expect(consoleErrors).toEqual([])
+  expect(requestFailures).toEqual([])
+})
+
+test('Contact constellation uses lightweight mobile density and does not intercept the form', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#contact')
+  const form = page.locator('.mobile-contact-chapter .contact-form')
+  const canvas = form.locator('.contact-signal-canvas')
+  await expect(canvas).toBeVisible()
+  expect(Number(await canvas.getAttribute('data-node-count'))).toBeGreaterThanOrEqual(10)
+  expect(Number(await canvas.getAttribute('data-node-count'))).toBeLessThanOrEqual(16)
+  expect(Number(await canvas.getAttribute('data-edge-count'))).toBeLessThan(16)
+  await expect(form.locator('.contact-signal-field')).toHaveCSS('pointer-events', 'none')
+  const contact = form.getByLabel('Email или Telegram')
+  await contact.click()
+  await contact.fill('@anna')
+  await expect(contact).toHaveValue('@anna')
 })
 
 test('homepage owns seven stable editorial scenes and route-scoped state', async ({ page }) => {
