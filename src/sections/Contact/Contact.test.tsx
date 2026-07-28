@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppProvider } from '../../app/AppContext'
@@ -33,6 +33,25 @@ describe('Contact', () => {
     expect(screen.queryByText('Сообщение отправлено. Спасибо!')).not.toBeInTheDocument()
     resolveRequest?.()
     expect(await screen.findByText('Сообщение отправлено. Спасибо!')).toBeInTheDocument()
+    expect(document.querySelector('.contact-form')).toHaveAttribute('data-signal-state', 'success')
+  })
+
+  it('keeps empty controls normalized and exposes precise field states', async () => {
+    const user = userEvent.setup()
+    render(<AppProvider><Contact /></AppProvider>)
+    const form = document.querySelector('.contact-form')
+    const name = screen.getByLabelText('Имя')
+    const submit = screen.getByRole('button', { name: 'Отправить сообщение →' })
+
+    expect(name).toHaveValue('')
+    expect(screen.queryByDisplayValue('null')).not.toBeInTheDocument()
+    expect(document.querySelectorAll('.signal-particle')).toHaveLength(22)
+    await user.click(name)
+    expect(form).toHaveAttribute('data-signal-state', 'focus')
+    expect(form).toHaveAttribute('data-active-field', 'name')
+    fireEvent.pointerEnter(submit)
+    fireEvent.blur(name)
+    expect(form).toHaveAttribute('data-signal-state', 'submit-hover')
   })
 
   it('offers direct alternatives when the endpoint is absent', async () => {

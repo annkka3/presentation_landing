@@ -249,7 +249,7 @@
   .mobile-contact-chapter .contact-form{max-width:none;margin-top:38px;padding:20px 0 0;border:0;border-top:1px solid color-mix(in srgb,var(--border-strong) 86%,var(--gold));border-radius:0;background:transparent;box-shadow:none}
   .mobile-contact-chapter .contact-form h3{font-size:23px}
   .mobile-contact-chapter .contact-form-helper{margin-bottom:10px}
-  .mobile-contact-chapter .contact-form>p{margin-bottom:16px}
+  .mobile-contact-chapter .contact-form>p:not(.form-status){margin-bottom:24px}
   .mobile-contact-chapter .form-field{margin-bottom:14px}
   .mobile-contact-chapter .form-field input,.mobile-contact-chapter .form-field textarea{padding-inline:12px;border:1px solid transparent;border-bottom-color:var(--input-border);border-radius:6px;transition:background var(--duration-fast),border-color var(--duration-fast),box-shadow var(--duration-fast)}
   .mobile-contact-chapter .form-field input{height:56px;min-height:56px}

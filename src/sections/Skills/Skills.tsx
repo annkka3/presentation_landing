@@ -10,7 +10,34 @@ type BuildSystem = (typeof buildSystems)[number]
 function SystemDiagram({ system }: { system: BuildSystem }) {
   return <div className={`build-diagram build-diagram--${system.key}`} aria-hidden="true">
     <span className="build-diagram-coordinate">{system.coordinate}</span>
-    <svg viewBox="0 0 360 300" focusable="false">
+    <svg className="build-diagram-underlay" viewBox="0 0 360 300" focusable="false">
+      {system.key === 'product' && <g>
+        <path d="M42 219 108 181l64 37-65 38Z" />
+        <path d="m108 181 64-37 64 37-64 37Z" />
+        <path d="m172 218 64-37v48l-64 38Z" />
+        <rect x="214" y="58" width="92" height="71" rx="4" />
+        <rect x="36" y="78" width="112" height="72" rx="4" />
+      </g>}
+      {system.key === 'visual' && <g>
+        <rect x="38" y="52" width="178" height="126" rx="4" />
+        <rect x="78" y="82" width="214" height="148" rx="4" />
+        <rect x="122" y="118" width="178" height="118" rx="4" />
+        <path d="M30 245c78-64 160 4 298-116" />
+      </g>}
+      {system.key === 'automation' && <g>
+        <path d="M28 82h78v54h68v-34h62v86h94" />
+        <path d="M28 222h82v-46h64v28h62v-82h94" />
+        <path d="M62 44v38m210 106v68M110 136v40m126 28v-16" />
+        <circle cx="106" cy="136" r="9" /><circle cx="174" cy="176" r="9" /><circle cx="236" cy="188" r="9" />
+      </g>}
+      {system.key === 'analytics' && <g>
+        <path d="M38 66h286M38 106h286M38 146h286M38 186h286M38 226h286M74 42v210M122 42v210M170 42v210M218 42v210M266 42v210" />
+        <path d="m52 218 57-48 48 12 53-78 44 25 58-70" />
+        <rect x="84" y="184" width="20" height="44" /><rect x="132" y="150" width="20" height="78" />
+        <rect x="180" y="166" width="20" height="62" /><rect x="228" y="112" width="20" height="116" />
+      </g>}
+    </svg>
+    <svg className="build-diagram-main" viewBox="0 0 360 300" focusable="false">
       {system.key === 'product' && <g className="build-diagram-product">
         <rect className="diagram-node diagram-step-1" x="48" y="62" width="86" height="58" rx="3" />
         <rect className="diagram-node diagram-step-2" x="226" y="54" width="84" height="66" rx="3" />
