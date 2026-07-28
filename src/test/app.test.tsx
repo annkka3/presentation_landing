@@ -17,6 +17,12 @@ function Controls() {
 describe('portfolio systems', () => {
   beforeEach(() => localStorage.clear())
 
+  it('uses the dark theme by default', () => {
+    render(<AppProvider><Controls /></AppProvider>)
+    expect(screen.getByText('ru:dark')).toBeInTheDocument()
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark')
+  })
+
   it('switches language and persists theme', async () => {
     const user = userEvent.setup()
     render(<AppProvider><Controls /></AppProvider>)

@@ -19,7 +19,7 @@ function initialLocale(): Locale {
 function initialTheme(): Theme {
   const saved = localStorage.getItem('anna-theme')
   if (saved === 'light' || saved === 'dark') return saved
-  return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  return 'dark'
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {

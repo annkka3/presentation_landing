@@ -73,7 +73,7 @@ export const daoProofLayers = [
 
 export const proofItems = [
   { stat: l('20+ лет', '20+ years'), label: l('коммерческого и управленческого опыта', 'of commercial and management experience') },
-  { stat: l('10+ проектов', '10+ projects'), label: l('в продукте, дизайне, автоматизации и аналитике', 'across product, design, automation, and analytics') },
+  { stat: l('30+ проектов', '30+ projects'), label: l('в продукте, дизайне, автоматизации и аналитике', 'across product, design, automation, and analytics') },
   { stat: l('Полный цикл', 'Full-cycle delivery'), label: l('идея → UX → разработка → QA → запуск', 'idea → UX → development → QA → launch') },
   { stat: l('Работа с AI в основе процесса', 'AI-native workflow'), label: l('Claude · Codex · Cursor · ChatGPT', 'Claude · Codex · Cursor · ChatGPT') },
 ]
