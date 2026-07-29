@@ -48,10 +48,10 @@ export function Process() {
             </radialGradient>
           </defs>
           <rect className="process-route-ambient" width="1200" height="540" fill="url(#process-route-glow)" />
-          <path className="process-route-grid" d="M72 82h1040M72 334h1040M205 52v430M480 52v430M755 52v430M1064 52v430" />
-          <path className="process-route-shadow" d="M70 52H430H790Q970 52 970 193Q970 334 790 334H430H70" />
-          <path className="process-route-main" pathLength="1" d="M70 52H430H790Q970 52 970 193Q970 334 790 334H430H70" />
-          <path className="process-route-signal" pathLength="1" d="M70 52H430H790Q970 52 970 193Q970 334 790 334H430H70" />
+          <path className="process-route-grid" d="M72 78h1040M72 296h1040M205 52v430M480 52v430M755 52v430M1064 52v430" />
+          <path className="process-route-shadow" d="M70 34H430H790Q940 34 940 165Q940 296 790 296H430H70" />
+          <path className="process-route-main" pathLength="1" d="M70 34H430H790Q940 34 940 165Q940 296 790 296H430H70" />
+          <path className="process-route-signal" pathLength="1" d="M70 34H430H790Q940 34 940 165Q940 296 790 296H430H70" />
         </svg>
         {processSteps.map((step, index) => {
           const meta = processMeta[index]
