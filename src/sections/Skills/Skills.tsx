@@ -8,71 +8,74 @@ import { useIntersectionReveal } from '../../hooks/useIntersectionReveal'
 type BuildSystem = (typeof buildSystems)[number]
 
 function SystemDiagram({ system }: { system: BuildSystem }) {
-  return <div className={`build-diagram build-diagram--${system.key}`} aria-hidden="true">
+  return <div className={`build-diagram living-blueprint build-diagram--${system.key}`} aria-hidden="true">
     <span className="build-diagram-coordinate">{system.coordinate}</span>
-    <svg className="build-diagram-underlay" viewBox="0 0 360 300" focusable="false">
-      {system.key === 'product' && <g>
-        <path d="M42 219 108 181l64 37-65 38Z" />
-        <path d="m108 181 64-37 64 37-64 37Z" />
-        <path d="m172 218 64-37v48l-64 38Z" />
-        <rect x="214" y="58" width="92" height="71" rx="4" />
-        <rect x="36" y="78" width="112" height="72" rx="4" />
-      </g>}
-      {system.key === 'visual' && <g>
-        <rect x="38" y="52" width="178" height="126" rx="4" />
-        <rect x="78" y="82" width="214" height="148" rx="4" />
-        <rect x="122" y="118" width="178" height="118" rx="4" />
-        <path d="M30 245c78-64 160 4 298-116" />
-      </g>}
-      {system.key === 'automation' && <g>
-        <path d="M28 82h78v54h68v-34h62v86h94" />
-        <path d="M28 222h82v-46h64v28h62v-82h94" />
-        <path d="M62 44v38m210 106v68M110 136v40m126 28v-16" />
-        <circle cx="106" cy="136" r="9" /><circle cx="174" cy="176" r="9" /><circle cx="236" cy="188" r="9" />
-      </g>}
-      {system.key === 'analytics' && <g>
-        <path d="M38 66h286M38 106h286M38 146h286M38 186h286M38 226h286M74 42v210M122 42v210M170 42v210M218 42v210M266 42v210" />
-        <path d="m52 218 57-48 48 12 53-78 44 25 58-70" />
-        <rect x="84" y="184" width="20" height="44" /><rect x="132" y="150" width="20" height="78" />
-        <rect x="180" y="166" width="20" height="62" /><rect x="228" y="112" width="20" height="116" />
-      </g>}
+    <svg className="build-diagram-underlay blueprint-base" viewBox="0 0 520 430" focusable="false">
+      <defs>
+        <radialGradient id={`blueprint-glow-${system.key}`} cx="70%" cy="68%" r="54%">
+          <stop offset="0" stopColor="currentColor" stopOpacity=".20" />
+          <stop offset=".36" stopColor="currentColor" stopOpacity=".08" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect className="blueprint-ambient" x="0" y="0" width="520" height="430" fill={`url(#blueprint-glow-${system.key})`} />
+      <path className="blueprint-frame" d="M58 72h350l56 34v246H116l-58-34Z" />
+      <path className="blueprint-grid-plane" d="M84 324h346M114 286h314M142 248h286M170 210h258M96 326l86-202M164 326l66-202M232 326l46-202M300 326l26-202M368 326l6-202" />
+      <path className="blueprint-axis" pathLength="1" d="M105 357H426" />
+      <path className="blueprint-guide" d="M176 92v238M260 92v238M344 92v238M428 118v212" />
+      <text x="72" y="375">INPUT</text>
+      <text x="418" y="375">OUTCOME</text>
+      <text x="344" y="62">{system.num} / {system.key.toUpperCase()}</text>
     </svg>
-    <svg className="build-diagram-main" viewBox="0 0 360 300" focusable="false">
-      {system.key === 'product' && <g className="build-diagram-product">
-        <rect className="diagram-node diagram-step-1" x="48" y="62" width="86" height="58" rx="3" />
-        <rect className="diagram-node diagram-step-2" x="226" y="54" width="84" height="66" rx="3" />
-        <circle className="diagram-product-core diagram-step-3" cx="181" cy="154" r="15" />
-        <path className="diagram-path diagram-step-4" pathLength="1" d="M134 91H226M91 120l90 70m87-70-87 70" />
-        <rect className="diagram-node diagram-product-result diagram-step-5" x="136" y="190" width="90" height="58" rx="3" />
-        <circle className="build-diagram-signal diagram-step-6" cx="181" cy="154" r="4" />
+    <svg className="build-diagram-main blueprint-model" viewBox="0 0 520 430" focusable="false">
+      {system.key === 'product' && <g className="blueprint-state blueprint-product">
+        <path className="blueprint-plane blueprint-step-1" d="M160 121 286 66l142 57-137 67Z" />
+        <path className="blueprint-plane blueprint-step-2" d="M138 176 273 116l152 61-147 73Z" />
+        <path className="blueprint-plane blueprint-step-3" d="M119 235 262 169l161 65-154 81Z" />
+        <path className="blueprint-plane blueprint-step-4" d="M101 296 250 224l171 70-165 88Z" />
+        <path className="blueprint-connector blueprint-step-5" pathLength="1" d="M286 66v158M428 123v171M160 121v175M291 190v126M278 250v66M269 315v67" />
+        <path className="blueprint-signal-path blueprint-step-6" pathLength="1" d="M250 348 262 271 273 205 286 126 428 123" />
+        <circle className="blueprint-node blueprint-step-6" cx="250" cy="348" r="5" />
+        <circle className="blueprint-node blueprint-step-6" cx="273" cy="205" r="4" />
+        <circle className="blueprint-node blueprint-step-6" cx="286" cy="126" r="4" />
+        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="428" cy="123" r="7" />
+        <text className="blueprint-label blueprint-step-2" x="438" y="128">01 USER SCENARIOS</text>
+        <text className="blueprint-label blueprint-step-3" x="438" y="183">02 INTERFACES / STATES</text>
+        <text className="blueprint-label blueprint-step-4" x="438" y="241">03 LOGIC / RULES</text>
+        <text className="blueprint-label blueprint-step-5" x="438" y="302">04 DATA / INTEGRATIONS</text>
       </g>}
-      {system.key === 'visual' && <g className="build-diagram-visual">
-        <rect className="diagram-visual-layer diagram-step-1" x="62" y="50" width="202" height="148" rx="4" />
-        <rect className="diagram-visual-layer diagram-step-2" x="96" y="84" width="202" height="148" rx="4" />
-        <path className="diagram-visual-line diagram-step-3" pathLength="1" d="M118 122h98" />
-        <path className="diagram-visual-line diagram-step-4" pathLength="1" d="M118 146h152" />
-        <path className="diagram-visual-line diagram-step-5" pathLength="1" d="M118 170h78" />
-        <path className="build-diagram-accent diagram-path diagram-step-6" pathLength="1" d="M56 246c70-54 139-12 246-90" />
-        <circle className="build-diagram-signal diagram-step-7" cx="302" cy="156" r="4" />
+      {system.key === 'visual' && <g className="blueprint-state blueprint-visual">
+        <path className="blueprint-shadow-plane blueprint-step-1" d="M143 281 258 231l151 38-120 59Z" />
+        <path className="blueprint-panel blueprint-step-2" d="M170 126 394 139l-13 118-224-13Z" />
+        <path className="blueprint-panel blueprint-step-3" d="M110 174 344 190l-14 126-234-17Z" />
+        <path className="blueprint-panel blueprint-step-4" d="M218 96 440 111l-13 100-222-15Z" />
+        <path className="blueprint-detail blueprint-step-5" pathLength="1" d="M139 203h72M139 226h124M139 249h92M246 143h112M246 166h80M246 189h118M250 221h50m17 0h62" />
+        <path className="blueprint-curve blueprint-step-6" pathLength="1" d="M112 342C198 268 280 335 407 207" />
+        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="407" cy="207" r="7" />
+        <text className="blueprint-type blueprint-step-5" x="134" y="229">Aa</text>
       </g>}
-      {system.key === 'automation' && <g className="build-diagram-automation">
-        <circle className="diagram-node diagram-step-1" cx="62" cy="150" r="20" />
-        <circle className="diagram-node diagram-step-2" cx="180" cy="150" r="29" />
-        <circle className="diagram-node diagram-step-3" cx="298" cy="150" r="20" />
-        <path className="diagram-path diagram-step-2" pathLength="1" d="M82 150h69" />
-        <path className="diagram-path diagram-step-3" pathLength="1" d="M209 150h69" />
-        <path className="diagram-path diagram-step-3" pathLength="1" d="m132 136 19 14-19 14M259 136l19 14-19 14" />
-        <path className="build-diagram-accent diagram-path diagram-step-4" pathLength="1" d="M180 121V72h88" />
-        <circle className="build-diagram-signal diagram-automation-impulse diagram-step-5" cx="82" cy="150" r="5" />
+      {system.key === 'automation' && <g className="blueprint-state blueprint-automation">
+        <path className="blueprint-lane blueprint-step-1" d="M92 122h112v58h95v-36h112M92 285h106v-54h100v62h112M150 93v242M366 93v242" />
+        <path className="blueprint-pipeline blueprint-step-2" pathLength="1" d="M97 214H202M252 214H418" />
+        <circle className="blueprint-core blueprint-step-3" cx="227" cy="214" r="37" />
+        <circle className="blueprint-core blueprint-step-4" cx="227" cy="214" r="21" />
+        <circle className="blueprint-node blueprint-step-2" cx="97" cy="214" r="16" />
+        <circle className="blueprint-node blueprint-step-5" cx="418" cy="214" r="16" />
+        <path className="blueprint-decision blueprint-step-5" d="m227 282 28 28-28 28-28-28Z" />
+        <path className="blueprint-alt blueprint-step-6" pathLength="1" d="M227 251v31m0 56v30H97V236" />
+        <path className="blueprint-signal-path blueprint-step-7" pathLength="1" d="M114 214h288" />
+        <text className="blueprint-label blueprint-step-4" x="281" y="206">VALIDATION</text>
+        <text className="blueprint-label blueprint-step-4" x="281" y="226">ORCHESTRATION</text>
       </g>}
-      {system.key === 'analytics' && <g className="build-diagram-analytics">
-        <path className="diagram-path diagram-analytics-axis diagram-step-1" pathLength="1" d="M52 238V62M52 238h260" />
-        <rect className="diagram-analytics-bar diagram-step-2" x="86" y="174" width="28" height="64" />
-        <rect className="diagram-analytics-bar diagram-step-3" x="142" y="138" width="28" height="100" />
-        <rect className="diagram-analytics-bar diagram-step-4" x="198" y="158" width="28" height="80" />
-        <rect className="diagram-analytics-bar diagram-step-5" x="254" y="90" width="28" height="148" />
-        <path className="build-diagram-accent diagram-path diagram-step-6" pathLength="1" d="m74 192 82-70 56 24 70-82" />
-        <circle className="build-diagram-signal diagram-step-7" cx="282" cy="64" r="8" />
+      {system.key === 'analytics' && <g className="blueprint-state blueprint-analytics">
+        <path className="blueprint-data-plane blueprint-step-1" d="M120 306h256l46-56H166Z" />
+        <path className="blueprint-data-plane blueprint-step-2" d="M142 258h236l36-42H178Z" />
+        <path className="blueprint-bar blueprint-step-3" d="M166 307v-58h28v58ZM216 307v-96h28v96ZM266 307v-72h28v72ZM316 307v-126h28v126Z" />
+        <path className="blueprint-comparison blueprint-step-4" pathLength="1" d="M148 274c57-28 103 14 151-18 35-23 56-58 96-72" />
+        <path className="blueprint-corridor blueprint-step-5" d="M318 168 413 91 439 122 342 196Z" />
+        <path className="blueprint-curve blueprint-step-6" pathLength="1" d="M139 302c67-94 110-72 158-111 42-35 69-74 116-100" />
+        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="413" cy="91" r="9" />
+        <text className="blueprint-label blueprint-step-6" x="356" y="78">DECISION NODE</text>
       </g>}
     </svg>
     <div className="build-diagram-legend"><span>INPUT</span><i /><span>OUTCOME</span></div>
@@ -126,7 +129,6 @@ export function WhatIBuild() {
             className={selected === index ? 'is-active' : ''}
             onClick={() => selectSystem(index)}
             onFocus={() => selectSystem(index)}
-            onMouseEnter={() => selectSystem(index)}
             aria-selected={selected === index}
             aria-controls="active-build-system"
             style={{ '--tab-accent': item.accent } as React.CSSProperties}

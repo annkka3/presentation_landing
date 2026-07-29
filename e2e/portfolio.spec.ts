@@ -280,15 +280,15 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   await page.getByRole('tab', { name: '03 СИСТЕМЫ АВТОМАТИЗАЦИИ' }).click()
   await expect(page.locator('#active-build-system')).toContainText('AI-автоматизация и агенты')
   const reducedDiagram = await page.locator('.build-diagram').evaluate((diagram) => {
-    const paths = [...diagram.querySelectorAll<SVGElement>('.diagram-path')]
-    const impulse = diagram.querySelector<SVGElement>('.diagram-automation-impulse')
+    const paths = [...diagram.querySelectorAll<SVGElement>('.blueprint-signal-path, .blueprint-pipeline, .blueprint-alt')]
+    const base = diagram.querySelector<SVGElement>('.blueprint-base')
     return {
-      pathsVisible: paths.every((path) => getComputedStyle(path).strokeDashoffset === '0px'),
-      impulseOpacity: impulse ? getComputedStyle(impulse).opacity : null,
+      pathsVisible: paths.length > 0 && paths.every((path) => getComputedStyle(path).strokeDashoffset === '0px'),
+      baseVisible: base ? getComputedStyle(base).opacity : null,
     }
   })
   expect(reducedDiagram.pathsVisible).toBe(true)
-  expect(reducedDiagram.impulseOpacity).toBe('0')
+  expect(reducedDiagram.baseVisible).toBe('1')
   const reducedContactMotion = await page.locator('#contact .contact-grid').evaluate((grid) => {
     const canvas = grid.querySelector<HTMLCanvasElement>('.contact-tide-canvas')!
     const underlay = document.querySelector<SVGElement>('.build-diagram-underlay')!
