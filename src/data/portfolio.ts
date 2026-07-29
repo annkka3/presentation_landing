@@ -142,6 +142,6 @@ export const experience = [
 ]
 
 export const education = [
-  { school: l('Брянский государственный технический университет — BSTU', 'Bryansk State Technical University — BSTU'), detail: l('Квалификация: инженер-менеджер', 'Degree in Engineering and Management') },
   { school: l('ITMO', 'ITMO'), detail: l('Дополнительное образование — ML Engineering. Сертификатная программа: Python · SQL · анализ данных', 'Continuing education — ML Engineering. Certificate program: Python · SQL · data analysis') },
+  { school: l('Брянский государственный технический университет — BSTU', 'Bryansk State Technical University — BSTU'), detail: l('Квалификация: инженер-менеджер', 'Degree in Engineering and Management') },
 ]
