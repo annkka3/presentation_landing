@@ -41,8 +41,7 @@ function SystemDiagram({ system }: { system: BuildSystem }) {
         <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="445" cy="122" r="7" />
         <text className="blueprint-label blueprint-step-2" x="360" y="116">01 USER SCENARIOS</text>
         <text className="blueprint-label blueprint-step-3" x="360" y="174">02 INTERFACES</text>
-        <text className="blueprint-label blueprint-step-4" x="360" y="233">03 LOGIC / RULES</text>
-        <text className="blueprint-label blueprint-step-5" x="360" y="294">04 DATA LAYER</text>
+        <text className="blueprint-label blueprint-step-5" x="360" y="294">03 DATA LAYER</text>
       </g>}
       {system.key === 'visual' && <g className="blueprint-state blueprint-visual">
         <path className="blueprint-shadow-plane blueprint-step-1" d="M124 305 278 241l154 40-158 68Z" />
