@@ -240,7 +240,7 @@
   .mobile-contact-chapter .mobile-chapter-content{padding:0}
   .mobile-contact-chapter .contact-section{min-height:0;padding:var(--mobile-section-top) 0 22px;border-top:0}
   .mobile-contact-chapter .contact-grid{padding-inline:var(--mobile-page-x);display:block}
-  .mobile-contact-chapter .contact-signal-field{left:0;right:0;bottom:-10px;height:150px}
+  .mobile-contact-chapter .contact-signal-field{left:0;right:0;bottom:-10px;width:auto;height:150px;transform:none}
   .mobile-contact-chapter .contact-copy h2{margin:0 0 12px;font-size:clamp(38px,10vw,48px);font-weight:300;line-height:1;letter-spacing:-.04em}
   .mobile-contact-chapter .contact-copy>p:not(.contact-availability){font-size:14px;line-height:1.42}
   .mobile-contact-chapter .contact-availability{margin-top:12px;line-height:1.4}

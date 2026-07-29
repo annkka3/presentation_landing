@@ -58,7 +58,7 @@ function createTide(width: number, height: number, viewportWidth: number, mobile
     const centerRise = Math.exp(-Math.pow((normalizedX - .54) / .2, 2)) * .1
     const rightRise = Math.exp(-Math.pow((normalizedX - .83) / .18, 2)) * .2
     const rightFall = Math.exp(-Math.pow((normalizedX - 1) / .08, 2)) * .12
-    const topContour = Math.max(.06, .34 - centerRise - rightRise + rightFall)
+    const topContour = Math.max(.035, .22 - centerRise - rightRise + rightFall)
     const depthSample = hash(index + 29)
     const depth: Depth = depthSample < .58 ? 'background' : depthSample < .92 ? 'middle' : 'foreground'
     const vertical = (row + .12 + hash(index + 47) * .7) / rowCount

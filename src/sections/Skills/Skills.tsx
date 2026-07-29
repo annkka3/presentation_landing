@@ -125,6 +125,8 @@ export function WhatIBuild() {
             role="tab"
             className={selected === index ? 'is-active' : ''}
             onClick={() => selectSystem(index)}
+            onFocus={() => selectSystem(index)}
+            onMouseEnter={() => selectSystem(index)}
             aria-selected={selected === index}
             aria-controls="active-build-system"
             style={{ '--tab-accent': item.accent } as React.CSSProperties}
