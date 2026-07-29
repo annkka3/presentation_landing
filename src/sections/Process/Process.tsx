@@ -4,12 +4,12 @@ import { processSteps } from '../../data/portfolio'
 import { useIntersectionReveal } from '../../hooks/useIntersectionReveal'
 
 const processMeta = [
-  { label: 'INPUT', tone: 'cyan', x: 8, y: 16 },
-  { label: 'LOGIC', tone: 'cyan', x: 42, y: 16 },
-  { label: 'SPEC', tone: 'cyan', x: 72, y: 16 },
-  { label: 'BUILD', tone: 'gold', x: 8, y: 58 },
-  { label: 'VERIFY', tone: 'gold', x: 42, y: 58 },
-  { label: 'HANDOFF', tone: 'gold', x: 72, y: 58 },
+  { label: 'INPUT', tone: 'cyan' },
+  { label: 'LOGIC', tone: 'cyan' },
+  { label: 'SPEC', tone: 'cyan' },
+  { label: 'BUILD', tone: 'gold' },
+  { label: 'VERIFY', tone: 'gold' },
+  { label: 'HANDOFF', tone: 'gold' },
 ] as const
 
 function ProcessIcon({ index }: { index: number }) {
@@ -48,17 +48,17 @@ export function Process() {
             </radialGradient>
           </defs>
           <rect className="process-route-ambient" width="1200" height="540" fill="url(#process-route-glow)" />
-          <path className="process-route-grid" d="M72 120h1000M72 390h1000M205 70v400M480 70v400M755 70v400M1030 70v400" />
-          <path className="process-route-shadow" d="M120 164H478H820Q1038 164 1038 286Q1038 396 820 396H478H120" />
-          <path className="process-route-main" pathLength="1" d="M120 164H478H820Q1038 164 1038 286Q1038 396 820 396H478H120" />
-          <path className="process-route-signal" pathLength="1" d="M120 164H478H820Q1038 164 1038 286Q1038 396 820 396H478H120" />
+          <path className="process-route-grid" d="M72 94h1000M72 326h1000M205 58v408M480 58v408M755 58v408M1030 58v408" />
+          <path className="process-route-shadow" d="M86 64H463H840Q1082 64 1082 226Q1082 326 840 326H463H86" />
+          <path className="process-route-main" pathLength="1" d="M86 64H463H840Q1082 64 1082 226Q1082 326 840 326H463H86" />
+          <path className="process-route-signal" pathLength="1" d="M86 64H463H840Q1082 64 1082 226Q1082 326 840 326H463H86" />
         </svg>
         {processSteps.map((step, index) => {
           const meta = processMeta[index]
           return <article
             className={`process-node process-node--${index + 1} process-node--${meta.tone}`}
             key={step.num}
-            style={{ '--delay': `${360 + index * 120}ms`, '--node-x': `${meta.x}%`, '--node-y': `${meta.y}%` } as React.CSSProperties}
+            style={{ '--delay': `${360 + index * 120}ms` } as React.CSSProperties}
             tabIndex={0}
           >
             <span className="process-node-dot" aria-hidden="true" />
