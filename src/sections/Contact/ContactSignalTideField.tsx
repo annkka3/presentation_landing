@@ -55,10 +55,10 @@ function createTide(width: number, height: number, viewportWidth: number, mobile
     const column = Math.floor(index / rowCount)
     const distribution = (column + .08 + hash(index + 11) * .84) / columnCount
     const normalizedX = .004 + Math.pow(distribution, .92) * .992
-    const centerRise = Math.exp(-Math.pow((normalizedX - .54) / .2, 2)) * .13
-    const rightRise = Math.exp(-Math.pow((normalizedX - .83) / .18, 2)) * .28
+    const centerRise = Math.exp(-Math.pow((normalizedX - .54) / .2, 2)) * .1
+    const rightRise = Math.exp(-Math.pow((normalizedX - .83) / .18, 2)) * .2
     const rightFall = Math.exp(-Math.pow((normalizedX - 1) / .08, 2)) * .12
-    const topContour = Math.max(.06, .46 - centerRise - rightRise + rightFall)
+    const topContour = Math.max(.06, .34 - centerRise - rightRise + rightFall)
     const depthSample = hash(index + 29)
     const depth: Depth = depthSample < .58 ? 'background' : depthSample < .92 ? 'middle' : 'foreground'
     const vertical = (row + .12 + hash(index + 47) * .7) / rowCount
@@ -66,14 +66,14 @@ function createTide(width: number, height: number, viewportWidth: number, mobile
     const rowWave = Math.sin(normalizedX * Math.PI * 2.35 + row * .38) * .014
     const anchorX = normalizedX * width
     const anchorY = Math.min(.995, topContour + perspective * (.992 - topContour) + rowWave) * height
-    const topFade = Math.min(1, Math.max(0, (anchorY / height - topContour + .02) / .2))
-    const lowerWeight = .54 + Math.pow(vertical, .95) * .58
+    const topFade = Math.min(1, Math.max(0, (anchorY / height - topContour + .012) / .32))
+    const lowerWeight = .38 + Math.pow(vertical, 1.05) * .76
     const size = (depth === 'background' ? .5 + hash(index + 61) * .44
       : depth === 'middle' ? .82 + hash(index + 67) * .68
         : 1.22 + hash(index + 71) * .98) * lowerWeight
     const opacity = (depth === 'background' ? .3 + hash(index + 79) * .2
       : depth === 'middle' ? .54 + hash(index + 83) * .28
-        : .78 + hash(index + 89) * .18) * (.2 + topFade * .8)
+        : .78 + hash(index + 89) * .18) * (.08 + Math.pow(topFade, 1.35) * .92)
     return {
       id: index,
       anchorX,

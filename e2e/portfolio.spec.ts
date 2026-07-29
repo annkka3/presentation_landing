@@ -327,12 +327,13 @@ test('Contact kinetic signal tide stays below content, responds to pointer and p
   const coverage = await grid.evaluate((element) => {
     const fieldBounds = element.querySelector<HTMLElement>('.contact-signal-field')!.getBoundingClientRect()
     const gridBounds = element.getBoundingClientRect()
+    const telegramBounds = document.querySelector<HTMLElement>('#contact .contact-links a[href*="t.me"]')!.getBoundingClientRect()
     const footerBounds = document.querySelector<HTMLElement>('#contact .site-footer')!.getBoundingClientRect()
     const footerTextBounds = document.querySelector<HTMLElement>('#contact .site-footer span')!.getBoundingClientRect()
     return {
       left: fieldBounds.left <= gridBounds.left,
       right: fieldBounds.right >= gridBounds.right,
-      lowerBand: fieldBounds.top > gridBounds.top + gridBounds.height * .24,
+      upperReach: fieldBounds.top < telegramBounds.bottom,
       bottom: fieldBounds.bottom >= gridBounds.bottom - 50,
       footerCoverage: fieldBounds.bottom >= footerTextBounds.bottom && fieldBounds.top < footerBounds.top,
       height: fieldBounds.height,
@@ -341,11 +342,11 @@ test('Contact kinetic signal tide stays below content, responds to pointer and p
   })
   expect(coverage.left).toBe(true)
   expect(coverage.right).toBe(true)
-  expect(coverage.lowerBand).toBe(true)
+  expect(coverage.upperReach).toBe(true)
   expect(coverage.bottom).toBe(true)
   expect(coverage.footerCoverage).toBe(true)
-  expect(coverage.height).toBeGreaterThanOrEqual(350)
-  expect(coverage.height).toBeLessThanOrEqual(470)
+  expect(coverage.height).toBeGreaterThanOrEqual(530)
+  expect(coverage.height).toBeLessThanOrEqual(660)
   expect(coverage.pointerEvents).toBe('none')
   const bounds = await field.boundingBox()
   expect(bounds).not.toBeNull()
