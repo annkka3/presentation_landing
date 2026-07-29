@@ -45,37 +45,37 @@ function SystemDiagram({ system }: { system: BuildSystem }) {
         <text className="blueprint-label blueprint-step-5" x="360" y="294">04 DATA LAYER</text>
       </g>}
       {system.key === 'visual' && <g className="blueprint-state blueprint-visual">
-        <path className="blueprint-shadow-plane blueprint-step-1" d="M143 281 258 231l151 38-120 59Z" />
-        <path className="blueprint-panel blueprint-step-2" d="M170 126 394 139l-13 118-224-13Z" />
-        <path className="blueprint-panel blueprint-step-3" d="M110 174 344 190l-14 126-234-17Z" />
-        <path className="blueprint-panel blueprint-step-4" d="M218 96 440 111l-13 100-222-15Z" />
-        <path className="blueprint-detail blueprint-step-5" pathLength="1" d="M139 203h72M139 226h124M139 249h92M246 143h112M246 166h80M246 189h118M250 221h50m17 0h62" />
-        <path className="blueprint-curve blueprint-step-6" pathLength="1" d="M112 342C198 268 280 335 407 207" />
-        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="407" cy="207" r="7" />
-        <text className="blueprint-type blueprint-step-5" x="134" y="229">Aa</text>
+        <path className="blueprint-shadow-plane blueprint-step-1" d="M124 305 278 241l154 40-158 68Z" />
+        <path className="blueprint-panel blueprint-primary blueprint-step-2" d="M137 166 390 186l-18 142-253-22Z" />
+        <path className="blueprint-panel blueprint-secondary blueprint-step-3" d="M212 93 442 112l-13 100-230-19Z" />
+        <path className="blueprint-panel blueprint-secondary blueprint-step-4" d="M91 214 298 231l-12 98-207-18Z" />
+        <path className="blueprint-detail blueprint-step-5" pathLength="1" d="M170 211h122M170 237h154M170 263h92M244 132h128M244 158h88M244 184h136" />
+        <path className="blueprint-curve blueprint-step-6" pathLength="1" d="M100 356C177 292 269 331 420 211" />
+        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="420" cy="211" r="7" />
+        <text className="blueprint-type blueprint-step-5" x="153" y="256">Aa</text>
       </g>}
       {system.key === 'automation' && <g className="blueprint-state blueprint-automation">
-        <path className="blueprint-lane blueprint-step-1" d="M96 134h98v46h104v-32h112M96 282h102v-48h96v56h116" />
-        <path className="blueprint-pipeline blueprint-step-2" pathLength="1" d="M97 214H202M252 214H418" />
-        <circle className="blueprint-core blueprint-step-3" cx="227" cy="214" r="37" />
-        <circle className="blueprint-core blueprint-step-4" cx="227" cy="214" r="21" />
-        <circle className="blueprint-node blueprint-step-2" cx="97" cy="214" r="16" />
-        <circle className="blueprint-node blueprint-step-5" cx="418" cy="214" r="16" />
-        <path className="blueprint-decision blueprint-step-5" d="m227 282 28 28-28 28-28-28Z" />
-        <path className="blueprint-alt blueprint-step-6" pathLength="1" d="M227 251v31m0 56v30H97V236" />
-        <path className="blueprint-signal-path blueprint-step-7" pathLength="1" d="M114 214h288" />
-        <text className="blueprint-label blueprint-step-4" x="281" y="206">VALIDATION</text>
-        <text className="blueprint-label blueprint-step-4" x="281" y="226">ORCHESTRATION</text>
+        <path className="blueprint-module blueprint-step-1" d="M128 113h86v48h-86ZM306 102h96v54h-96ZM318 279h92v54h-92Z" />
+        <path className="blueprint-pipeline blueprint-step-2" pathLength="1" d="M91 214H190M264 214H430" />
+        <circle className="blueprint-core blueprint-step-3" cx="227" cy="214" r="43" />
+        <circle className="blueprint-core blueprint-step-4" cx="227" cy="214" r="22" />
+        <circle className="blueprint-node blueprint-step-2" cx="91" cy="214" r="17" />
+        <circle className="blueprint-node blueprint-step-5" cx="430" cy="214" r="17" />
+        <path className="blueprint-decision blueprint-step-5" d="m227 286 30 30-30 30-30-30Z" />
+        <path className="blueprint-alt blueprint-step-6" pathLength="1" d="M227 257v29m0 60v27H91V237" />
+        <path className="blueprint-signal-path blueprint-step-7" pathLength="1" d="M108 214h302" />
+        <text className="blueprint-label blueprint-step-4" x="286" y="202">ROUTING</text>
+        <text className="blueprint-label blueprint-step-4" x="286" y="224">VALIDATION</text>
       </g>}
       {system.key === 'analytics' && <g className="blueprint-state blueprint-analytics">
-        <path className="blueprint-data-plane blueprint-step-1" d="M112 310h270l48-58H160Z" />
-        <path className="blueprint-data-plane blueprint-step-2" d="M139 260h242l38-44H176Z" />
-        <path className="blueprint-bar blueprint-step-3" d="M166 307v-58h28v58ZM216 307v-96h28v96ZM266 307v-72h28v72ZM316 307v-126h28v126Z" />
-        <path className="blueprint-comparison blueprint-step-4" pathLength="1" d="M148 274c57-28 103 14 151-18 35-23 56-58 96-72" />
-        <path className="blueprint-corridor blueprint-step-5" d="M318 168 413 91 439 122 342 196Z" />
-        <path className="blueprint-curve blueprint-step-6" pathLength="1" d="M139 302c67-94 110-72 158-111 42-35 69-74 116-100" />
-        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="413" cy="91" r="9" />
-        <text className="blueprint-label blueprint-step-6" x="356" y="78">DECISION NODE</text>
+        <path className="blueprint-data-plane blueprint-step-1" d="M105 320h286l52-64H156Z" />
+        <path className="blueprint-data-plane blueprint-step-2" d="M130 269h257l42-49H173Z" />
+        <path className="blueprint-bar blueprint-step-3" d="M154 320v-62h30v62ZM203 320v-102h30v102ZM252 320v-82h30v82ZM301 320v-138h30v138ZM350 320v-176h30v176Z" />
+        <path className="blueprint-comparison blueprint-step-4" pathLength="1" d="M138 286c66-31 101 15 153-19 39-25 62-62 106-78" />
+        <path className="blueprint-corridor blueprint-step-5" d="M319 170 415 82 446 113 345 205Z" />
+        <path className="blueprint-curve blueprint-step-6" pathLength="1" d="M126 312c73-108 117-78 169-123 43-37 72-80 120-107" />
+        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="415" cy="82" r="9" />
+        <text className="blueprint-label blueprint-step-6" x="348" y="72">DECISION</text>
       </g>}
     </svg>
     <div className="build-diagram-legend"><span>INPUT</span><i /><span>OUTCOME</span></div>

@@ -48,10 +48,10 @@ export function Process() {
             </radialGradient>
           </defs>
           <rect className="process-route-ambient" width="1200" height="540" fill="url(#process-route-glow)" />
-          <path className="process-route-grid" d="M72 94h1000M72 326h1000M205 58v408M480 58v408M755 58v408M1030 58v408" />
-          <path className="process-route-shadow" d="M86 64H463H840Q1082 64 1082 226Q1082 326 840 326H463H86" />
-          <path className="process-route-main" pathLength="1" d="M86 64H463H840Q1082 64 1082 226Q1082 326 840 326H463H86" />
-          <path className="process-route-signal" pathLength="1" d="M86 64H463H840Q1082 64 1082 226Q1082 326 840 326H463H86" />
+          <path className="process-route-grid" d="M72 82h1040M72 334h1040M205 52v430M480 52v430M755 52v430M1064 52v430" />
+          <path className="process-route-shadow" d="M70 52H430H790Q970 52 970 193Q970 334 790 334H430H70" />
+          <path className="process-route-main" pathLength="1" d="M70 52H430H790Q970 52 970 193Q970 334 790 334H430H70" />
+          <path className="process-route-signal" pathLength="1" d="M70 52H430H790Q970 52 970 193Q970 334 790 334H430H70" />
         </svg>
         {processSteps.map((step, index) => {
           const meta = processMeta[index]
@@ -61,12 +61,16 @@ export function Process() {
             style={{ '--delay': `${360 + index * 120}ms` } as React.CSSProperties}
             tabIndex={0}
           >
-            <span className="process-node-dot" aria-hidden="true" />
-            <span className="process-node-number">{step.num}</span>
-            <span className="process-node-icon"><ProcessIcon index={index} /></span>
-            <span className="process-node-label">{meta.label}</span>
-            <h3>{step.title[locale]}</h3>
-            <p>{step.description[locale]}</p>
+            <span className="process-node-rail">
+              <span className="process-node-dot" aria-hidden="true" />
+              <span className="process-node-number">{step.num}</span>
+              <span className="process-node-icon"><ProcessIcon index={index} /></span>
+            </span>
+            <span className="process-node-copy">
+              <span className="process-node-label">{meta.label}</span>
+              <h3>{step.title[locale]}</h3>
+              <p>{step.description[locale]}</p>
+            </span>
           </article>
         })}
       </div>
