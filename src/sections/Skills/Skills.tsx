@@ -29,20 +29,20 @@ function SystemDiagram({ system }: { system: BuildSystem }) {
     </svg>
     <svg className="build-diagram-main blueprint-model" viewBox="0 0 520 430" focusable="false">
       {system.key === 'product' && <g className="blueprint-state blueprint-product">
-        <path className="blueprint-plane blueprint-step-1" d="M160 121 286 66l142 57-137 67Z" />
-        <path className="blueprint-plane blueprint-step-2" d="M138 176 273 116l152 61-147 73Z" />
-        <path className="blueprint-plane blueprint-step-3" d="M119 235 262 169l161 65-154 81Z" />
-        <path className="blueprint-plane blueprint-step-4" d="M101 296 250 224l171 70-165 88Z" />
-        <path className="blueprint-connector blueprint-step-5" pathLength="1" d="M286 66v158M428 123v171M160 121v175M291 190v126M278 250v66M269 315v67" />
-        <path className="blueprint-signal-path blueprint-step-6" pathLength="1" d="M250 348 262 271 273 205 286 126 428 123" />
+        <path className="blueprint-plane blueprint-step-1" d="M146 119 287 58l158 64-151 74Z" />
+        <path className="blueprint-plane blueprint-step-2" d="M130 179 276 111l166 67-160 78Z" />
+        <path className="blueprint-plane blueprint-step-3" d="M112 239 264 166l174 69-166 86Z" />
+        <path className="blueprint-plane blueprint-step-4" d="M96 301 253 222l181 72-175 92Z" />
+        <path className="blueprint-connector blueprint-step-5" pathLength="1" d="M287 58v164M445 122v172M146 119v182M294 196v125M282 256v65M272 321v65" />
+        <path className="blueprint-signal-path blueprint-step-6" pathLength="1" d="M253 354 264 278 276 210 287 126 445 122" />
         <circle className="blueprint-node blueprint-step-6" cx="250" cy="348" r="5" />
         <circle className="blueprint-node blueprint-step-6" cx="273" cy="205" r="4" />
         <circle className="blueprint-node blueprint-step-6" cx="286" cy="126" r="4" />
-        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="428" cy="123" r="7" />
-        <text className="blueprint-label blueprint-step-2" x="438" y="128">01 USER SCENARIOS</text>
-        <text className="blueprint-label blueprint-step-3" x="438" y="183">02 INTERFACES / STATES</text>
-        <text className="blueprint-label blueprint-step-4" x="438" y="241">03 LOGIC / RULES</text>
-        <text className="blueprint-label blueprint-step-5" x="438" y="302">04 DATA / INTEGRATIONS</text>
+        <circle className="blueprint-node blueprint-outcome blueprint-step-7" cx="445" cy="122" r="7" />
+        <text className="blueprint-label blueprint-step-2" x="360" y="116">01 USER SCENARIOS</text>
+        <text className="blueprint-label blueprint-step-3" x="360" y="174">02 INTERFACES</text>
+        <text className="blueprint-label blueprint-step-4" x="360" y="233">03 LOGIC / RULES</text>
+        <text className="blueprint-label blueprint-step-5" x="360" y="294">04 DATA LAYER</text>
       </g>}
       {system.key === 'visual' && <g className="blueprint-state blueprint-visual">
         <path className="blueprint-shadow-plane blueprint-step-1" d="M143 281 258 231l151 38-120 59Z" />
@@ -55,7 +55,7 @@ function SystemDiagram({ system }: { system: BuildSystem }) {
         <text className="blueprint-type blueprint-step-5" x="134" y="229">Aa</text>
       </g>}
       {system.key === 'automation' && <g className="blueprint-state blueprint-automation">
-        <path className="blueprint-lane blueprint-step-1" d="M92 122h112v58h95v-36h112M92 285h106v-54h100v62h112M150 93v242M366 93v242" />
+        <path className="blueprint-lane blueprint-step-1" d="M96 134h98v46h104v-32h112M96 282h102v-48h96v56h116" />
         <path className="blueprint-pipeline blueprint-step-2" pathLength="1" d="M97 214H202M252 214H418" />
         <circle className="blueprint-core blueprint-step-3" cx="227" cy="214" r="37" />
         <circle className="blueprint-core blueprint-step-4" cx="227" cy="214" r="21" />
@@ -68,8 +68,8 @@ function SystemDiagram({ system }: { system: BuildSystem }) {
         <text className="blueprint-label blueprint-step-4" x="281" y="226">ORCHESTRATION</text>
       </g>}
       {system.key === 'analytics' && <g className="blueprint-state blueprint-analytics">
-        <path className="blueprint-data-plane blueprint-step-1" d="M120 306h256l46-56H166Z" />
-        <path className="blueprint-data-plane blueprint-step-2" d="M142 258h236l36-42H178Z" />
+        <path className="blueprint-data-plane blueprint-step-1" d="M112 310h270l48-58H160Z" />
+        <path className="blueprint-data-plane blueprint-step-2" d="M139 260h242l38-44H176Z" />
         <path className="blueprint-bar blueprint-step-3" d="M166 307v-58h28v58ZM216 307v-96h28v96ZM266 307v-72h28v72ZM316 307v-126h28v126Z" />
         <path className="blueprint-comparison blueprint-step-4" pathLength="1" d="M148 274c57-28 103 14 151-18 35-23 56-58 96-72" />
         <path className="blueprint-corridor blueprint-step-5" d="M318 168 413 91 439 122 342 196Z" />
