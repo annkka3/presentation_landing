@@ -678,7 +678,7 @@ html:has(.contact-form input:focus,.contact-form textarea:focus) :is(.floating-c
 .process-node-number{display:block;margin:18px 0 0;font-size:clamp(46px,3.2vw,60px);line-height:.92;font-weight:300}
 .process-node-icon{width:48px;height:48px;margin:14px 0 0}
 .process-node-icon svg{width:18px;height:18px}
-.process-node--4{--node-accent:#70d5df}
+.process-node--4,.process-node--5{--node-accent:#70d5df}
 .process-node--3 .process-node-number{background:linear-gradient(34deg,color-mix(in srgb,#70d5df 86%,var(--text)) 0 42%,#d0a95d 78%,#f0d49a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 16px rgba(208,169,93,.16)}
 .process-node--3 .process-node-icon{border-color:color-mix(in srgb,#d0a95d 46%,#70d5df);background:radial-gradient(circle at 82% 16%,rgba(208,169,93,.28),transparent 34%),radial-gradient(circle,color-mix(in srgb,#70d5df 9%,transparent),transparent 70%)}
 .process-node--5 .process-node-number{background:linear-gradient(145deg,#70d5df 0 24%,color-mix(in srgb,#cba15a 86%,var(--text)) 62%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:-4px -4px 18px rgba(112,213,223,.18)}
