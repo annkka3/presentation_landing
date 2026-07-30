@@ -50,10 +50,10 @@ export function Process() {
             </radialGradient>
           </defs>
           <rect className="process-route-ambient" width="1200" height="540" fill="url(#process-route-glow)" />
-          <path className="process-route-grid" d="M72 78h1138M72 456h1138M205 52v430M480 52v430M755 52v430M1138 52v430" />
-          <path className="process-route-shadow" d="M70 34H430H858H1148Q1230 34 1230 245Q1230 456 1148 456H858H430H70" />
-          <path className="process-route-main" pathLength="1" d="M70 34H430H858H1148Q1230 34 1230 245Q1230 456 1148 456H858H430H70" />
-          <path className="process-route-signal" pathLength="1" d="M70 34H430H858H1148Q1230 34 1230 245Q1230 456 1148 456H858H430H70" />
+          <path className="process-route-grid" d="M72 16h1138M72 456h1138M205 52v430M480 52v430M755 52v430M1138 52v430" />
+          <path className="process-route-shadow" d="M70 10H430H858H1148Q1230 10 1230 233Q1230 456 1148 456H858H430H70" />
+          <path className="process-route-main" pathLength="1" d="M70 10H430H858H1148Q1230 10 1230 233Q1230 456 1148 456H858H430H70" />
+          <path className="process-route-signal" pathLength="1" d="M70 10H430H858H1148Q1230 10 1230 233Q1230 456 1148 456H858H430H70" />
         </svg>
         {processDisplayOrder.map((stepIndex, index) => {
           const step = processSteps[stepIndex]
