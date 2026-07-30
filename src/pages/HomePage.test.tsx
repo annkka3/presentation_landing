@@ -37,14 +37,12 @@ describe('homepage editorial chapters', () => {
     expect(document.querySelector('.scene-footer')).toHaveTextContent('ПРОКРУТИТЕ ДАЛЬШЕ')
   })
 
-  it('keeps Chapter 02 selection click-driven and semantically exposed', async () => {
+  it('keeps Chapter 02 hover/click selection semantically exposed', async () => {
     render(<MemoryRouter><AppProvider><HomePage /></AppProvider></MemoryRouter>)
     const tabs = [...document.querySelectorAll<HTMLButtonElement>('.build-system-index [role="tab"]')]
     expect(tabs).toHaveLength(4)
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
     fireEvent.mouseEnter(tabs[1])
-    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
-    fireEvent.click(tabs[1])
     expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
     await waitFor(() => expect(document.querySelector('#active-build-system')).toHaveTextContent('ВИЗУАЛЬНЫЕ СИСТЕМЫ'))
     expect(document.querySelector<HTMLVideoElement>('.build-diagram--visual .build-diagram-video')?.getAttribute('src')).toBe('/assets/home-chapter-02/visual-system.mp4')

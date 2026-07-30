@@ -106,6 +106,7 @@ export function WhatIBuild() {
             role="tab"
             className={selected === index ? 'is-active' : ''}
             onClick={() => selectSystem(index)}
+            onMouseEnter={() => selectSystem(index)}
             onFocus={() => selectSystem(index)}
             aria-selected={selected === index}
             aria-controls="active-build-system"
