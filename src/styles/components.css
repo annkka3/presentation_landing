@@ -192,6 +192,17 @@
 .home-scene:not(.hero-scene):not(.contact-scene) > .section { width: 100%; height: calc(100svh - var(--header-height)); min-height: 0; display: flex; align-items: center; padding-block: clamp(36px,5vh,64px); }
 .home-scene .section > .container { width: min(100%,var(--container-max)); }
 .home-scene .section h2 { font-size: clamp(40px,3.8vw,56px); margin-bottom: clamp(18px,2.5vh,28px); }
+.home-scene:not(.hero-scene) .section h2 { color: color-mix(in srgb, var(--text) 92%, var(--gold)); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .home-scene:not(.hero-scene) .section h2 {
+    background: linear-gradient(112deg, var(--text) 0%, color-mix(in srgb, var(--text) 90%, var(--teal)) 36%, color-mix(in srgb, var(--gold) 84%, var(--text)) 68%, color-mix(in srgb, var(--text) 88%, var(--gold)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 0 24px color-mix(in srgb, var(--gold) 7%, transparent);
+  }
+}
 
 .featured-scene .featured-grid { height: min(68svh,630px); grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-rows: repeat(2,minmax(0,1fr)); gap: clamp(12px,1.4vw,20px); }
 .featured-scene .featured-card { grid-column: span 1; min-height: 0; height: 100%; }
