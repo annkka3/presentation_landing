@@ -37,7 +37,7 @@ export function Process() {
       <div className="process-circuit">
         <svg className="process-route" viewBox="0 0 1200 540" focusable="false" aria-hidden="true">
           <defs>
-            <linearGradient id="process-route-gradient" x1="70" y1="0" x2="1180" y2="0" gradientUnits="userSpaceOnUse">
+            <linearGradient id="process-route-gradient" x1="70" y1="0" x2="1230" y2="0" gradientUnits="userSpaceOnUse">
               <stop offset="0" stopColor="#68d6e1" />
               <stop offset=".48" stopColor="#4fb9bd" />
               <stop offset=".7" stopColor="#b8965a" />
@@ -50,10 +50,10 @@ export function Process() {
             </radialGradient>
           </defs>
           <rect className="process-route-ambient" width="1200" height="540" fill="url(#process-route-glow)" />
-          <path className="process-route-grid" d="M72 78h1100M72 296h1100M205 52v430M480 52v430M755 52v430M1088 52v430" />
-          <path className="process-route-shadow" d="M70 34H430H858H1084Q1166 34 1166 165Q1166 296 1084 296H858H430H70" />
-          <path className="process-route-main" pathLength="1" d="M70 34H430H858H1084Q1166 34 1166 165Q1166 296 1084 296H858H430H70" />
-          <path className="process-route-signal" pathLength="1" d="M70 34H430H858H1084Q1166 34 1166 165Q1166 296 1084 296H858H430H70" />
+          <path className="process-route-grid" d="M72 78h1138M72 456h1138M205 52v430M480 52v430M755 52v430M1138 52v430" />
+          <path className="process-route-shadow" d="M70 34H430H858H1148Q1230 34 1230 245Q1230 456 1148 456H858H430H70" />
+          <path className="process-route-main" pathLength="1" d="M70 34H430H858H1148Q1230 34 1230 245Q1230 456 1148 456H858H430H70" />
+          <path className="process-route-signal" pathLength="1" d="M70 34H430H858H1148Q1230 34 1230 245Q1230 456 1148 456H858H430H70" />
         </svg>
         {processDisplayOrder.map((stepIndex, index) => {
           const step = processSteps[stepIndex]
