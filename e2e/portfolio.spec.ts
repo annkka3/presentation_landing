@@ -244,12 +244,13 @@ test('What I Build reorganizes two concrete outputs and Featured keeps DAO SYSTE
   await expect(visualTab).toHaveAttribute('aria-controls', 'active-build-system')
   await expect(page.locator('#active-build-system')).toContainText('Лендинги, воронки и commerce')
   await expect(page.locator('.build-diagram')).toHaveClass(/build-diagram--visual/)
-  await expect(page.locator('.build-diagram-underlay')).toBeVisible()
-  await expect(page.locator('.build-diagram-main')).toBeVisible()
+  await expect(page.locator('.build-diagram-image')).toBeVisible()
+  await expect(page.locator('.build-diagram-image')).toHaveAttribute('src', '/assets/home-chapter-02/visual-system.png')
+  await expect(page.locator('.build-diagram-underlay, .build-diagram-main')).toHaveCount(0)
   const diagramAfter = await page.locator('.build-diagram').boundingBox()
   expect(diagramAfter).toEqual(diagramBefore)
-  const diagramAnimationCounts = await page.locator('.build-diagram g > *').evaluateAll((items) => items.map((item) => getComputedStyle(item).animationIterationCount))
-  expect(diagramAnimationCounts).not.toContain('infinite')
+  const diagramAnimationCount = await page.locator('.build-diagram-image').evaluate((image) => getComputedStyle(image).animationIterationCount)
+  expect(diagramAnimationCount).not.toBe('infinite')
 
   await page.goto('/#featured')
   await expect(page.locator('.featured-archive .project-card')).toHaveCount(4)
@@ -280,25 +281,29 @@ test('homepage motion polish removes ambient particles and respects reduced moti
   await page.getByRole('tab', { name: '03 СИСТЕМЫ АВТОМАТИЗАЦИИ' }).click()
   await expect(page.locator('#active-build-system')).toContainText('AI-автоматизация и агенты')
   const reducedDiagram = await page.locator('.build-diagram').evaluate((diagram) => {
-    const paths = [...diagram.querySelectorAll<SVGElement>('.blueprint-signal-path, .blueprint-pipeline, .blueprint-alt')]
-    const base = diagram.querySelector<SVGElement>('.blueprint-base')
+    const image = diagram.querySelector<HTMLImageElement>('.build-diagram-image')
+    const style = image ? getComputedStyle(image) : null
     return {
-      pathsVisible: paths.length > 0 && paths.every((path) => getComputedStyle(path).strokeDashoffset === '0px'),
-      baseVisible: base ? getComputedStyle(base).opacity : null,
+      hasImage: Boolean(image),
+      imageSrc: image?.getAttribute('src'),
+      imageAnimation: style?.animationName,
+      imageTransform: style?.transform,
     }
   })
-  expect(reducedDiagram.pathsVisible).toBe(true)
-  expect(reducedDiagram.baseVisible).toBe('1')
+  expect(reducedDiagram).toEqual({
+    hasImage: true,
+    imageSrc: '/assets/home-chapter-02/automation-system.png',
+    imageAnimation: 'none',
+    imageTransform: 'none',
+  })
   const reducedContactMotion = await page.locator('#contact .contact-grid').evaluate((grid) => {
     const canvas = grid.querySelector<HTMLCanvasElement>('.contact-tide-canvas')!
-    const underlay = document.querySelector<SVGElement>('.build-diagram-underlay')!
     return {
       particleMotion: canvas.dataset.motion,
       pointerActive: canvas.dataset.pointerActive,
-      underlayAnimation: getComputedStyle(underlay).animationName,
     }
   })
-  expect(reducedContactMotion).toEqual({ particleMotion: 'static', pointerActive: 'false', underlayAnimation: 'none' })
+  expect(reducedContactMotion).toEqual({ particleMotion: 'static', pointerActive: 'false' })
 })
 
 test('Contact kinetic signal tide stays below content, responds to pointer and preserves accessible interaction', async ({ page }) => {
