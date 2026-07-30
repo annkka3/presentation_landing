@@ -244,12 +244,14 @@ test('What I Build reorganizes two concrete outputs and Featured keeps DAO SYSTE
   await expect(visualTab).toHaveAttribute('aria-controls', 'active-build-system')
   await expect(page.locator('#active-build-system')).toContainText('Лендинги, воронки и commerce')
   await expect(page.locator('.build-diagram')).toHaveClass(/build-diagram--visual/)
-  await expect(page.locator('.build-diagram-image')).toBeVisible()
-  await expect(page.locator('.build-diagram-image')).toHaveAttribute('src', '/assets/home-chapter-02/visual-system.png')
+  await expect(page.locator('.build-diagram-video')).toBeVisible()
+  await expect(page.locator('.build-diagram-video')).toHaveAttribute('src', '/assets/home-chapter-02/visual-system.mp4')
+  await expect(page.locator('.build-diagram-video')).toHaveJSProperty('muted', true)
+  await expect(page.locator('.build-diagram-video')).toHaveJSProperty('loop', false)
   await expect(page.locator('.build-diagram-underlay, .build-diagram-main')).toHaveCount(0)
   const diagramAfter = await page.locator('.build-diagram').boundingBox()
   expect(diagramAfter).toEqual(diagramBefore)
-  const diagramAnimationCount = await page.locator('.build-diagram-image').evaluate((image) => getComputedStyle(image).animationIterationCount)
+  const diagramAnimationCount = await page.locator('.build-diagram-video').evaluate((video) => getComputedStyle(video).animationIterationCount)
   expect(diagramAnimationCount).not.toBe('infinite')
 
   await page.goto('/#featured')
@@ -287,15 +289,17 @@ test('homepage motion polish removes ambient particles and respects reduced moti
       hasImage: Boolean(image),
       imageSrc: image?.getAttribute('src'),
       imageAnimation: style?.animationName,
-      imageTransform: style?.transform,
-    }
-  })
-  expect(reducedDiagram).toEqual({
-    hasImage: true,
-    imageSrc: '/assets/home-chapter-02/automation-system.png',
-    imageAnimation: 'none',
-    imageTransform: 'none',
-  })
+    imageTransform: style?.transform,
+    videoCount: diagram.querySelectorAll('.build-diagram-video').length,
+  }
+})
+expect(reducedDiagram).toEqual({
+  hasImage: true,
+  imageSrc: '/assets/home-chapter-02/automation-system.png',
+  imageAnimation: 'none',
+  imageTransform: 'none',
+  videoCount: 0,
+})
   const reducedContactMotion = await page.locator('#contact .contact-grid').evaluate((grid) => {
     const canvas = grid.querySelector<HTMLCanvasElement>('.contact-tide-canvas')!
     return {

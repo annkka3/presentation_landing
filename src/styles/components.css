@@ -423,8 +423,8 @@ html[data-page='home']:not([data-home-scene='chapter-hero']) .hero-actions{visib
   .build-system-content{transform:none!important;transition:opacity 120ms ease!important}
   .build-transition-in .build-system-content{animation:build-content-fade 160ms ease both}
   .build-diagram-main g>*,.build-diagram-legend i{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}
-  .build-diagram-image{animation:none!important;opacity:1!important;transform:none!important;transition:none!important}
-  .build-transition-out .build-diagram-image,.build-transition-in .build-diagram-image{animation:none!important;opacity:1!important;transform:none!important}
+  .build-diagram-media{animation:none!important;opacity:1!important;transform:none!important;transition:none!important}
+  .build-transition-out .build-diagram-media,.build-transition-in .build-diagram-media{animation:none!important;opacity:1!important;transform:none!important}
   .build-diagram .diagram-automation-impulse{opacity:0!important}
   .build-diagram-underlay{animation:none!important;transform:none!important}
   .contact-signal-field,.form-field::after{animation:none!important;transform:none!important;transition:opacity 120ms ease!important}
@@ -624,12 +624,12 @@ html:has(.contact-form input:focus,.contact-form textarea:focus) :is(.floating-c
 .build-output-list h4{font-size:clamp(18px,1.35vw,21px);line-height:1.2}
 .build-output-list p{max-width:500px;font-size:clamp(13px,.98vw,14px);line-height:1.45}
 .build-system-route-link{margin-top:clamp(22px,3vh,30px);padding-top:0}
-.living-blueprint{width:clamp(420px,34vw,500px);max-height:540px;min-height:420px;justify-self:end;align-self:center;border-left-color:transparent;background:transparent;overflow:hidden;display:grid;place-items:center;isolation:isolate}
-.living-blueprint::before{content:'';position:absolute;z-index:0;inset:10% 2% 8%;background:radial-gradient(circle at 58% 52%,color-mix(in srgb,var(--build-accent) 14%,transparent),transparent 52%);filter:blur(12px);opacity:.9;pointer-events:none}
-.living-blueprint::after{content:'';position:absolute;z-index:2;inset:-2px;background:radial-gradient(ellipse at center,transparent 36%,color-mix(in srgb,var(--bg) 82%,transparent) 64%,var(--bg) 92%);pointer-events:none}
-.build-diagram-image{position:relative;z-index:1;width:116%;max-width:none;height:auto;max-height:min(58svh,552px);object-fit:contain;display:block;filter:drop-shadow(0 0 24px color-mix(in srgb,var(--build-accent) 12%,transparent));-webkit-mask-image:radial-gradient(ellipse at center,#000 42%,rgba(0,0,0,.64) 62%,transparent 82%);mask-image:radial-gradient(ellipse at center,#000 42%,rgba(0,0,0,.64) 62%,transparent 82%);animation:build-image-depth 560ms cubic-bezier(.22,.61,.36,1) both}
-.build-transition-out .build-diagram-image{opacity:0;transform:translate3d(0,8px,-1px) scale(.985)}
-.build-transition-in .build-diagram-image{animation:build-image-depth 560ms cubic-bezier(.22,.61,.36,1) both}
+.living-blueprint{width:clamp(420px,34vw,500px);max-height:540px;min-height:420px;justify-self:end;align-self:center;border-left-color:transparent;background:transparent;overflow:visible;display:grid;place-items:center;isolation:isolate}
+.living-blueprint::before{content:'';position:absolute;z-index:0;inset:18% 12% 14%;background:radial-gradient(circle at 58% 52%,color-mix(in srgb,var(--build-accent) 7%,transparent),transparent 62%);opacity:.7;pointer-events:none}
+.living-blueprint::after{display:none}
+.build-diagram-media{position:relative;z-index:1;width:100%;max-width:none;height:auto;max-height:min(58svh,552px);object-fit:contain;display:block;filter:none;animation:build-image-depth 560ms cubic-bezier(.22,.61,.36,1) both}
+.build-transition-out .build-diagram-media{opacity:0;transform:translate3d(0,8px,-1px) scale(.985)}
+.build-transition-in .build-diagram-media{animation:build-image-depth 560ms cubic-bezier(.22,.61,.36,1) both}
 @keyframes build-image-depth{from{opacity:0;transform:translate3d(0,12px,-1px) scale(.982)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
 .living-blueprint .blueprint-base{stroke:color-mix(in srgb,var(--build-accent) 14%,transparent);stroke-width:.56}
 .blueprint-ambient{display:none}
@@ -713,7 +713,7 @@ html:has(.contact-form input:focus,.contact-form textarea:focus) :is(.floating-c
 
 @media (prefers-reduced-motion: reduce){
   .blueprint-state>*,.process-route-main,.process-route-signal{animation:none!important;opacity:1!important;stroke-dashoffset:0!important;transform:none!important}
-  .build-diagram-image{animation:none!important;opacity:1!important;transform:none!important}
+  .build-diagram-media{animation:none!important;opacity:1!important;transform:none!important}
   .process-node{opacity:1!important;transform:none!important;transition:none!important}
 }
 

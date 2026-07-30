@@ -14,15 +14,49 @@ const systemSceneImages: Record<BuildSystem['key'], string> = {
   analytics: '/assets/home-chapter-02/analytics-system.png',
 }
 
+const systemSceneVideos: Record<BuildSystem['key'], string> = {
+  product: '/assets/home-chapter-02/product-system.mp4',
+  visual: '/assets/home-chapter-02/visual-system.mp4',
+  automation: '/assets/home-chapter-02/automation-system.mp4',
+  analytics: '/assets/home-chapter-02/analytics-system.mp4',
+}
+
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    if (!window.matchMedia) return
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const syncPreference = () => setPrefersReducedMotion(media.matches)
+    syncPreference()
+    media.addEventListener('change', syncPreference)
+    return () => media.removeEventListener('change', syncPreference)
+  }, [])
+
+  return prefersReducedMotion
+}
+
 function SystemDiagram({ system }: { system: BuildSystem }) {
+  const prefersReducedMotion = usePrefersReducedMotion()
   return <div className={`build-diagram living-blueprint build-diagram--${system.key}`} aria-hidden="true">
-    <img
-      className="build-diagram-image"
-      src={systemSceneImages[system.key]}
-      alt=""
-      decoding="async"
-      draggable={false}
-    />
+    {prefersReducedMotion
+      ? <img
+        className="build-diagram-media build-diagram-image"
+        src={systemSceneImages[system.key]}
+        alt=""
+        decoding="async"
+        draggable={false}
+      />
+      : <video
+        key={system.key}
+        className="build-diagram-media build-diagram-video"
+        src={systemSceneVideos[system.key]}
+        poster={systemSceneImages[system.key]}
+        muted
+        autoPlay
+        playsInline
+        preload="auto"
+      />}
   </div>
 }
 

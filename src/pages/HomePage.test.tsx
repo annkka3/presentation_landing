@@ -47,12 +47,13 @@ describe('homepage editorial chapters', () => {
     fireEvent.click(tabs[1])
     expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
     await waitFor(() => expect(document.querySelector('#active-build-system')).toHaveTextContent('ВИЗУАЛЬНЫЕ СИСТЕМЫ'))
-    expect(document.querySelector<HTMLImageElement>('.build-diagram--visual .build-diagram-image')?.getAttribute('src')).toBe('/assets/home-chapter-02/visual-system.png')
+    expect(document.querySelector<HTMLVideoElement>('.build-diagram--visual .build-diagram-video')?.getAttribute('src')).toBe('/assets/home-chapter-02/visual-system.mp4')
+    expect(document.querySelector<HTMLVideoElement>('.build-diagram--visual .build-diagram-video')?.muted).toBe(true)
     expect(document.querySelectorAll('.build-diagram-underlay')).toHaveLength(0)
     fireEvent.click(tabs[2])
     expect(tabs[2]).toHaveAttribute('aria-selected', 'true')
     await waitFor(() => expect(document.querySelector('#active-build-system')).toHaveTextContent('СИСТЕМЫ АВТОМАТИЗАЦИИ'))
-    expect(document.querySelector<HTMLImageElement>('.build-diagram--automation .build-diagram-image')?.getAttribute('src')).toBe('/assets/home-chapter-02/automation-system.png')
+    expect(document.querySelector<HTMLVideoElement>('.build-diagram--automation .build-diagram-video')?.getAttribute('src')).toBe('/assets/home-chapter-02/automation-system.mp4')
   })
 
   it('renders the purpose-built mobile chapter track and compact controls', () => {
