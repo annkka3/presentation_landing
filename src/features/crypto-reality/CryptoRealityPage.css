@@ -2729,3 +2729,530 @@
     transition: none;
   }
 }
+
+/* Viewport-fit corrective pass */
+@media (min-width: 1101px) {
+  .crypto-case {
+    --case-display-hero: clamp(72px, 6.2vw, 92px);
+    --case-display-xl: clamp(42px, 3.7vw, 54px);
+    --case-body-lg: 19px;
+    --case-body: 16px;
+    --case-section-y: clamp(60px, 4.5vw, 68px);
+    --case-grid-gap: clamp(22px, 2vw, 30px);
+  }
+
+  .crypto-case .cr-section {
+    padding-block: var(--case-section-y);
+  }
+
+  .crypto-case .cr-section-heading {
+    grid-template-columns: minmax(0, 1.7fr) minmax(300px, .8fr);
+    gap: 16px clamp(48px, 6vw, 88px);
+    min-height: 0;
+    max-height: 190px;
+    margin-bottom: 38px;
+  }
+
+  .crypto-case .cr-section-heading h2 {
+    max-width: 900px;
+    font-size: var(--case-display-xl);
+    line-height: 1.01;
+    letter-spacing: -.045em;
+  }
+
+  .crypto-case .cr-section-heading > p {
+    max-width: 430px;
+    font-size: 17px;
+    line-height: 1.45;
+  }
+
+  .crypto-case .cr-hero {
+    padding-top: 32px;
+    padding-bottom: 26px;
+  }
+
+  .crypto-case .cr-hero-grid {
+    min-height: 530px;
+    gap: clamp(38px, 4vw, 60px);
+  }
+
+  .crypto-case .cr-hero-copy {
+    align-self: center;
+  }
+
+  .crypto-case .cr-hero-copy h1 {
+    margin-top: 10px;
+    font-size: var(--case-display-hero);
+    line-height: .9;
+  }
+
+  .crypto-case .cr-hero-subtitle {
+    margin: 18px 0 12px;
+    font-size: clamp(28px, 2.25vw, 32px);
+  }
+
+  .crypto-case .cr-hero-copy > p:not(.cr-hero-subtitle, .cr-role-line) {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .crypto-case .cr-role-line {
+    margin-top: 14px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .crypto-case .cr-hero-media {
+    min-height: 480px;
+  }
+
+  .crypto-case .cr-hero-media > .cr-screen:nth-child(1) {
+    width: 190px;
+  }
+
+  .crypto-case .cr-hero-media > .cr-screen:nth-child(2),
+  .crypto-case .cr-hero-media > .cr-screen:nth-child(3) {
+    width: 160px;
+  }
+
+  .crypto-case .cr-hero-media > .cr-screen:nth-child(2) {
+    top: 62px;
+  }
+
+  .crypto-case .cr-hero-media > .cr-screen:nth-child(3) {
+    top: 78px;
+  }
+
+  .crypto-case .cr-hero-ghost {
+    width: 180px;
+  }
+
+  .crypto-case .cr-hero-facts {
+    min-height: 100px;
+    margin-top: 12px;
+  }
+
+  .crypto-case .cr-hero-facts article {
+    padding: 16px 22px;
+  }
+
+  .crypto-case .cr-hero-facts h3 {
+    margin-bottom: 8px;
+    font-size: 9px;
+  }
+
+  .crypto-case .cr-hero-facts p {
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .crypto-case .cr-hero-note {
+    margin-top: 10px;
+    font-size: 12px;
+  }
+
+  .crypto-case .cr-problem .cr-section-heading {
+    margin-bottom: 32px;
+  }
+
+  .crypto-case .cr-two-col {
+    gap: 22px;
+  }
+
+  .crypto-case .cr-two-col article {
+    min-height: 222px;
+    padding: 28px 32px;
+  }
+
+  .crypto-case .cr-two-col h3 {
+    margin-bottom: 22px;
+    font-size: 28px;
+  }
+
+  .crypto-case .cr-two-col p {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .crypto-case .cr-product-statement {
+    margin: 32px 0 0;
+    padding: 0;
+    font-size: clamp(34px, 3vw, 42px);
+    line-height: 1.08;
+  }
+
+  .crypto-case .cr-hypothesis-flow {
+    margin-top: 24px;
+  }
+
+  .crypto-case .cr-hypothesis-flow .cr-signal-diagram {
+    min-height: 38px;
+    margin: 0;
+  }
+
+  .crypto-case .cr-core-layout {
+    display: grid;
+    grid-template-columns: minmax(380px, .84fr) minmax(0, 1.16fr);
+    gap: 28px;
+    align-items: stretch;
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+    border: 1px solid var(--border);
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram article {
+    min-height: 0;
+    height: 166px;
+    padding: 18px 20px;
+    border: 0;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram article:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram article:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram h3 {
+    margin: 14px 0 0;
+    font-size: 18px;
+    line-height: 1.15;
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram p {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .crypto-case .cr-gallery,
+  .crypto-case .cr-gallery--compact {
+    min-height: 0;
+    height: 510px;
+    gap: 24px;
+    padding: 24px 26px;
+  }
+
+  .crypto-case .cr-gallery-stage,
+  .crypto-case .cr-gallery--compact .cr-gallery-stage {
+    grid-template-columns: minmax(205px, 255px) minmax(150px, 1fr);
+    gap: 20px;
+    min-height: 0;
+    height: 460px;
+  }
+
+  .crypto-case .cr-gallery-stage .cr-screen--panel,
+  .crypto-case .cr-gallery--compact .cr-gallery-stage .cr-screen--panel {
+    width: auto;
+    max-width: 250px;
+    max-height: 460px;
+  }
+
+  .crypto-case .cr-gallery-stage .cr-screen--panel img {
+    width: auto;
+    height: 460px;
+  }
+
+  .crypto-case .cr-gallery-caption > span {
+    margin-bottom: 12px;
+  }
+
+  .crypto-case .cr-gallery-caption strong {
+    font-size: clamp(27px, 2vw, 32px);
+  }
+
+  .crypto-case .cr-gallery-caption p {
+    margin-top: 12px;
+    font-size: 15px;
+  }
+
+  .crypto-case .cr-gallery-nav {
+    gap: 7px;
+  }
+
+  .crypto-case .cr-gallery-nav button {
+    grid-template-columns: 44px 1fr;
+    gap: 12px;
+    min-height: 78px;
+    padding: 7px 11px;
+  }
+
+  .crypto-case .cr-gallery-nav img {
+    width: 38px;
+    height: 58px;
+  }
+
+  .crypto-case .cr-gallery-nav button > span {
+    gap: 4px;
+    font-size: 12px;
+  }
+
+  .crypto-case .cr-social .cr-gallery {
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, .65fr);
+  }
+
+  .crypto-case .cr-section-conclusion {
+    margin-top: 18px;
+    font-size: 10px;
+  }
+
+  .crypto-case .cr-decision-editorial {
+    grid-template-columns: minmax(0, 1.62fr) minmax(270px, .68fr);
+    gap: 26px;
+  }
+
+  .crypto-case .cr-decision-editorial .cr-gallery {
+    height: 520px;
+  }
+
+  .crypto-case .cr-decision-editorial .cr-gallery-stage {
+    height: 410px;
+  }
+
+  .crypto-case .cr-decision-editorial .cr-gallery-stage .cr-screen--panel img {
+    height: 405px;
+  }
+
+  .crypto-case .cr-decision-editorial .cr-annotation {
+    padding: 16px 18px;
+  }
+
+  .crypto-case .cr-decision-editorial .cr-annotation h3 {
+    margin: 8px 0 5px;
+    font-size: 18px;
+  }
+
+  .crypto-case .cr-decision-editorial .cr-annotation p {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .crypto-case .cr-behavior-layout {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 26px;
+  }
+
+  .crypto-case .cr-behavior-layout .cr-behavior-grid {
+    grid-template-columns: minmax(220px, 1fr) minmax(220px, .9fr);
+    gap: 18px;
+    margin: 0;
+  }
+
+  .crypto-case .cr-behavior-layout .cr-stat-list {
+    height: 510px;
+    padding: 22px;
+  }
+
+  .crypto-case .cr-behavior-layout .cr-stat-list > div {
+    grid-template-columns: 86px 1fr 22px;
+    min-height: 52px;
+  }
+
+  .crypto-case .cr-behavior-layout .cr-radar {
+    min-height: 0;
+    height: 510px;
+    padding: 16px;
+  }
+
+  .crypto-case .cr-behavior-layout .cr-radar svg {
+    width: min(100%, 260px);
+  }
+
+  .crypto-case .cr-archetype-grid {
+    grid-template-columns: minmax(320px, .72fr) minmax(0, 1.08fr);
+    gap: 42px;
+  }
+
+  .crypto-case .cr-archetype-visual,
+  .crypto-case .cr-archetype-visual img {
+    height: 500px;
+  }
+
+  .crypto-case .cr-archetype-visual {
+    width: min(100%, 390px);
+  }
+
+  .crypto-case .cr-archetype-panel {
+    padding: 28px 32px;
+  }
+
+  .crypto-case .cr-archetype-panel h3 {
+    font-size: 38px;
+  }
+
+  .crypto-case .cr-archetype-panel > p {
+    font-size: 16px;
+  }
+
+  .crypto-case .cr-archetype-tabs {
+    margin-top: 22px;
+  }
+
+  .crypto-case .cr-archetype-tabs button {
+    min-height: 40px;
+  }
+
+  .crypto-case .cr-suite-tabs {
+    margin-bottom: 20px;
+  }
+
+  .crypto-case .cr-suite-tabs button {
+    min-height: 48px;
+  }
+
+  .crypto-case .cr-progression-suite .cr-gallery {
+    height: 500px;
+  }
+
+  .crypto-case .cr-economy-note {
+    min-height: 82px;
+    margin-top: 20px;
+    padding: 18px 24px;
+  }
+
+  .crypto-case .cr-economy-note strong,
+  .crypto-case .cr-economy-note p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .crypto-case .cr-architecture-map article {
+    min-height: 205px;
+    height: 205px;
+    padding: 22px 24px;
+  }
+
+  .crypto-case .cr-architecture-map h3 {
+    margin: 10px 0 12px;
+    font-size: 20px;
+  }
+
+  .crypto-case .cr-architecture-map li {
+    min-height: 27px;
+    padding-block: 5px;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .crypto-case .cr-delivery-continuation {
+    padding-block: 62px;
+  }
+
+  .crypto-case .cr-delivery-continuation .cr-role-block,
+  .crypto-case .cr-delivery-continuation .cr-decisions-block {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .crypto-case .cr-delivery-continuation .cr-section-heading--compact {
+    margin-bottom: 28px;
+  }
+
+  .crypto-case .cr-section-heading--compact h2,
+  .crypto-case .cr-decisions-block > h2 {
+    font-size: 42px;
+  }
+
+  .crypto-case .cr-role-grid article {
+    min-height: 0;
+    height: 240px;
+    padding: 22px 24px;
+  }
+
+  .crypto-case .cr-role-grid h3 {
+    min-height: 32px;
+  }
+
+  .crypto-case .cr-role-grid li {
+    padding-block: 5px;
+    font-size: 13px;
+  }
+
+  .crypto-case .cr-stack {
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-top: 16px;
+  }
+
+  .crypto-case .cr-stack span {
+    min-height: 30px;
+    padding: 7px 10px;
+  }
+
+  .crypto-case .cr-delivery-continuation .cr-decisions-block {
+    margin-top: 40px;
+  }
+
+  .crypto-case .cr-decisions-block > h2 {
+    margin-bottom: 24px;
+  }
+
+  .crypto-case .cr-solutions-grid article {
+    min-height: 0;
+    height: 180px;
+    padding: 20px 22px;
+  }
+
+  .crypto-case .cr-solutions-grid h3 {
+    margin-top: 22px;
+    font-size: 17px;
+  }
+
+  .crypto-case .cr-solutions-grid p {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .crypto-case .cr-final-section {
+    display: grid;
+    align-items: center;
+    min-height: 620px;
+    padding-block: 64px;
+  }
+
+  .crypto-case .cr-final-section .cr-contact-grid {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .crypto-case .cr-final-section .cr-contact-grid h2 {
+    font-size: clamp(52px, 4.4vw, 62px);
+  }
+
+  .crypto-case .cr-final-section .cr-contact-grid p {
+    font-size: 16px;
+  }
+
+  .crypto-case .cr-final-section .cr-next-project {
+    min-height: 0;
+    height: 220px;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .crypto-case .cr-core-layout,
+  .crypto-case .cr-behavior-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .crypto-case .cr-delivery-continuation .cr-role-block,
+  .crypto-case .cr-delivery-continuation .cr-decisions-block,
+  .crypto-case .cr-final-section .cr-contact-grid {
+    margin-top: 0;
+  }
+}

@@ -210,7 +210,6 @@ function IntroSection({ locale }: { locale: Locale }) {
   const { hero, snapshot } = cryptoReality
   return <section className="cr-hero cr-case-section" aria-labelledby="cr-title">
     <Container>
-      <Link className="back-link cr-back" to="/">{t(cryptoReality.back, locale)}</Link>
       <div className="cr-hero-grid">
         <div className="cr-hero-copy">
           <span className="eyebrow">01 · INTRO · {hero.eyebrow}</span>
@@ -240,15 +239,23 @@ function IntroSection({ locale }: { locale: Locale }) {
 
 function ProductHypothesis({ locale }: { locale: Locale }) {
   const { problem } = cryptoReality.sections
+  const compactProblem = l(
+    'Большинство криптоигр строятся вокруг угадывания цены, симуляции торговли или абстрактных наград. Поведенческие паттерны — FOMO, дисциплина, стресс, риск и влияние толпы — остаются за пределами игрового опыта.',
+    'Most crypto games revolve around price prediction, trading simulation, or abstract rewards. Behavioral patterns — FOMO, discipline, stress, risk, and crowd influence — remain outside the game experience.',
+  )
+  const compactHypothesis = l(
+    'Crypto Reality моделирует не сделку, а процесс принятия решений. Игрок реагирует на ситуации, сравнивает выбор с комнатой и постепенно формирует поведенческий профиль.',
+    'Crypto Reality models decision-making rather than a trade. The player reacts to situations, compares choices with the room, and gradually forms a behavioral profile.',
+  )
   return <section className="cr-section cr-case-section cr-problem" aria-labelledby="cr-problem-title">
     <Container>
       <SectionHeading number="02" label="PRODUCT HYPOTHESIS" title={problem.title} locale={locale} id="cr-problem-title" />
       <div className="cr-two-col">
-        <article><h3>{t(problem.problemTitle, locale)}</h3><p>{t(problem.problemText, locale)}</p></article>
-        <article><h3>{t(problem.hypothesisTitle, locale)}</h3><p>{t(problem.hypothesisText, locale)}</p></article>
+        <article><h3>{t(problem.problemTitle, locale)}</h3><p>{t(compactProblem, locale)}</p></article>
+        <article><h3>{t(problem.hypothesisTitle, locale)}</h3><p>{t(compactHypothesis, locale)}</p></article>
       </div>
       <blockquote className="cr-product-statement">{t(problem.statement, locale)}</blockquote>
-      <SignalDiagram items={problem.signal} />
+      <div className="cr-hypothesis-flow"><SignalDiagram items={problem.signal} /></div>
     </Container>
   </section>
 }
@@ -264,14 +271,16 @@ function CoreLoop({ locale }: { locale: Locale }) {
   return <section className="cr-section cr-case-section cr-core-loop" aria-labelledby="cr-loop-title">
     <Container>
       <SectionHeading number="03" label="CORE LOOP" title={loop.title} text={loop.subtitle} locale={locale} id="cr-loop-title" />
-      <div className="cr-loop-diagram">
-        {loop.steps.map((step, index) => <article key={step.label}>
-          <span>{String(index + 1).padStart(2, '0')} · {step.label}</span>
-          <h3>{t(step.title, locale)}</h3>
-          <p>{t(step.text, locale)}</p>
-        </article>)}
+      <div className="cr-core-layout">
+        <div className="cr-loop-diagram">
+          {loop.steps.map((step, index) => <article key={step.label}>
+            <span>{String(index + 1).padStart(2, '0')} · {step.label}</span>
+            <h3>{t(step.title, locale)}</h3>
+            <p>{t(step.text, locale)}</p>
+          </article>)}
+        </div>
+        <CaseMediaGallery id="core-loop-gallery" items={gallery} locale={locale} />
       </div>
-      <CaseMediaGallery id="core-loop-gallery" items={gallery} locale={locale} />
     </Container>
   </section>
 }
@@ -288,7 +297,6 @@ function SocialGame({ locale }: { locale: Locale }) {
   return <section className="cr-section cr-case-section cr-social" aria-labelledby="cr-social-title">
     <Container>
       <SectionHeading number="04" label="SOCIAL GAME" title={rooms.title} text={rooms.text} locale={locale} id="cr-social-title" />
-      <SignalDiagram items={['Host', 'Invite', 'Shared timeline', 'Live result']} />
       <CaseMediaGallery id="social-gallery" items={gallery} locale={locale} compact />
       <p className="cr-section-conclusion">{locale === 'ru' ? 'Комната связывает индивидуальное решение с поведением группы.' : 'The room connects an individual decision with group behavior.'}</p>
     </Container>
@@ -322,12 +330,13 @@ function BehavioralModel({ locale }: { locale: Locale }) {
   return <section className="cr-section cr-case-section cr-behavior" aria-labelledby="cr-behavior-title">
     <Container>
       <SectionHeading number="06" label="BEHAVIORAL MODEL" title={behavior.title} text={behavior.text} locale={locale} id="cr-behavior-title" />
-      <div className="cr-behavior-grid">
-        <div className="cr-stat-list">{behavior.stats.map((stat) => <div key={t(stat.label, locale)}><span>{t(stat.label, locale)}</span><i style={{ '--value': `${stat.value}%` } as CSSProperties} /><b>{stat.value}</b></div>)}</div>
-        <RadarProfile locale={locale} />
-        <article className="cr-example"><h3>{locale === 'ru' ? 'Мини-пример' : 'Mini example'}</h3><p>{t(behavior.example, locale)}</p></article>
+      <div className="cr-behavior-layout">
+        <div className="cr-behavior-grid">
+          <div className="cr-stat-list">{behavior.stats.map((stat) => <div key={t(stat.label, locale)}><span>{t(stat.label, locale)}</span><i style={{ '--value': `${stat.value}%` } as CSSProperties} /><b>{stat.value}</b></div>)}</div>
+          <RadarProfile locale={locale} />
+        </div>
+        <CaseMediaGallery id="behavior-gallery" items={gallery} locale={locale} compact />
       </div>
-      <CaseMediaGallery id="behavior-gallery" items={gallery} locale={locale} compact />
     </Container>
   </section>
 }
@@ -432,56 +441,66 @@ function ProgressionEconomy({ locale }: { locale: Locale }) {
 
 function SystemDelivery({ locale }: { locale: Locale }) {
   const { architecture, role, solutions, contact } = cryptoReality.sections
-  return <section className="cr-section cr-case-section cr-system-delivery" aria-labelledby="cr-system-title">
-    <Container>
-      <SectionHeading number="09" label="SYSTEM AND DELIVERY" title={architecture.title} text={architecture.text} locale={locale} id="cr-system-title" />
-      <div className="cr-architecture-map" aria-label={locale === 'ru' ? 'Архитектура продукта Crypto Reality' : 'Crypto Reality product architecture'}>
-        {architecture.layers.map((layer) => <article key={layer.title}>
-          <h3>{layer.title}</h3>
-          <ul>{layer.items.map((item) => <li key={item}>{item}</li>)}</ul>
-        </article>)}
-      </div>
-
-      <div className="cr-role-block">
-        <div className="cr-section-heading cr-section-heading--compact">
-          <span>PRODUCT · UX · VISUAL · DELIVERY</span>
-          <h2>{t(role.title, locale)}</h2>
-        </div>
-        <div className="cr-role-grid">
-          {role.blocks.map((block) => <article key={block.title}><h3>{block.title}</h3><ul>{block.items.map((item) => <li key={item.en}>{t(item, locale)}</li>)}</ul></article>)}
-        </div>
-        <div className="cr-stack" aria-label={locale === 'ru' ? 'Технологический стек' : 'Technology stack'}>{role.stack.map((item) => <span key={item}>{item}</span>)}</div>
-      </div>
-
-      <div className="cr-decisions-block">
-        <h2>{t(solutions.title, locale)}</h2>
-        <div className="cr-solutions-grid">
-          {solutions.items.map((item, index) => <article key={item.title.en}>
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <h3>{t(item.title, locale)}</h3>
-            <p>{t(item.text, locale)}</p>
+  return <>
+    <section className="cr-section cr-case-section cr-system-delivery" aria-labelledby="cr-system-title">
+      <Container>
+        <SectionHeading number="09" label="SYSTEM AND DELIVERY" title={architecture.title} text={architecture.text} locale={locale} id="cr-system-title" />
+        <div className="cr-architecture-map" aria-label={locale === 'ru' ? 'Архитектура продукта Crypto Reality' : 'Crypto Reality product architecture'}>
+          {architecture.layers.map((layer) => <article key={layer.title}>
+            <h3>{layer.title}</h3>
+            <ul>{layer.items.map((item) => <li key={item}>{item}</li>)}</ul>
           </article>)}
         </div>
-      </div>
+      </Container>
+    </section>
 
-      <div className="cr-contact-grid">
-        <div>
-          <span className="eyebrow">FINAL</span>
-          <h2>{t(contact.title, locale)}</h2>
-          <p>{t(contact.text, locale)}</p>
-          <div className="cr-cta-row">
-            <a className="hero-action hero-action--primary" href="mailto:annagromyko88@gmail.com">{t(contact.discuss, locale)}<span aria-hidden="true">→</span></a>
-            <Link className="hero-action hero-action--secondary" to="/#featured">{t(contact.other, locale)}<span aria-hidden="true">→</span></Link>
+    <section className="cr-section cr-delivery-continuation" aria-labelledby="cr-role-title">
+      <Container>
+        <div className="cr-role-block">
+          <div className="cr-section-heading cr-section-heading--compact">
+            <span>PRODUCT · UX · VISUAL · DELIVERY</span>
+            <h2 id="cr-role-title">{t(role.title, locale)}</h2>
+          </div>
+          <div className="cr-role-grid">
+            {role.blocks.map((block) => <article key={block.title}><h3>{block.title}</h3><ul>{block.items.map((item) => <li key={item.en}>{t(item, locale)}</li>)}</ul></article>)}
+          </div>
+          <div className="cr-stack" aria-label={locale === 'ru' ? 'Технологический стек' : 'Technology stack'}>{role.stack.map((item) => <span key={item}>{item}</span>)}</div>
+        </div>
+
+        <div className="cr-decisions-block">
+          <h2>{t(solutions.title, locale)}</h2>
+          <div className="cr-solutions-grid">
+            {solutions.items.map((item, index) => <article key={item.title.en}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <h3>{t(item.title, locale)}</h3>
+              <p>{t(item.text, locale)}</p>
+            </article>)}
           </div>
         </div>
-        <Link className="cr-next-project" to="/cases/the-dao-way">
-          <span>{contact.next}</span>
-          <strong>{contact.nextTitle}</strong>
-          <small>{t(contact.nextText, locale)}</small>
-        </Link>
-      </div>
-    </Container>
-  </section>
+      </Container>
+    </section>
+
+    <section className="cr-section cr-final-section" aria-labelledby="cr-final-title">
+      <Container>
+        <div className="cr-contact-grid">
+          <div>
+            <span className="eyebrow">FINAL</span>
+            <h2 id="cr-final-title">{t(contact.title, locale)}</h2>
+            <p>{t(contact.text, locale)}</p>
+            <div className="cr-cta-row">
+              <a className="hero-action hero-action--primary" href="mailto:annagromyko88@gmail.com">{t(contact.discuss, locale)}<span aria-hidden="true">→</span></a>
+              <Link className="hero-action hero-action--secondary" to="/#featured">{t(contact.other, locale)}<span aria-hidden="true">→</span></Link>
+            </div>
+          </div>
+          <Link className="cr-next-project" to="/cases/the-dao-way">
+            <span>{contact.next}</span>
+            <strong>{contact.nextTitle}</strong>
+            <small>{t(contact.nextText, locale)}</small>
+          </Link>
+        </div>
+      </Container>
+    </section>
+  </>
 }
 
 export default function CryptoRealityPage() {
