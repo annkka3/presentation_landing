@@ -163,7 +163,7 @@ function ProjectSnapshot({ locale }: { locale: Locale }) {
 
 function ProblemHypothesis({ locale }: { locale: Locale }) {
   const { problem } = cryptoReality.sections
-  return <section className="cr-section" aria-labelledby="cr-problem-title">
+  return <section className="cr-section cr-problem" aria-labelledby="cr-problem-title">
     <Container>
       <div className="cr-section-heading">
         <span>03 · PRODUCT HYPOTHESIS</span>
@@ -181,7 +181,7 @@ function ProblemHypothesis({ locale }: { locale: Locale }) {
 
 function SeasonCoreLoop({ locale }: { locale: Locale }) {
   const { loop } = cryptoReality.sections
-  return <section className="cr-section" aria-labelledby="cr-loop-title">
+  return <section className="cr-section cr-core-loop" aria-labelledby="cr-loop-title">
     <Container>
       <div className="cr-section-heading">
         <span>04 · CORE LOOP</span>
@@ -243,7 +243,7 @@ function DecisionSystem({ locale }: { locale: Locale }) {
 
 function BehaviorModel({ locale }: { locale: Locale }) {
   const { behavior } = cryptoReality.sections
-  return <section className="cr-section" aria-labelledby="cr-behavior-title">
+  return <section className="cr-section cr-behavior" aria-labelledby="cr-behavior-title">
     <Container>
       <div className="cr-section-heading">
         <span>07 · BEHAVIORAL MODEL</span>
@@ -267,7 +267,7 @@ function ArchetypeExplorer({ locale }: { locale: Locale }) {
   const { archetypes } = cryptoReality.sections
   const [active, setActive] = useState(0)
   const item = archetypes.items[active]
-  return <section className="cr-section" aria-labelledby="cr-archetypes-title">
+  return <section className="cr-section cr-archetypes" aria-labelledby="cr-archetypes-title">
     <Container>
       <div className="cr-section-heading">
         <span>08 · ARCHETYPES</span>
@@ -275,7 +275,17 @@ function ArchetypeExplorer({ locale }: { locale: Locale }) {
         <p>{t(archetypes.subtitle, locale)}</p>
       </div>
       <div className="cr-archetype-grid">
-        <CaseScreenFrame screen="archetypeRisk" locale={locale} variant="panel" />
+        <figure className="cr-archetype-visual" style={{ '--archetype-color': item.color } as React.CSSProperties}>
+          <img
+            key={item.image}
+            src={item.image}
+            alt={`${item.name} — ${locale === 'ru' ? 'архетип Crypto Reality' : 'Crypto Reality archetype'}`}
+            width="1122"
+            height="1402"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
         <div className="cr-archetype-panel" style={{ '--archetype-color': item.color } as React.CSSProperties}>
           <h3>{item.name}</h3>
           <p>{t(item.text, locale)}</p>
@@ -301,7 +311,7 @@ function ArchetypeExplorer({ locale }: { locale: Locale }) {
 
 function SeasonFinale({ locale }: { locale: Locale }) {
   const { finale } = cryptoReality.sections
-  return <section className="cr-section" aria-labelledby="cr-finale-title">
+  return <section className="cr-section cr-finale" aria-labelledby="cr-finale-title">
     <Container>
       <div className="cr-finale-grid">
         <CaseScreenFrame screen="seasonVictory" locale={locale} variant="panel" />
@@ -328,7 +338,7 @@ function SeasonFinale({ locale }: { locale: Locale }) {
 
 function ProgressionEconomy({ locale }: { locale: Locale }) {
   const { progression } = cryptoReality.sections
-  return <section className="cr-section" aria-labelledby="cr-progression-title">
+  return <section className="cr-section cr-progression" aria-labelledby="cr-progression-title">
     <Container>
       <div className="cr-section-heading">
         <span>10 · PROGRESSION AND DAO MARKET</span>
@@ -345,7 +355,7 @@ function ProgressionEconomy({ locale }: { locale: Locale }) {
 
 function RoleAndDelivery({ locale }: { locale: Locale }) {
   const { role } = cryptoReality.sections
-  return <section className="cr-section" aria-labelledby="cr-role-title">
+  return <section className="cr-section cr-role" aria-labelledby="cr-role-title">
     <Container>
       <div className="cr-section-heading">
         <span>12 · ROLE, PROCESS AND DELIVERY</span>
@@ -361,7 +371,7 @@ function RoleAndDelivery({ locale }: { locale: Locale }) {
 
 function ProductDecisions({ locale }: { locale: Locale }) {
   const { solutions } = cryptoReality.sections
-  return <section className="cr-section" aria-labelledby="cr-solutions-title">
+  return <section className="cr-section cr-solutions" aria-labelledby="cr-solutions-title">
     <Container>
       <div className="cr-section-heading">
         <span>PRODUCT DECISIONS</span>
