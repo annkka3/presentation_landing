@@ -199,12 +199,12 @@ export const cryptoReality = {
     },
     contact: {
       title: l('Продукт, в котором интерфейс — только видимая часть системы', 'A product where the interface is only the visible part of the system'),
-      text: l('Crypto Reality объединяет игровую механику, социальные сценарии, поведенческую модель, сезонную экономику и Telegram-native UX в одном работающем продукте.', 'Crypto Reality combines game mechanics, social scenarios, a behavioral model, seasonal economy, and Telegram-native UX in one working product.'),
-      discuss: l('Обсудить продукт', 'Discuss a product'),
+      text: l('Crypto Reality объединяет игровую механику, социальные сценарии, поведенческую модель, сезонную экономику и Telegram-native UX в одном работающем продукте.', 'Crypto Reality brings game mechanics, social scenarios, a behavioral model, seasonal economy, and Telegram-native UX into one working product.'),
+      discuss: l('Обсудить проект', 'Discuss the project'),
       other: l('Смотреть другие проекты', 'View other projects'),
       next: 'NEXT PROJECT',
       nextTitle: 'THE DAO WAY',
-      nextText: l('Визуальная и бренд-система продуктовой экосистемы.', 'A visual and brand system for a product ecosystem.'),
+      nextText: l('Визуальная и бренд-система продуктовой экосистемы.', 'A visual and brand system for a connected product ecosystem.'),
     },
   },
 }

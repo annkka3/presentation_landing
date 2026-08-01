@@ -60,3 +60,41 @@ test('Crypto Reality archetypes support keyboard and pointer selection', async (
     '/assets/crypto-reality/archetypes/on-chain-detective.webp',
   )
 })
+
+test('Crypto Reality final section is readable, responsive, and keyboard interactive', async ({ page }, testInfo) => {
+  if (testInfo.project.name === 'chromium') await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/cases/crypto-reality')
+
+  const finale = page.locator('.crypto-reality-final')
+  const portal = finale.getByRole('link', { name: /THE DAO WAY/ })
+  await finale.scrollIntoViewIfNeeded()
+
+  await expect(finale.getByText('FINAL', { exact: true })).toBeVisible()
+  await expect(finale.getByRole('heading', { level: 2 })).toContainText('Продукт, в котором')
+  await expect(finale.locator('.crypto-reality-final__headline em')).toHaveText('видимая часть')
+  await expect(portal).toHaveAttribute('href', '/cases/the-dao-way')
+  await expect(portal).toContainText('Открыть кейс ↗')
+
+  await portal.focus()
+  await expect(finale).toHaveClass(/is-portal-active/)
+  await expect(portal).toBeFocused()
+
+  const layout = await finale.evaluate((element) => ({
+    height: element.getBoundingClientRect().height,
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  }))
+  expect(layout.overflow).toBeLessThanOrEqual(0)
+  if (testInfo.project.name === 'chromium') expect(layout.height).toBeLessThanOrEqual(828)
+})
+
+test('Crypto Reality final section respects reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/cases/crypto-reality')
+
+  const finale = page.locator('.crypto-reality-final')
+  await finale.scrollIntoViewIfNeeded()
+  await expect(finale.locator('.crypto-reality-final__headline em')).toBeVisible()
+  await expect(finale.locator('.crypto-reality-final__scan')).toHaveCSS('display', 'none')
+  await expect(finale.locator('.crypto-reality-final__thread')).toHaveCSS('display', 'none')
+  await expect(finale.getByRole('link', { name: /THE DAO WAY/ })).toBeVisible()
+})

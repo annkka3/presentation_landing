@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext'
 import { Container } from '../../components/layout/Container'
 import { cryptoReality, cryptoScreens, type CryptoScreenKey } from '../../data/cryptoRealityCase'
 import type { Locale } from '../../types'
+import { CryptoRealityFinalSection } from './CryptoRealityFinalSection'
 import './CryptoRealityPage.css'
+import './CryptoRealityFinalSection.css'
 
 type L = { ru: string; en: string }
 type GalleryItem = {
@@ -489,7 +490,7 @@ function ProgressionEconomy({ locale }: { locale: Locale }) {
 }
 
 function SystemDelivery({ locale }: { locale: Locale }) {
-  const { architecture, role, solutions, contact } = cryptoReality.sections
+  const { architecture, role, solutions } = cryptoReality.sections
   const { ref, entered } = useFirstViewportEntry<HTMLElement>()
   return <>
     <section ref={ref} className={`cr-section cr-case-section cr-system-delivery${entered ? ' is-entered' : ''}`} aria-labelledby="cr-system-title">
@@ -531,26 +532,7 @@ function SystemDelivery({ locale }: { locale: Locale }) {
       </Container>
     </section>
 
-    <section className="cr-section cr-final-section" aria-labelledby="cr-final-title">
-      <Container>
-        <div className="cr-contact-grid">
-          <div>
-            <span className="eyebrow">FINAL</span>
-            <h2 id="cr-final-title">{t(contact.title, locale)}</h2>
-            <p>{t(contact.text, locale)}</p>
-            <div className="cr-cta-row">
-              <a className="hero-action hero-action--primary" href="mailto:annagromyko88@gmail.com">{t(contact.discuss, locale)}<span aria-hidden="true">→</span></a>
-              <Link className="hero-action hero-action--secondary" to="/#featured">{t(contact.other, locale)}<span aria-hidden="true">→</span></Link>
-            </div>
-          </div>
-          <Link className="cr-next-project" to="/cases/the-dao-way">
-            <span>{contact.next}</span>
-            <strong>{contact.nextTitle}</strong>
-            <small>{t(contact.nextText, locale)}</small>
-          </Link>
-        </div>
-      </Container>
-    </section>
+    <CryptoRealityFinalSection locale={locale} />
   </>
 }
 
