@@ -4099,3 +4099,77 @@
     min-height: 68px;
   }
 }
+
+/* Final detail pass — spacing, softened frames and content-safe cards. */
+@media (min-width: 1101px) {
+  .crypto-case .cr-hero-copy > .eyebrow {
+    display: block;
+    margin-top: 1em;
+  }
+
+  .crypto-case .cr-hero-copy > p:not(.cr-hero-subtitle, .cr-role-line) {
+    margin-top: 2em;
+  }
+
+  .crypto-case .cr-role-line {
+    margin-top: 1em;
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram {
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .crypto-case .cr-core-layout .cr-loop-diagram article,
+  .crypto-case .cr-core-layout .cr-loop-diagram article:last-child {
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .crypto-case .cr-economy-note strong,
+  .crypto-case .cr-economy-note p {
+    font-size: 12.5px;
+    line-height: 1.32;
+  }
+
+  .crypto-case .cr-architecture-map article {
+    height: 224px;
+  }
+
+  .crypto-case .cr-role-grid article {
+    height: 296px;
+  }
+}
+
+.crypto-case :is(
+  .cr-two-col article,
+  .cr-gallery,
+  .cr-gallery-stage .cr-screen--panel,
+  .cr-annotations,
+  .cr-stat-list,
+  .cr-radar,
+  .cr-archetype-visual,
+  .cr-archetype-panel,
+  .cr-suite-tabs,
+  .cr-economy-note,
+  .cr-architecture-map article,
+  .cr-role-grid article,
+  .cr-solutions-grid article,
+  .cr-next-project
+) {
+  border-radius: 16px;
+}
+
+.crypto-case :is(
+  .cr-gallery-nav button,
+  .cr-suite-tabs button,
+  .cr-archetype-tabs button,
+  .cr-stack span
+) {
+  border-radius: 10px;
+}
+
+.crypto-case .cr-final-section .cr-next-project {
+  overflow: hidden;
+  border-radius: 18px;
+}
