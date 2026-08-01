@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext'
 import { Container } from '../../components/layout/Container'
@@ -52,17 +52,26 @@ function CaseMediaGallery({
   items,
   locale,
   compact = false,
+  onActiveChange,
+  className = '',
 }: {
   id: string
   items: GalleryItem[]
   locale: Locale
   compact?: boolean
+  onActiveChange?: (index: number) => void
+  className?: string
 }) {
   const [active, setActive] = useState(0)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const item = items[active]
 
-  const change = (next: number) => setActive((next + items.length) % items.length)
+  const select = (next: number) => {
+    const normalized = (next + items.length) % items.length
+    setActive(normalized)
+    onActiveChange?.(normalized)
+  }
+  const change = (next: number) => select(next)
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'ArrowRight') {
       event.preventDefault()
@@ -74,11 +83,11 @@ function CaseMediaGallery({
     }
     if (event.key === 'Home') {
       event.preventDefault()
-      setActive(0)
+      select(0)
     }
     if (event.key === 'End') {
       event.preventDefault()
-      setActive(items.length - 1)
+      select(items.length - 1)
     }
   }
   const onTouchStart = (event: TouchEvent<HTMLDivElement>) => setTouchStart(event.changedTouches[0]?.clientX ?? null)
@@ -90,7 +99,7 @@ function CaseMediaGallery({
   }
 
   return <div
-    className={`cr-gallery${compact ? ' cr-gallery--compact' : ''}`}
+    className={`cr-gallery${compact ? ' cr-gallery--compact' : ''}${className ? ` ${className}` : ''}`}
     data-gallery={id}
     onKeyDown={onKeyDown}
   >
@@ -120,7 +129,7 @@ function CaseMediaGallery({
           aria-selected={active === index}
           aria-controls={`${id}-panel-${galleryItem.id}`}
           className={active === index ? 'is-active' : undefined}
-          onClick={() => setActive(index)}
+          onClick={() => select(index)}
         >
           <img
             src={screen.src}
@@ -138,6 +147,26 @@ function CaseMediaGallery({
       {items.map((galleryItem, index) => <i key={galleryItem.id} className={active === index ? 'is-active' : undefined} />)}
     </div>
   </div>
+}
+
+function useFirstViewportEntry<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [entered, setEntered] = useState(false)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node || entered) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) {
+        setEntered(true)
+        observer.disconnect()
+      }
+    }, { threshold: 0.24 })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [entered])
+
+  return { ref, entered }
 }
 
 function SectionHeading({
@@ -262,6 +291,8 @@ function ProductHypothesis({ locale }: { locale: Locale }) {
 
 function CoreLoop({ locale }: { locale: Locale }) {
   const { loop } = cryptoReality.sections
+  const [activeGallery, setActiveGallery] = useState(0)
+  const activeSteps = [0, 1, 3, 5]
   const gallery: GalleryItem[] = [
     { id: 'room', screen: 'createRoom', label: loop.captions[0], title: loop.steps[0].title, description: loop.steps[0].text },
     { id: 'archetype', screen: 'archetypeRisk', label: loop.captions[1], title: loop.steps[1].title, description: loop.steps[1].text },
@@ -273,13 +304,13 @@ function CoreLoop({ locale }: { locale: Locale }) {
       <SectionHeading number="03" label="CORE LOOP" title={loop.title} text={loop.subtitle} locale={locale} id="cr-loop-title" />
       <div className="cr-core-layout">
         <div className="cr-loop-diagram">
-          {loop.steps.map((step, index) => <article key={step.label}>
+          {loop.steps.map((step, index) => <article key={step.label} className={activeSteps[activeGallery] === index ? 'is-active' : undefined}>
             <span>{String(index + 1).padStart(2, '0')} · {step.label}</span>
             <h3>{t(step.title, locale)}</h3>
             <p>{t(step.text, locale)}</p>
           </article>)}
         </div>
-        <CaseMediaGallery id="core-loop-gallery" items={gallery} locale={locale} />
+        <CaseMediaGallery id="core-loop-gallery" items={gallery} locale={locale} onActiveChange={setActiveGallery} />
       </div>
     </Container>
   </section>
@@ -323,11 +354,12 @@ function DecisionSystem({ locale }: { locale: Locale }) {
 
 function BehavioralModel({ locale }: { locale: Locale }) {
   const { behavior } = cryptoReality.sections
+  const { ref, entered } = useFirstViewportEntry<HTMLElement>()
   const gallery: GalleryItem[] = [
     { id: 'overview', screen: 'gameStats', label: l('Обзор показателей', 'Overview stats'), description: l('Окна дня и результаты по этапам.', 'Day windows and stage results.') },
     { id: 'details', screen: 'statsList', label: l('Детальные показатели', 'Detailed stats'), description: l('Полный поведенческий профиль игрока.', 'The complete player behavior profile.') },
   ]
-  return <section className="cr-section cr-case-section cr-behavior" aria-labelledby="cr-behavior-title">
+  return <section ref={ref} className={`cr-section cr-case-section cr-behavior${entered ? ' is-entered' : ''}`} aria-labelledby="cr-behavior-title">
     <Container>
       <SectionHeading number="06" label="BEHAVIORAL MODEL" title={behavior.title} text={behavior.text} locale={locale} id="cr-behavior-title" />
       <div className="cr-behavior-layout">
@@ -409,44 +441,63 @@ const progressionGroups = {
   ],
 } satisfies Record<string, GalleryItem[]>
 
-function ProgressionEconomy({ locale }: { locale: Locale }) {
+function ProgressionEditorial({ locale }: { locale: Locale }) {
   const { finale, progression } = cryptoReality.sections
-  const [group, setGroup] = useState<keyof typeof progressionGroups>('final')
-  const descriptions: Record<keyof typeof progressionGroups, L> = {
-    final: finale.text,
-    progression: l('Достижения, профиль и коллекционный слой фиксируют путь игрока между сезонами.', 'Achievements, profile, and collection layers preserve the player journey between seasons.'),
-    market: progression.text,
+  const items = progressionGroups.final
+  const [active, setActive] = useState(0)
+  const item = items[active]
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'ArrowRight') setActive((active + 1) % items.length)
+    if (event.key === 'ArrowLeft') setActive((active - 1 + items.length) % items.length)
   }
-  return <section className="cr-section cr-case-section cr-progression-suite" aria-labelledby="cr-progression-title">
-    <Container>
-      <SectionHeading number="08" label="PROGRESSION AND ECONOMY" title={progression.title} text={descriptions[group]} locale={locale} id="cr-progression-title" />
-      <div className="cr-suite-tabs" role="tablist" aria-label={locale === 'ru' ? 'Финал, прогресс и экономика' : 'Finale, progression, and economy'}>
-        {(['final', 'progression', 'market'] as const).map((key) => <button
-          key={key}
+
+  return <div className="cr-progression-panel">
+    <div className="cr-progression-media" role="tabpanel" id={`progression-panel-${item.id}`} aria-labelledby={`progression-tab-${item.id}`}>
+      <CaseScreenFrame key={item.id} screen={item.screen} locale={locale} variant="panel" />
+      <div className="cr-progression-caption">
+        <span>{String(active + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}</span>
+        <strong>{t(item.label, locale)}</strong>
+      </div>
+    </div>
+    <div className="cr-progression-copy">
+      <p className="cr-progression-thesis">{t(finale.callout, locale)}</p>
+      <div className="cr-progression-tabs" role="tablist" aria-label={locale === 'ru' ? 'Экраны финала сезона' : 'Season finale screens'} onKeyDown={onKeyDown}>
+        {items.map((galleryItem, index) => <button
+          key={galleryItem.id}
+          id={`progression-tab-${galleryItem.id}`}
           type="button"
           role="tab"
-          aria-selected={group === key}
-          className={group === key ? 'is-active' : undefined}
-          onClick={() => setGroup(key)}
-        >{key === 'market' ? 'DAO MARKET' : key.toUpperCase()}</button>)}
+          aria-selected={active === index}
+          aria-controls={`progression-panel-${galleryItem.id}`}
+          className={active === index ? 'is-active' : undefined}
+          onClick={() => setActive(index)}
+        ><i>{String(index + 1).padStart(2, '0')}</i><span>{t(galleryItem.label, locale)}</span></button>)}
       </div>
-      <CaseMediaGallery key={group} id={`progression-${group}`} items={progressionGroups[group]} locale={locale} compact />
-      <div className="cr-economy-note">
-        <strong>{group === 'final' ? t(finale.callout, locale) : t(progression.disclaimer, locale)}</strong>
-        <p>{t(progression.text, locale)}</p>
-      </div>
+      <p className="cr-sparks-note">{t(progression.text, locale)}</p>
+    </div>
+  </div>
+}
+
+function ProgressionEconomy({ locale }: { locale: Locale }) {
+  const { progression } = cryptoReality.sections
+  return <section className="cr-section cr-case-section cr-progression-suite" aria-labelledby="cr-progression-title">
+    <Container>
+      <SectionHeading number="08" label="PROGRESSION AND ECONOMY" title={progression.title} locale={locale} id="cr-progression-title" />
+      <ProgressionEditorial locale={locale} />
     </Container>
   </section>
 }
 
 function SystemDelivery({ locale }: { locale: Locale }) {
   const { architecture, role, solutions, contact } = cryptoReality.sections
+  const { ref, entered } = useFirstViewportEntry<HTMLElement>()
   return <>
-    <section className="cr-section cr-case-section cr-system-delivery" aria-labelledby="cr-system-title">
+    <section ref={ref} className={`cr-section cr-case-section cr-system-delivery${entered ? ' is-entered' : ''}`} aria-labelledby="cr-system-title">
       <Container>
         <SectionHeading number="09" label="SYSTEM AND DELIVERY" title={architecture.title} text={architecture.text} locale={locale} id="cr-system-title" />
         <div className="cr-architecture-map" aria-label={locale === 'ru' ? 'Архитектура продукта Crypto Reality' : 'Crypto Reality product architecture'}>
-          {architecture.layers.map((layer) => <article key={layer.title}>
+          {architecture.layers.map((layer, index) => <article key={layer.title} style={{ '--layer-index': index } as CSSProperties}>
+            <span className="cr-layer-index">{String(index + 1).padStart(2, '0')}</span>
             <h3>{layer.title}</h3>
             <ul>{layer.items.map((item) => <li key={item}>{item}</li>)}</ul>
           </article>)}
